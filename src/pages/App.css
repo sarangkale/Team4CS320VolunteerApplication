@@ -40,3 +40,15 @@
 .read-the-docs {
   color: #888;
 }
+
+.data-list-test {
+  list-style-position: inside;
+  padding: 0;
+  text-align: left; /*I do not want to see the bullet point text 3 miles away*/
+  display: inline-block;
+}
+
+.data-list-test li {
+  margin-bottom: 8px;
+  color: #646cff;
+}
