@@ -9,7 +9,7 @@ function App() {
                     <tr>
                         <td><Link to="/dashboard">Dashboard</Link></td>
                         <td><Link to="/login">Login</Link></td>
-                        <td><Link to="/signup">Signup</Link></td>
+                        <td><Link to="/signup">Sign up</Link></td>
                     </tr>
                 </table>
             </center>

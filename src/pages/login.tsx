@@ -26,7 +26,16 @@ function LoginPage() {
 
     return (
         <>
-            <Link to="/">Home</Link>
+            <center>
+                <table cellSpacing="50em">
+                    <tbody>
+                        <tr>
+                            <td><Link to="/">Home</Link></td>
+                            <td><Link to="/signup">Sign up</Link></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </center>
             <h1>Login Page</h1>
             <form action={loginSubmit}>
                 <input type="email" name="email" placeholder="Email" /> <br />
