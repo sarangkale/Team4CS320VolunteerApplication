@@ -15,27 +15,42 @@ export type AuthFailure = {
 
 export type AuthRes = AuthSuccess | AuthFailure;
 
+export type UserProfile = {
+    bio?: string;
+    email: string;
+    first_name?: string;
+    graduation_year?: number;
+    last_name: string;
+    major?: string;
+    phone?: number;
+    school?: string;
+    total_hours_completed?: number;
+    user_id: string;
+};
+
 // SIGN UP
-export async function signUp(email: string, password: string, firstName: string, lastName: string, school: string, graduationYear: number, role: AccountRole): Promise<AuthRes> {
+export async function userSignUp(email: string, password: string, firstName: string, lastName: string, school: string, graduationYear: number): Promise<AuthRes> {
     const { data, error } = await supabase.auth.signUp({
         email,
         password,
     })
 
     if (data.user) {
-        if (role == "User") {
-            await supabase.from("profiles").insert(
-                {
-                    user_id: data.user.id,
-                    first_name: firstName,
-                    last_name: lastName,
-                    school,
-                    graduation_year: graduationYear,
-                }
-            )
-        } else {
-            console.warn("Organization signup has not been set up yet")
-        }
+        const profile: UserProfile = {
+            bio: "",
+            email,
+            first_name: firstName,
+            graduation_year: graduationYear,
+            last_name: lastName,
+            major: "",
+            phone: 0,
+            school,
+            total_hours_completed: 0,
+            user_id: data.user.id,
+        };
+        await supabase.from("profiles").insert(
+            profile
+        );
     }
 
     if (error) {
@@ -82,19 +97,6 @@ export async function logout(): Promise<AuthError | null> {
 export async function getCurrentUser(): Promise<UserResponse> {
     return await supabase.auth.getUser();
 }
-
-export type UserProfile = {
-    bio?: string;
-    email: string;
-    first_name?: string;
-    graduation_year?: number;
-    last_name: string;
-    major?: string;
-    phone?: number;
-    school?: string;
-    total_hours_completed?: number;
-    user_id: string;
-};
 
 export async function getUserProfile(): Promise<PostgrestSingleResponse<UserProfile[]>> {
     return await supabase.from("profiles").select();

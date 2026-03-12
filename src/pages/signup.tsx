@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router";
-import { signUp, type AccountRole } from "../auth/auth";
+import { userSignUp, type AccountRole } from "../auth/auth";
 import { useState } from "react";
 
 export default function SignupPage() {
@@ -15,11 +15,13 @@ export default function SignupPage() {
         const role = formData.get("role") as AccountRole;
         const graduationYear = Number.parseInt(formData.get("grad_year") as string);
         const password = formData.get("password") as string;
-        let res = await signUp(email, password, firstName, lastName, school, graduationYear, role);
-        if (res.type == "error") {
-            setSignupError((_) => res.error.message);
-        } else {
-            navigate("/dashboard");
+        if (role == "User") {
+            let res = await userSignUp(email, password, firstName, lastName, school, graduationYear);
+            if (res.type == "error") {
+                setSignupError((_) => res.error.message);
+            } else {
+                navigate("/dashboard");
+            }
         }
     }
 

@@ -1,10 +1,13 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { getCurrentUser, getUserProfile, logout, type UserProfile } from "../auth/auth";
 import { useEffect, useState } from "react";
 import { AuthError, type UserResponse } from "@supabase/supabase-js";
 
-function LoggedInDashbaord() {
+function LoggedInDashbaord({ eraseSession }: { eraseSession: () => void }) {
+    const navigate = useNavigate();
+
     const [userProfile, setUserProfile] = useState([] as UserProfile[]);
+
     useEffect(() => {
         getUserProfile().then(profile => {
             console.log(profile);
@@ -24,12 +27,18 @@ function LoggedInDashbaord() {
                         <td><Link to="/login">Login</Link></td>
                         <td><button onClick={async (_) => {
                             await logout();
-                            console.log(await getCurrentUser());
+                            eraseSession();
+                            navigate("/");
                         }}>Sign out</button></td>
                     </tr>
                 </tbody>
             </table>
-            {userProfile.map(profile => <p key={profile.user_id}>email: {profile.email} | name: {profile.first_name} {profile.last_name}</p>)}
+            <table>
+                {userProfile.map((profile, i) =>
+                    <tbody key={i}>
+                        {Object.keys(profile).map(key => <tr>{key}: {(profile as any)[key]}</tr>)}
+                    </tbody>)}
+            </table>
         </center>
     </>;
 }
@@ -41,7 +50,7 @@ function DashboardPage() {
     }, []);
 
     return (
-        <>{user.data.user != null ? <LoggedInDashbaord /> : <>
+        <>{user.data.user != null ? <LoggedInDashbaord eraseSession={() => setUser({ data: { user: null }, error: new AuthError("") })} /> : <>
             <p>No session</p>
             <Link to="/login">Login</Link>
         </>
