@@ -2,7 +2,8 @@ import { Link, useNavigate } from "react-router";
 import { getCurrentUser, getAccountProfile, logout, type Account } from "../auth/auth";
 import { useEffect, useState } from "react";
 import { AuthError, type UserResponse } from "@supabase/supabase-js";
-import ListingCreation from "../components/listingCreation.tsx"
+import ListingCreation from "../components/listingCreation.tsx";
+import ListingsDisplay from "../components/listingsDisplay.tsx";
 
 function LoggedInDashbaord({ eraseSession }: { eraseSession: () => void }) {
     const navigate = useNavigate();
@@ -40,7 +41,7 @@ function LoggedInDashbaord({ eraseSession }: { eraseSession: () => void }) {
                     </tbody>}
             </table>
         </center>
-        {currentProfile?.role === "Organization" && <ListingCreation />}
+        {currentProfile?.role === "Organization" ? <ListingCreation /> : <ListingsDisplay /> }
     </>;
 }
 

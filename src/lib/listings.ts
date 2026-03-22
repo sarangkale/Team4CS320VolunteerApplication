@@ -1,5 +1,7 @@
-import { getCurrentUser } from "../auth/auth";
+import { failure, getAccountProfile, success, type OrganizationProfile } from "../auth/auth";
 import { supabase } from "./supabase";
+import {type Result} from "../auth/auth.ts";
+import { PostgrestError } from "@supabase/supabase-js";
 
 export type ListingData = {
     capacity?: number | null;
@@ -16,26 +18,26 @@ export type ListingData = {
     volunteer_time?: string | null;
 };
 
-export async function createListing(name: string, capacity: number, description: string, date: string, duration: string) {
-    const {data: userData, error: userError}= await getCurrentUser();
-    if (userError) {
-        console.error(userError);
-        return;
+export async function createListing(name: string, capacity: number, description: string, date: string, duration: string): Promise<Result<null, PostgrestError | string>> {
+    const accountResult = await getAccountProfile();
+    if (accountResult.type == "error") {
+        return failure(accountResult.error);
     }
 
     const { data, error } = await supabase.from("account roles").select("role");
     if (data) {
         if (data[0].role !== "Organization") {
             console.error("Only organizations can create listings.");
-            return;
+            return failure("Only organizations can create listings.");
         }
     } else {
-        console.error(error);
-        return;
+        return failure(error);
     }
 
+    const profile = accountResult.data.profile as OrganizationProfile;
+
     const listing: ListingData = {
-        org_id: userData.user.id,
+        org_id: profile.org_id,
         listing_name: name,
         capacity,
         description,
@@ -43,5 +45,18 @@ export async function createListing(name: string, capacity: number, description:
         duration
     };
 
-    await supabase.from("listing").insert(listing);
+    const newListing = await supabase.from("listing").insert(listing).select("listing_id");
+
+    // TODO: Implement Supabase row-level security policy for update
+    await supabase.from("organization").update({all_listings: `${profile.all_listings},${newListing}`});
+    return success(null);
+}
+
+export async function retrieveListings(rangeStart: number, rangeEnd: number): Promise<Result<ListingData[], PostgrestError>> {
+    const { data, error } = await supabase.from("listing").select().range(rangeStart, rangeEnd);
+    if (data) {
+        return success(data);
+    } else {
+        return failure(error);
+    }
 }
