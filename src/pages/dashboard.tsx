@@ -1,18 +1,17 @@
 import { Link, useNavigate } from "react-router";
-import { getCurrentUser, getUserProfile, logout, type UserProfile } from "../auth/auth";
+import { getCurrentUser, getAccountProfile, logout, type UserProfile, type OrganizationProfile } from "../auth/auth";
 import { useEffect, useState } from "react";
 import { AuthError, type UserResponse } from "@supabase/supabase-js";
 
 function LoggedInDashbaord({ eraseSession }: { eraseSession: () => void }) {
     const navigate = useNavigate();
 
-    const [userProfile, setUserProfile] = useState([] as UserProfile[]);
+    const [currentProfile, setCurrentProfile] = useState(null as UserProfile | OrganizationProfile | null);
 
     useEffect(() => {
-        getUserProfile().then(profile => {
-            console.log(profile);
-            if (profile.data) {
-                setUserProfile(profile.data);
+        getAccountProfile().then(profile => {
+            if (profile.type == "success") {
+                setCurrentProfile(profile.data);
             }
         })
     }, [])
@@ -34,10 +33,10 @@ function LoggedInDashbaord({ eraseSession }: { eraseSession: () => void }) {
                 </tbody>
             </table>
             <table>
-                {userProfile.map((profile, i) =>
-                    <tbody key={i}>
-                        {Object.keys(profile).map(key => <tr>{key}: {(profile as any)[key]}</tr>)}
-                    </tbody>)}
+                {currentProfile ? 
+                    <tbody>
+                        {Object.keys(currentProfile).map(key => <tr key={key}><td>{key}: {(currentProfile as any)[key]}</td></tr>)}
+                    </tbody> : null}
             </table>
         </center>
     </>;

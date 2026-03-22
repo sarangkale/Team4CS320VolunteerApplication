@@ -39,6 +39,21 @@ export type Database = {
   }
   public: {
     Tables: {
+      "account roles": {
+        Row: {
+          id: string
+          role: string | null
+        }
+        Insert: {
+          id?: string
+          role?: string | null
+        }
+        Update: {
+          id?: string
+          role?: string | null
+        }
+        Relationships: []
+      }
       application: {
         Row: {
           app_id: string
@@ -80,35 +95,48 @@ export type Database = {
       }
       listing: {
         Row: {
-          date: string | null
+          capacity: number | null
+          categories: string | null
           description: string | null
+          distance: number | null
+          duration: string | null
+          listing_date: string | null
           listing_id: string
           listing_name: string | null
+          needed_skill: string | null
           org_id: string
+          transport: string | null
+          volunteer_time: string | null
         }
         Insert: {
-          date?: string | null
+          capacity?: number | null
+          categories?: string | null
           description?: string | null
+          distance?: number | null
+          duration?: string | null
+          listing_date?: string | null
           listing_id?: string
           listing_name?: string | null
+          needed_skill?: string | null
           org_id: string
+          transport?: string | null
+          volunteer_time?: string | null
         }
         Update: {
-          date?: string | null
+          capacity?: number | null
+          categories?: string | null
           description?: string | null
+          distance?: number | null
+          duration?: string | null
+          listing_date?: string | null
           listing_id?: string
           listing_name?: string | null
+          needed_skill?: string | null
           org_id?: string
+          transport?: string | null
+          volunteer_time?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "listing_org_id_fkey"
-            columns: ["org_id"]
-            isOneToOne: false
-            referencedRelation: "organization"
-            referencedColumns: ["org_id"]
-          },
-        ]
+        Relationships: []
       }
       organization: {
         Row: {
@@ -124,7 +152,7 @@ export type Database = {
           all_listings?: string | null
           bio?: string | null
           email: string
-          org_id?: string
+          org_id: string
           org_name?: string | null
           password_hash?: string | null
           website?: string | null
@@ -147,9 +175,11 @@ export type Database = {
           first_name: string | null
           graduation_year: number | null
           last_name: string
+          location: string | null
           major: string | null
           phone: number | null
           school: string | null
+          skill: string | null
           total_hours_completed: number | null
           user_id: string
         }
@@ -159,9 +189,11 @@ export type Database = {
           first_name?: string | null
           graduation_year?: number | null
           last_name: string
+          location?: string | null
           major?: string | null
           phone?: number | null
           school?: string | null
+          skill?: string | null
           total_hours_completed?: number | null
           user_id?: string
         }
@@ -171,9 +203,11 @@ export type Database = {
           first_name?: string | null
           graduation_year?: number | null
           last_name?: string
+          location?: string | null
           major?: string | null
           phone?: number | null
           school?: string | null
+          skill?: string | null
           total_hours_completed?: number | null
           user_id?: string
         }
