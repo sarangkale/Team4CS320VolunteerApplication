@@ -1,12 +1,13 @@
 import { Link, useNavigate } from "react-router";
-import { getCurrentUser, getAccountProfile, logout, type UserProfile, type OrganizationProfile } from "../auth/auth";
+import { getCurrentUser, getAccountProfile, logout, type Account } from "../auth/auth";
 import { useEffect, useState } from "react";
 import { AuthError, type UserResponse } from "@supabase/supabase-js";
+import ListingCreation from "../components/listingCreation.tsx"
 
 function LoggedInDashbaord({ eraseSession }: { eraseSession: () => void }) {
     const navigate = useNavigate();
 
-    const [currentProfile, setCurrentProfile] = useState(null as UserProfile | OrganizationProfile | null);
+    const [currentProfile, setCurrentProfile] = useState(null as Account | null);
 
     useEffect(() => {
         getAccountProfile().then(profile => {
@@ -33,12 +34,13 @@ function LoggedInDashbaord({ eraseSession }: { eraseSession: () => void }) {
                 </tbody>
             </table>
             <table>
-                {currentProfile ? 
+                {currentProfile && 
                     <tbody>
-                        {Object.keys(currentProfile).map(key => <tr key={key}><td>{key}: {(currentProfile as any)[key]}</td></tr>)}
-                    </tbody> : null}
+                        {Object.keys(currentProfile.profile).map(key => <tr key={key}><td>{key}: {(currentProfile.profile as any)[key]}</td></tr>)}
+                    </tbody>}
             </table>
         </center>
+        {currentProfile?.role === "Organization" && <ListingCreation />}
     </>;
 }
 

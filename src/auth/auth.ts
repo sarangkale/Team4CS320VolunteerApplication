@@ -3,6 +3,11 @@ import { supabase } from "../lib/supabase"
 
 export type AccountRole = "User" | "Organization";
 
+export type Account = {
+    role: AccountRole,
+    profile: UserProfile | OrganizationProfile,
+};
+
 export type AuthSuccess<S> = {
     type: "success",
     data: S,
@@ -29,13 +34,13 @@ export type UserProfile = {
 };
 
 export type OrganizationProfile = {
-    all_listings: string | null;
-    bio: string | null;
-    email: string | null;
+    all_listings?: string | null;
+    bio?: string | null;
+    email: string;
     org_id: string;
-    org_name: string | null;
-    password_hash: string | null;
-    website: string | null;
+    org_name?: string | null;
+    password_hash?: string | null;
+    website?: string | null;
 };
 
 type SignupResult = { user: User | null, session: Session | null };
@@ -113,7 +118,7 @@ Promise<AuthRes<SignupResult, AuthError>> {
     const accountResult = await createAccount(email, password, "Organization");
 
     if (accountResult.type === "success") {
-        const profile = {
+        const profile: OrganizationProfile = {
             all_listings: "",
             bio: "",
             email,
@@ -169,21 +174,29 @@ export async function getCurrentUser(): Promise<UserResponse> {
     return await supabase.auth.getUser();
 }
 
-export async function getAccountProfile(): Promise<AuthRes<(UserProfile | OrganizationProfile), PostgrestError>> {
+export async function getAccountProfile(): Promise<AuthRes<Account, PostgrestError>> {
     const { data, error } = await supabase.from("account roles").select("role");
     if (data && data[0]) {
         const role = data[0].role;
         if (role == "User") {
             const {data, error}= await supabase.from("profiles").select();
+            const account: Account = {
+                role: "User",
+                profile: data![0],
+            };
             if (data) {
-                return {type: "success", data: data[0]};
+                return {type: "success", data: account};
             } else {
                 return {type: "error", error}
             }
         } else {
             const {data, error}= await supabase.from("organization").select();
+            const account: Account = {
+                role: "Organization",
+                profile: data![0],
+            };
             if (data) {
-                return {type: "success", data: data[0]};
+                return {type: "success", data: account};
             } else {
                 return {type: "error", error}
             }
@@ -195,11 +208,3 @@ export async function getAccountProfile(): Promise<AuthRes<(UserProfile | Organi
         error: error!,
     };
 }
-
-/* export async function getUserProfile(): Promise<PostgrestSingleResponse<UserProfile>> {
-    return await supabase.from("profiles").select()
-}
-
-export async function getOrganizationProfile(): Promise<PostgrestSingleResponse<OrganizationProfile>> {
-    return await supabase.from("organization").select();
-} */
