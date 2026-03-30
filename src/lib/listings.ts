@@ -16,6 +16,7 @@ export type ListingData = {
     org_id: string;
     transport?: string | null;
     volunteer_time?: string | null;
+    applicants?: string | null;
 };
 
 export async function createListing(name: string, capacity: number, description: string, date: string, duration: string): Promise<Result<null, PostgrestError | string>> {
@@ -42,7 +43,7 @@ export async function createListing(name: string, capacity: number, description:
         capacity,
         description,
         listing_date: date,
-        duration
+        duration,
     };
 
     const newListing = await supabase.from("listing").insert(listing).select("listing_id");
@@ -59,4 +60,18 @@ export async function retrieveListings(rangeStart: number, rangeEnd: number): Pr
     } else {
         return failure(error);
     }
+}
+
+export async function updateListingApplicant(listingId: string, username: string) {
+    const { data, error } = await supabase
+        .from('listing')
+        .update({ applicants: username })
+        .eq('listing_id', listingId);
+
+    if (error) {
+        console.error("Supabase error:", error);
+        return { type: "error", error };
+    }
+
+    return { type: "success", data };
 }
