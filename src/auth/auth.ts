@@ -3,17 +3,36 @@ import { supabase } from "../lib/supabase"
 
 export type AccountRole = "User" | "Organization";
 
-export type AuthSuccess<S> = {
+export type Account = {
+    role: AccountRole,
+    profile: UserProfile | OrganizationProfile,
+};
+
+export type Success<S> = {
     type: "success",
     data: S,
 };
 
-export type AuthFailure<F> = {
+export function success<S, F>(data: S): Result<S, F> {
+    return {
+        type: "success",
+        data,
+    }
+}
+
+export type Failure<F> = {
     type: "error",
     error: F,
 };
 
-export type AuthRes<S, F> = AuthSuccess<S> | AuthFailure<F>;
+export function failure<S, F>(error: F): Result<S, F> {
+    return {
+        type: "error",
+        error,
+    }
+}
+
+export type Result<S, F> = Success<S> | Failure<F>;
 
 export type UserProfile = {
     bio: string | null;
@@ -29,13 +48,13 @@ export type UserProfile = {
 };
 
 export type OrganizationProfile = {
-    all_listings: string | null;
-    bio: string | null;
-    email: string | null;
+    all_listings?: string | null;
+    bio?: string | null;
+    email: string;
     org_id: string;
-    org_name: string | null;
-    password_hash: string | null;
-    website: string | null;
+    org_name?: string | null;
+    password_hash?: string | null;
+    website?: string | null;
 };
 
 type SignupResult = { user: User | null, session: Session | null };
@@ -44,22 +63,17 @@ async function createAccount(
     email: string,
     password: string,
     role: AccountRole
-): Promise<AuthRes<SignupResult, AuthError>> {
+): Promise<Result<SignupResult, AuthError>> {
     const { data, error } = await supabase.auth.signUp({ email, password });
 
     if (data.user) {
         await supabase.from("account roles").insert({ id: data.user.id, role })
 
-        return {
-            type: "success",
-            data,
-        };
+        return success(data);
     }
     console.error(error);
-    return {
-        type: "error",
-        error: error!,
-    };
+
+    return failure(error!);
 }
 
 // USER SIGN UP
@@ -70,7 +84,7 @@ export async function userSignUp(
     lastName: string,
     school: string,
     graduationYear: number
-): Promise<AuthRes<SignupResult, AuthError>> {
+): Promise<Result<SignupResult, AuthError>> {
     const accountResult = await createAccount(email, password, "User");
 
     if (accountResult.type == "success") {
@@ -90,17 +104,11 @@ export async function userSignUp(
             profile
         );
 
-        return {
-            type: "success",
-            data: accountResult.data,
-        };
+        return success(accountResult.data);
     }
 
     console.error(accountResult.error);
-    return {
-        type: "error",
-        error: accountResult.error,
-    };
+    return failure(accountResult.error);
 }
 
 // ORGANIZATION SIGN UP
@@ -109,11 +117,11 @@ export async function organizationSignUp(
     password: string,
     orgName: string,
     website: string):
-Promise<AuthRes<SignupResult, AuthError>> {
+Promise<Result<SignupResult, AuthError>> {
     const accountResult = await createAccount(email, password, "Organization");
 
     if (accountResult.type === "success") {
-        const profile = {
+        const profile: OrganizationProfile = {
             all_listings: "",
             bio: "",
             email,
@@ -125,21 +133,15 @@ Promise<AuthRes<SignupResult, AuthError>> {
             profile
         );
 
-        return {
-            type: "success",
-            data: accountResult.data,
-        };
+        return success(accountResult.data);
     }
 
     console.error(accountResult.error);
-    return {
-        type: "error",
-        error: accountResult.error,
-    };
+    return failure(accountResult.error);
 }
 
 // LOGIN
-export async function login(email: string, password: string): Promise<AuthRes<{ user: User }, AuthError>> {
+export async function login(email: string, password: string): Promise<Result<{ user: User }, AuthError>> {
     const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
@@ -147,10 +149,10 @@ export async function login(email: string, password: string): Promise<AuthRes<{ 
 
     if (error) {
         console.error(error)
-        return { type: "error", error };
+        return failure(error);
     }
 
-    return { type: "success", data };
+    return success(data);
 }
 
 // LOGOUT
@@ -169,37 +171,34 @@ export async function getCurrentUser(): Promise<UserResponse> {
     return await supabase.auth.getUser();
 }
 
-export async function getAccountProfile(): Promise<AuthRes<(UserProfile | OrganizationProfile), PostgrestError>> {
+export async function getAccountProfile(): Promise<Result<Account, PostgrestError>> {
     const { data, error } = await supabase.from("account roles").select("role");
     if (data && data[0]) {
         const role = data[0].role;
         if (role == "User") {
             const {data, error}= await supabase.from("profiles").select();
+            const account: Account = {
+                role: "User",
+                profile: data![0],
+            };
             if (data) {
-                return {type: "success", data: data[0]};
+                return success(account);
             } else {
-                return {type: "error", error}
+                return failure(error);
             }
         } else {
             const {data, error}= await supabase.from("organization").select();
+            const account: Account = {
+                role: "Organization",
+                profile: data![0],
+            };
             if (data) {
-                return {type: "success", data: data[0]};
+                return success(account);
             } else {
-                return {type: "error", error}
+                return failure(error);
             }
         }
     }
 
-    return {
-        type: "error",
-        error: error!,
-    };
+    return failure(error!);
 }
-
-/* export async function getUserProfile(): Promise<PostgrestSingleResponse<UserProfile>> {
-    return await supabase.from("profiles").select()
-}
-
-export async function getOrganizationProfile(): Promise<PostgrestSingleResponse<OrganizationProfile>> {
-    return await supabase.from("organization").select();
-} */
