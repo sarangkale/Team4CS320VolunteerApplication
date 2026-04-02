@@ -63,15 +63,39 @@ export async function retrieveListings(rangeStart: number, rangeEnd: number): Pr
 }
 
 export async function updateListingApplicant(listingId: string, username: string) {
-    const { data, error } = await supabase
+    const { data: currentData, error: fetchError } = await supabase
         .from('listing')
-        .update({ applicants: username })
-        .eq('listing_id', listingId);
+        .select('applicants')
+        .eq('listing_id', listingId)
+        .single();
 
-    if (error) {
-        console.error("Supabase error:", error);
-        return { type: "error", error };
+    if (fetchError) {
+        console.error("Error fetching current applicants:", fetchError);
+        return { type: "error", error: fetchError };
     }
 
-    return { type: "success", data };
+    const existingApplicants = currentData?.applicants;
+    let newApplicantsString = "";
+
+    if (!existingApplicants) {
+        newApplicantsString = username;
+    } else if (existingApplicants.includes(username)) {
+        console.log("User has already applied.");
+        return { type: "success", data: currentData, message: "Already applied" };
+    } else {
+        newApplicantsString = `${existingApplicants}, ${username}`;
+    }
+
+    const { data: updateData, error: updateError } = await supabase
+        .from('listing')
+        .update({ applicants: newApplicantsString })
+        .eq('listing_id', listingId)
+        .select();
+
+    if (updateError) {
+        console.error("Error updating applicants:", updateError);
+        return { type: "error", error: updateError };
+    }
+
+    return { type: "success", data: updateData };
 }
