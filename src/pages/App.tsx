@@ -11,6 +11,7 @@ function App() {
                             <td><Link to="/dashboard">Dashboard</Link></td>
                             <td><Link to="/login">Login</Link></td>
                             <td><Link to="/signup">Sign up</Link></td>
+                            <td><Link to="/application">Temporary Direct Application Portal</Link></td>
                         </tr>
                     </tbody>
                 </table>

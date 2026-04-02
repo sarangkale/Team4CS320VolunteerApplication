@@ -5,7 +5,7 @@ import { AuthError, type UserResponse } from "@supabase/supabase-js";
 import ListingCreation from "../components/listingCreation.tsx";
 import ListingsDisplay from "../components/listingsDisplay.tsx";
 
-function LoggedInDashbaord({ eraseSession }: { eraseSession: () => void }) {
+function LoggedInDashboard({ eraseSession }: { eraseSession: () => void }) {
     const navigate = useNavigate();
 
     const [currentProfile, setCurrentProfile] = useState(null as Account | null);
@@ -52,7 +52,7 @@ function DashboardPage() {
     }, []);
 
     return (
-        <>{user.data.user != null ? <LoggedInDashbaord eraseSession={() => setUser({ data: { user: null }, error: new AuthError("") })} /> : <>
+        <>{user.data.user != null ? <LoggedInDashboard eraseSession={() => setUser({ data: { user: null }, error: new AuthError("") })} /> : <>
             <p>No session</p>
             <Link to="/login">Login</Link>
         </>
