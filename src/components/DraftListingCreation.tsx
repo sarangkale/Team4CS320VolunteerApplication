@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { createListing } from "../lib/listings.ts";
 
 const SKILL_OPTIONS = [
@@ -12,8 +11,6 @@ const SKILL_OPTIONS = [
 ];
 
 export default function ListingCreation() {
-  const [successMessage, setSuccessMessage] = useState("");
-
   async function createListingSubmit(formData: FormData) {
     const name = formData.get("listing_name") as string;
     const capacity = Number.parseInt(formData.get("listing_capacity") as string);
@@ -35,8 +32,6 @@ export default function ListingCreation() {
       selectedSkills,
       transport
     );
-
-    setSuccessMessage("Listing created successfully.");
   }
 
   return (
@@ -110,10 +105,6 @@ export default function ListingCreation() {
       <br />
 
       <button type="submit">Create Listing</button>
-
-      {successMessage && (
-        <p style={{ color: "green" }}>{successMessage}</p>
-      )}
     </form>
   );
 }
