@@ -1,10 +1,21 @@
 import express from "express";
-import volunteerRouter from "./routes/serveVolunteers.ts";
+import volunteerRouter from "./routes/volunteerRouting.ts";
+import organizationRouter from "./routes/organizationRouting.ts";
+import authRouter from "./routes/authRouting.ts";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const server = express();
 
-server.use("/volunteer", volunteerRouter)
+server.use(express.json());
 
-const listener = server.listen(() => {
-  console.log(`Server listening on port ${(listener.address() as any)["port"]}`);
+const port = 3000;
+
+server.use("/volunteer", volunteerRouter)
+server.use("/organization", organizationRouter);
+server.use("/auth", authRouter);
+
+server.listen(port, () => {
+  console.log(`Server listening on port ${port}`);
 })
