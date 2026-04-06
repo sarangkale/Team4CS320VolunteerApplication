@@ -1,29 +1,6 @@
 import express from "express";
 import { createSupabaseClientNoAuth } from "../authRouting.ts";
-import { bodyHasEntries, createCookies } from "../../utils.ts";
-
-export type UserProfile = {
-    bio: string | null;
-    email: string | null;
-    first_name: string | null;
-    graduation_year: number | null;
-    last_name: string;
-    major: string | null;
-    phone: number | null;
-    school: string | null;
-    total_hours_completed: number | null;
-    user_id: string;
-};
-
-export type OrganizationProfile = {
-    all_listings?: string | null;
-    bio?: string | null;
-    email: string;
-    org_id: string;
-    org_name?: string | null;
-    password_hash?: string | null;
-    website?: string | null;
-};
+import { bodyHasEntries, createCookies, type UserProfile, type OrganizationProfile } from "../../utils.ts";
 
 export async function volunteerSignUp(req: express.Request, res: express.Response) {
     const validation = bodyHasEntries(["email", "password", "first_name", "last_name", "school", "graduation_year"], req.body, res);

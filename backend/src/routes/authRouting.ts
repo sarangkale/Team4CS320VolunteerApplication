@@ -3,24 +3,22 @@ import { type SupabaseClient, createClient } from "@supabase/supabase-js";
 import type { Database } from "../../../src/database.types.ts";
 import logIn from "./auth/logIn.ts";
 import { organizationSignUp, volunteerSignUp } from "./auth/signUp.ts";
+import logout from "./auth/logout.ts";
 
 const router = express.Router();
 
 router.post("/login", logIn);
 router.post("/signup_volunteer", volunteerSignUp);
 router.post("/signup_organization", organizationSignUp);
+router.post("/logout", logout);
 
-export function createSupabaseClient(token: string): SupabaseClient<Database> {
-    return createClient(
+export async function createSupabaseClient(accessToken: string, refreshToken: string): Promise<SupabaseClient<Database>> {
+    const client = createClient(
         process.env.VITE_SUPABASE_URL!,
         process.env.VITE_SUPABASE_ANON_KEY!,
-        {
-            global: {
-                headers: {
-                    Authorization: `Bearer: ${token}`
-                }
-            }
-        });
+    );
+    await client.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+    return client;
 }
 
 export function createSupabaseClientNoAuth(): SupabaseClient<Database> {
