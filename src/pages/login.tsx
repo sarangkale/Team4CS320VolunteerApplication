@@ -7,7 +7,6 @@ function LoginPage() {
     const [loginError, setLoginError] = useState(new AuthError(""));
     const [showError, setShowError] = useState(false);
     const [selectedRole, setSelectedRole] = useState<"volunteer" | "organization" | null>(null); 
-    const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
 
     let navigate = useNavigate();
     async function loginSubmit(formData: FormData) {
@@ -29,24 +28,25 @@ function LoginPage() {
     }
 
     return (
-        <div style={styles.page}>
+    <div style={styles.page}>
         <div style={styles.card}>
 
             <div style={styles.header}>
             <h1 style={styles.title}>Welcome</h1>
-            <p style={styles.subtitle}>
-                {activeTab === "login" ? "Sign in to your account" : "Create a new account"}
-            </p>
+            <p style={styles.subtitle}>Sign in to your account</p>
             </div>
 
             <div style={styles.toggleContainer}>
-            <button type="button" onClick={() => setActiveTab("login")} style={styles.toggleBtn(activeTab === "login")}>Login</button>
-            <button type="button" onClick={() => setActiveTab("signup")} style={styles.toggleBtn(activeTab === "signup")}>Sign Up</button>
+            <button type="button" style={styles.toggleBtn(true)}>Login</button>
+            <Link to="/signup" style={{ ...styles.toggleBtn(false), textDecoration: "none", textAlign: "center" }}>
+                Sign Up
+            </Link>
             </div>
 
             <div style={{ marginBottom: "1.5rem" }}>
             <p style={{ fontSize: "0.875rem", fontWeight: 600, color: "#111827", marginBottom: "0.75rem" }}>I am a:</p>
             <div style={styles.roleGrid}>
+
                 <button type="button" onClick={() => setSelectedRole("volunteer")} style={styles.roleBtn(selectedRole === "volunteer")}>
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
                     stroke={selectedRole === "volunteer" ? "#2d6a4f" : "#9ca3af"}
@@ -77,47 +77,34 @@ function LoginPage() {
                 </svg>
                 <span style={styles.roleLabel(selectedRole === "organization")}>Organization</span>
                 </button>
+
             </div>
             </div>
 
             <form onSubmit={(e) => { e.preventDefault(); loginSubmit(new FormData(e.currentTarget)); }} style={styles.form}>
-            
-            {activeTab === "signup" && selectedRole === "volunteer" && (
-                <div>
-                <label style={styles.label}>Full Name</label>
-                <input type="text" name="fullName" placeholder="Jane Smith" style={styles.input} />
-                </div>
-            )}
-
-            {activeTab === "signup" && selectedRole === "organization" && (
-                <div>
-                <label style={styles.label}>Organization Name</label>
-                <input type="text" name="orgName" placeholder="Charity Organization" style={styles.input} />
-                </div>
-            )}
-
             <div>
-                <label style={styles.label}>Email</label>
-                <input type="email" name="email" placeholder="you@example.com" style={styles.input} />
+                <label style={styles.label}>
+                    {selectedRole === "organization" ? "Organization Email" : selectedRole === "volunteer" ? "Volunteer Email" : "Email"}
+                </label>
+            <input type="email" name="email" placeholder={selectedRole === "organization" ? "organization@email.com" : "you@example.com"} style={styles.input}/>
             </div>
-
             <div>
-                <label style={styles.label}>Password</label>
+                <label style={styles.label}>
+                    Password
+                </label>
                 <input type="password" name="password" placeholder="••••••••" style={styles.input} />
             </div>
 
             {showError && loginError.message && <p style={styles.errorText}>{loginError.message}</p>}
 
-            <button
-                type="submit"
-                style={styles.submitBtn}
+            <button type="submit" style={styles.submitBtn}
                 onMouseEnter={e => (e.currentTarget.style.background = "#1b4332")}
-                onMouseLeave={e => (e.currentTarget.style.background = "#485C11")}
-            >
-                {activeTab === "login" ? "Sign In" : "Create Account"}
+                onMouseLeave={e => (e.currentTarget.style.background = "#1c832f")}>
+                Sign In
             </button>
 
             </form>
+
         </div>
         </div>
     )
