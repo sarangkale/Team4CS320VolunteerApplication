@@ -16,6 +16,7 @@ export type ListingData = {
     org_id: string;
     transport?: string | null;
     volunteer_time?: string | null;
+    applicants?: string | null;
 };
 
 export async function createListing(name: string, capacity: number, description: string, date: string, duration: string): Promise<Result<null, PostgrestError | string>> {
@@ -42,7 +43,7 @@ export async function createListing(name: string, capacity: number, description:
         capacity,
         description,
         listing_date: date,
-        duration
+        duration,
     };
 
     const newListing = await supabase.from("listing").insert(listing).select("listing_id");
@@ -59,4 +60,42 @@ export async function retrieveListings(rangeStart: number, rangeEnd: number): Pr
     } else {
         return failure(error);
     }
+}
+
+export async function updateListingApplicant(listingId: string, username: string) {
+    const { data: currentData, error: fetchError } = await supabase
+        .from('listing')
+        .select('applicants')
+        .eq('listing_id', listingId)
+        .single();
+
+    if (fetchError) {
+        console.error("Error fetching current applicants:", fetchError);
+        return { type: "error", error: fetchError };
+    }
+
+    const existingApplicants = currentData?.applicants;
+    let newApplicantsString = "";
+
+    if (!existingApplicants) {
+        newApplicantsString = username;
+    } else if (existingApplicants.includes(username)) {
+        console.log("User has already applied.");
+        return { type: "success", data: currentData, message: "Already applied" };
+    } else {
+        newApplicantsString = `${existingApplicants}, ${username}`;
+    }
+
+    const { data: updateData, error: updateError } = await supabase
+        .from('listing')
+        .update({ applicants: newApplicantsString })
+        .eq('listing_id', listingId)
+        .select();
+
+    if (updateError) {
+        console.error("Error updating applicants:", updateError);
+        return { type: "error", error: updateError };
+    }
+
+    return { type: "success", data: updateData };
 }
