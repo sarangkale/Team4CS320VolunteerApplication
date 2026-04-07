@@ -8,7 +8,6 @@ function App() {
                 <table cellSpacing="50em">
                     <tbody>
                         <tr>
-                            <td><Link to="/dashboard">Dashboard</Link></td>
                             <td><Link to="/login">Login</Link></td>
                             <td><Link to="/signup">Sign up</Link></td>
                         </tr>

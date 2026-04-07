@@ -17,7 +17,7 @@ function LoggedInDashbaord({ eraseSession }: { eraseSession: () => void }) {
     }, [])
 
     return <>
-        <h1>Dashboard</h1>
+        <h1>Dashboard (will become org dashboard)</h1>
         <center>
             <table cellSpacing="50em">
                 <tbody>

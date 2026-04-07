@@ -1,10 +1,9 @@
 import { Link, useNavigate } from "react-router";
-import { login } from "../auth/auth";
+import { getCurrentUserRole, login } from "../auth/auth";
 import { useState } from "react";
-import { AuthError } from "@supabase/supabase-js";
 
 function LoginPage() {
-    const [loginError, setLoginError] = useState(new AuthError(""));
+    const [loginError, setLoginError] = useState("");
     const [showError, setShowError] = useState(false);
     let navigate = useNavigate();
     async function loginSubmit(formData: FormData) {
@@ -13,11 +12,23 @@ function LoginPage() {
         const res = await login(email, password);
         switch (res.type) {
             case "success": {
-                navigate("/dashboard");
+                const roleResult = await getCurrentUserRole();
+
+                if (roleResult.type === "error") {
+                    setLoginError((_) => roleResult.error.message);
+                    setShowError((_) => true);
+                    break;
+                }
+
+                if (roleResult.data === "User") {
+                    navigate("/VolunteerDashboard");
+                } else {
+                    navigate("/dashboard");
+                }
                 break;
             }
             case "error": {
-                setLoginError((_) => res.error);
+                setLoginError((_) => res.error.message);
                 setShowError((_) => true);
                 break;
             }
@@ -42,7 +53,7 @@ function LoginPage() {
                 <input type="password" name="password" placeholder="Password" /> <br />
                 <button type="submit">Log in</button>
             </form>
-            {showError && <p>{loginError.message}</p>}
+            {showError && <p>{loginError}</p>}
         </>
     )
 }
