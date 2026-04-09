@@ -238,3 +238,13 @@ export async function getAccountProfile(): Promise<Result<Account, PostgrestErro
 
     return failure(error!);
 }
+
+export async function getAccountAccessToken(): Promise<Result<String, AuthError>> {
+    const {data, error} = await supabase.auth.getSession();
+
+    if (data) {
+        return success(data.session?.access_token!);
+    } else {
+        return failure(error!);
+    }
+}
