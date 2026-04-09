@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router";
-import { organizationSignUp, userSignUp, type AccountRole } from "../auth/auth";
+import { getCurrentUserRole, organizationSignUp, userSignUp, type AccountRole } from "../auth/auth";
 import { useState } from "react";
 
 function UserForm() {
@@ -73,8 +73,8 @@ export default function SignupPage() {
         if (res.type == "error") {
             setSignupError((_) => res.error.message);
         } else {
-            navigate("/VolunteerDashboard");
-        }
+            navigate("/volunteer_dashboard");
+            }
     }
 
     async function organizationSubmit(formData: FormData) {
@@ -87,7 +87,7 @@ export default function SignupPage() {
         if (res.type == "error") {
             setSignupError((_) => res.error.message);
         } else {
-            navigate("/dashboard");
+            navigate("/organization_dashboard");
         }
     }
 
