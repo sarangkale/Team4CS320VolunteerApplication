@@ -1,10 +1,9 @@
 import { Link, useNavigate } from "react-router";
-import { login } from "../auth/auth";
+import { getCurrentUserRole, login } from "../auth/auth";
 import { useState } from "react";
-import { AuthError } from "@supabase/supabase-js";
 
 function LoginPage() {
-    const [loginError, setLoginError] = useState(new AuthError(""));
+    const [loginError, setLoginError] = useState("");
     const [showError, setShowError] = useState(false);
     const [selectedRole, setSelectedRole] = useState<"volunteer" | "organization" | null>(null); 
 
@@ -16,11 +15,23 @@ function LoginPage() {
 
         switch (res.type) {
             case "success": {
-                navigate("/dashboard");
+                const roleResult = await getCurrentUserRole();
+
+                if (roleResult.type === "error") {
+                    setLoginError((_) => roleResult.error.message);
+                    setShowError((_) => true);
+                    break;
+                }
+
+                if (roleResult.data === "User") {
+                    navigate("/volunteer_dashboard");
+                } else {
+                    navigate("/organization_dashboard");
+                }
                 break;
             }
             case "error": {
-                setLoginError((_) => res.error);
+                setLoginError((_) => res.error.message);
                 setShowError((_) => true);
                 break;
             }

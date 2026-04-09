@@ -155,6 +155,42 @@ export async function login(email: string, password: string): Promise<Result<{ u
     return success(data);
 }
 
+export async function getCurrentUserRole(): Promise<AuthRes<AccountRole, AuthError | PostgrestError>> {
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+
+    if (userError || !userData.user) {
+        return {
+            type: "error",
+            error: userError ?? new AuthError("No authenticated user session."),
+        };
+    }
+
+    const { data, error } = await supabase
+        .from("account roles")
+        .select("role")
+        .eq("id", userData.user.id)
+        .single();
+
+    if (error || !data?.role) {
+        return {
+            type: "error",
+            error: error ?? new AuthError("Unable to determine account role."),
+        };
+    }
+
+    if (data.role !== "User" && data.role !== "Organization") {
+        return {
+            type: "error",
+            error: new AuthError("Invalid account role."),
+        };
+    }
+
+    return {
+        type: "success",
+        data: data.role,
+    };
+}
+
 // LOGOUT
 export async function logout(): Promise<AuthError | null> {
     const { error } = await supabase.auth.signOut();
