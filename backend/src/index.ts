@@ -12,6 +12,13 @@ const server = express();
 server.use(express.json());
 server.use(cookieParser());
 
+server.use((_req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Methods", "GET, PUT, POST");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+})
+
 const port = 3000;
 
 server.use("/volunteer", volunteerRouter)
@@ -19,5 +26,5 @@ server.use("/organization", organizationRouter);
 server.use("/auth", authRouter);
 
 server.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
+    console.log(`Server listening on port ${port}`);
 })
