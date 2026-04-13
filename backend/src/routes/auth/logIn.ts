@@ -25,5 +25,5 @@ export default async function logIn(req: express.Request, res: express.Response)
 
     createCookies(data.session, res);
 
-    return res.json({user: data.user, role: role[0]!});
+    return res.json({user: data.user, role: role[0]!.role!});
 }

@@ -1,55 +1,59 @@
 import { useState, useRef } from "react";
+import { logout } from "../auth/auth.ts";
+import { useNavigate } from "react-router";
 
 const INITIAL_SKILLS = ["React", "Design", "Python", "Writing"];
 
 export default function VolunteerDashboard() {
-  const [activeTab, setActiveTab] = useState("profile");
-  const [overlay, setOverlay] = useState(null);
-  const [skills, setSkills] = useState(INITIAL_SKILLS);
-  const [skillInput, setSkillInput] = useState("");
-  const [showSkillInput, setShowSkillInput] = useState(false);
-  const skillInputRef = useRef(null);
+    const [activeTab, setActiveTab] = useState("profile");
+    const [overlay, setOverlay] = useState(null);
+    const [skills, setSkills] = useState(INITIAL_SKILLS);
+    const [skillInput, setSkillInput] = useState("");
+    const [showSkillInput, setShowSkillInput] = useState(false);
+    const skillInputRef = useRef(null);
 
-  const [form, setForm] = useState({
-    fullName: "John Smith",
-    email: "User@email.com",
-    phone: "(999)-999-999",
-    location: "Amherst, MA",
-    bio: "",
-  });
+    const [form, setForm] = useState({
+        fullName: "John Smith",
+        email: "User@email.com",
+        phone: "(999)-999-999",
+        location: "Amherst, MA",
+        bio: "",
+    });
 
-  const overlayInfo = {
-    logout: { title: "Log Out", msg: "You would be logged out and redirected to the login page." },
-    profile: { title: "My Profile", msg: "This would navigate to your public profile page." },
-    events: { title: "View All Events", msg: "This would navigate to the events listing page." },
-  };
+    const overlayInfo = {
+        logout: { title: "Log Out", msg: "You would be logged out and redirected to the login page." },
+        profile: { title: "My Profile", msg: "This would navigate to your public profile page." },
+        events: { title: "View All Events", msg: "This would navigate to the events listing page." },
+    };
 
-  const handleFormChange = (e) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
+    const handleFormChange = (e) => {
+        setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    };
 
-  const handleSkillKeyDown = (e) => {
-    if (e.key === "Enter") {
-      const val = skillInput.trim();
-      if (val && !skills.includes(val)) setSkills((prev) => [...prev, val]);
-      setSkillInput("");
-      setShowSkillInput(false);
-    } else if (e.key === "Escape") {
-      setSkillInput("");
-      setShowSkillInput(false);
-    }
-  };
+    const handleSkillKeyDown = (e) => {
+        if (e.key === "Enter") {
+            const val = skillInput.trim();
+            if (val && !skills.includes(val)) setSkills((prev) => [...prev, val]);
+            setSkillInput("");
+            setShowSkillInput(false);
+        } else if (e.key === "Escape") {
+            setSkillInput("");
+            setShowSkillInput(false);
+        }
+    };
 
-  const removeSkill = (skill) => setSkills((prev) => prev.filter((s) => s !== skill));
+    const removeSkill = (skill) => setSkills((prev) => prev.filter((s) => s !== skill));
 
-  const openSkillInput = () => {
-    setShowSkillInput(true);
-    setTimeout(() => skillInputRef.current?.focus(), 50);
-  };
+    const openSkillInput = () => {
+        setShowSkillInput(true);
+        setTimeout(() => skillInputRef.current?.focus(), 50);
+    };
 
-  return (
-    <>
-      <style>{`
+    const navigate = useNavigate();
+
+    return (
+        <>
+            <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap');
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
@@ -258,110 +262,113 @@ export default function VolunteerDashboard() {
         .overlay-close:hover { background: #3a4c0d; }
       `}</style>
 
-      <nav className="nav">
-        <div className="nav-logo">logo</div>
-        <span className="nav-site-name">Website name</span>
-        <button className="nav-btn" onClick={() => setOverlay("profile")}>My profile</button>
-        <button className="nav-btn" onClick={() => setOverlay("events")}>View all events</button>
-        <button className="nav-btn-logout" onClick={() => setOverlay("logout")}>Log out</button>
-      </nav>
+            <nav className="nav">
+                <div className="nav-logo">logo</div>
+                <span className="nav-site-name">Website name</span>
+                <button className="nav-btn" onClick={() => setOverlay("profile")}>My profile</button>
+                <button className="nav-btn" onClick={() => setOverlay("events")}>View all events</button>
+                <button className="nav-btn-logout" onClick={() => {
+                    logout();
+                    navigate("/");
+                }}>Log out</button>
+            </nav>
 
-      <div className="main">
-        <h1 className="greeting">HELLO JOHN!</h1>
+            <div className="main">
+                <h1 className="greeting">HELLO JOHN!</h1>
 
-        <div className="tab-row">
-          <div className="tabs">
-            <button
-              className={`tab-btn${activeTab === "profile" ? " active" : ""}`}
-              onClick={() => setActiveTab("profile")}
-            >Profile</button>
-            <button
-              className={`tab-btn${activeTab === "activity" ? " active" : ""}`}
-              onClick={() => setActiveTab("activity")}
-            >Activity</button>
-          </div>
-          <button className="edit-btn">Edit</button>
-        </div>
+                <div className="tab-row">
+                    <div className="tabs">
+                        <button
+                            className={`tab-btn${activeTab === "profile" ? " active" : ""}`}
+                            onClick={() => setActiveTab("profile")}
+                        >Profile</button>
+                        <button
+                            className={`tab-btn${activeTab === "activity" ? " active" : ""}`}
+                            onClick={() => setActiveTab("activity")}
+                        >Activity</button>
+                    </div>
+                    <button className="edit-btn">Edit</button>
+                </div>
 
-        {activeTab === "profile" && (
-          <div className="card-wrapper">
-            <div className="card">
-              <div className="card-title">Account Information</div>
-              <div className="card-subtitle">Manage your Account profile</div>
+                {activeTab === "profile" && (
+                    <div className="card-wrapper">
+                        <div className="card">
+                            <div className="card-title">Account Information</div>
+                            <div className="card-subtitle">Manage your Account profile</div>
 
-              <div className="form-grid">
-                <div className="field">
-                  <label>Full Name <span className="req">*</span></label>
-                  <input type="text" name="fullName" value={form.fullName} onChange={handleFormChange} placeholder="John Smith" />
-                </div>
-                <div className="field">
-                  <label>Email <span className="req">*</span></label>
-                  <input type="email" name="email" value={form.email} onChange={handleFormChange} placeholder="user@email.com" />
-                </div>
-                <div className="field">
-                  <label>Phone Number <span className="req">*</span></label>
-                  <input type="tel" name="phone" value={form.phone} onChange={handleFormChange} placeholder="(999)-999-9999" />
-                </div>
-                <div className="field">
-                  <label>Location <span className="req">*</span></label>
-                  <input type="text" name="location" value={form.location} onChange={handleFormChange} placeholder="City, State" />
-                </div>
-                <div className="field full">
-                  <label>Bio</label>
-                  <textarea name="bio" value={form.bio} onChange={handleFormChange} placeholder="Tell us about yourself..." />
-                </div>
-              </div>
+                            <div className="form-grid">
+                                <div className="field">
+                                    <label>Full Name <span className="req">*</span></label>
+                                    <input type="text" name="fullName" value={form.fullName} onChange={handleFormChange} placeholder="John Smith" />
+                                </div>
+                                <div className="field">
+                                    <label>Email <span className="req">*</span></label>
+                                    <input type="email" name="email" value={form.email} onChange={handleFormChange} placeholder="user@email.com" />
+                                </div>
+                                <div className="field">
+                                    <label>Phone Number <span className="req">*</span></label>
+                                    <input type="tel" name="phone" value={form.phone} onChange={handleFormChange} placeholder="(999)-999-9999" />
+                                </div>
+                                <div className="field">
+                                    <label>Location <span className="req">*</span></label>
+                                    <input type="text" name="location" value={form.location} onChange={handleFormChange} placeholder="City, State" />
+                                </div>
+                                <div className="field full">
+                                    <label>Bio</label>
+                                    <textarea name="bio" value={form.bio} onChange={handleFormChange} placeholder="Tell us about yourself..." />
+                                </div>
+                            </div>
 
-              <div className="skills-section">
-                <div className="skills-label">Skills</div>
-                <div className="skills-container">
-                  {skills.map((skill) => (
-                    <span key={skill} className="skill-tag">
-                      {skill}
-                      <button className="remove-skill" onClick={() => removeSkill(skill)} title="Remove">×</button>
-                    </span>
-                  ))}
-                  {showSkillInput && (
-                    <input
-                      ref={skillInputRef}
-                      type="text"
-                      className="skill-mini-input"
-                      value={skillInput}
-                      onChange={(e) => setSkillInput(e.target.value)}
-                      onKeyDown={handleSkillKeyDown}
-                      placeholder="e.g. Cooking"
-                    />
-                  )}
-                  {!showSkillInput && (
-                    <button className="skill-add-btn" onClick={openSkillInput}>+ Skill</button>
-                  )}
-                </div>
-              </div>
+                            <div className="skills-section">
+                                <div className="skills-label">Skills</div>
+                                <div className="skills-container">
+                                    {skills.map((skill) => (
+                                        <span key={skill} className="skill-tag">
+                                            {skill}
+                                            <button className="remove-skill" onClick={() => removeSkill(skill)} title="Remove">×</button>
+                                        </span>
+                                    ))}
+                                    {showSkillInput && (
+                                        <input
+                                            ref={skillInputRef}
+                                            type="text"
+                                            className="skill-mini-input"
+                                            value={skillInput}
+                                            onChange={(e) => setSkillInput(e.target.value)}
+                                            onKeyDown={handleSkillKeyDown}
+                                            placeholder="e.g. Cooking"
+                                        />
+                                    )}
+                                    {!showSkillInput && (
+                                        <button className="skill-add-btn" onClick={openSkillInput}>+ Skill</button>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {activeTab === "activity" && (
+                    <div className="card-wrapper">
+                        <div className="card">
+                            <div className="activity-placeholder">
+                                <h3>No activity yet</h3>
+                                <p>Your event history and volunteer hours will appear here.</p>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
-          </div>
-        )}
 
-        {activeTab === "activity" && (
-          <div className="card-wrapper">
-            <div className="card">
-              <div className="activity-placeholder">
-                <h3>No activity yet</h3>
-                <p>Your event history and volunteer hours will appear here.</p>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {overlay && (
-        <div className="overlay-bg" onClick={(e) => { if (e.target === e.currentTarget) setOverlay(null); }}>
-          <div className="overlay-card">
-            <h2>{overlayInfo[overlay]?.title}</h2>
-            <p>{overlayInfo[overlay]?.msg}</p>
-            <button className="overlay-close" onClick={() => setOverlay(null)}>Go back</button>
-          </div>
-        </div>
-      )}
-    </>
-  );
+            {overlay && (
+                <div className="overlay-bg" onClick={(e) => { if (e.target === e.currentTarget) setOverlay(null); }}>
+                    <div className="overlay-card">
+                        <h2>{overlayInfo[overlay]?.title}</h2>
+                        <p>{overlayInfo[overlay]?.msg}</p>
+                        <button className="overlay-close" onClick={() => setOverlay(null)}>Go back</button>
+                    </div>
+                </div>
+            )}
+        </>
+    );
 }

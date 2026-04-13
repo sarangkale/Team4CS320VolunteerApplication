@@ -1,7 +1,7 @@
 import { /* AuthError, PostgrestError, type Session, */ type User/* , type UserResponse */ } from "@supabase/supabase-js";
 // import { supabase } from "../lib/supabase"
 
-import axios from "axios";
+import axios, { AxiosError, type AxiosResponse } from "axios";
 
 const ACCOUNT_LOCAL_STORAGE_KEY = "Account";
 const ROLE_LOCAL_STORAGE_KEY = "Role";
@@ -66,6 +66,49 @@ const axios_instance = axios.create({
     baseURL: "http://localhost:3000",
 });
 
+export type RequestError = {
+    name: string,
+    msg: string,
+}
+
+function handle_axios_error(err: Error | AxiosError): Failure<RequestError> {
+    if (axios.isAxiosError(err)) {
+        const axios_err = err as AxiosError;
+        return {
+            type: "error",
+            error:
+            {
+                name: axios_err.response?.statusText!,
+                msg: axios_err.response?.request["responseText"],
+            }
+        };
+    } else {
+        return {
+            type: "error",
+            error: {
+                name: err.name,
+                msg: err.message,
+            }
+        };
+    }
+}
+
+function handle_axios_success<S>(val: AxiosResponse<S, any, {}>): Success<AxiosResponse<S, any, {}>> {
+    return { type: "success", data: val };
+}
+
+async function axios_post<S>(url: string, data?: any): Promise<Result<AxiosResponse<S, any, {}>, RequestError>> {
+    return await axios_instance.post<S>(url, data)
+    .then(handle_axios_success)
+    .catch(handle_axios_error);
+}
+
+async function axios_get<S>(url: string): Promise<Result<AxiosResponse<S, any, {}>, RequestError>> {
+    return await axios_instance.get<S>(url)
+    .then(handle_axios_success)
+    .catch(handle_axios_error);
+}
+
 // USER SIGN UP
 export async function userSignUp(
     email: string,
@@ -74,8 +117,8 @@ export async function userSignUp(
     lastName: string,
     school: string,
     graduationYear: number
-): Promise<Result<User, string>> {
-    const res = await axios_instance.post<User>("/auth/signup_volunteer", {
+): Promise<Result<User, RequestError>> {
+    const res = await axios_post<User>("/auth/signup_volunteer", {
         email,
         password,
         first_name: firstName,
@@ -84,12 +127,12 @@ export async function userSignUp(
         graduation_year: graduationYear
     });
 
-    if (res.data) {
+    if (res.type == "success") {
         localStorage.setItem(ACCOUNT_LOCAL_STORAGE_KEY, JSON.stringify(res.data));
         localStorage.setItem(ROLE_LOCAL_STORAGE_KEY, "User");
-        return success(res.data);
+        return success(res.data.data);
     } else {
-        return failure(res.statusText);
+        return failure(res.error);
     }
 }
 
@@ -99,37 +142,36 @@ export async function organizationSignUp(
     password: string,
     orgName: string,
     website: string):
-Promise<Result<User, string>> {
-    const res = await axios_instance.post<User>("/auth/signup_volunteer", {
+    Promise<Result<User, RequestError>> {
+    const res = await axios_post<User>("/auth/signup_volunteer", {
         email,
         password,
         org_name: orgName,
         website,
     });
 
-    if (res.data) {
+    if (res.type == "success") {
         localStorage.setItem(ACCOUNT_LOCAL_STORAGE_KEY, JSON.stringify(res.data));
         localStorage.setItem(ROLE_LOCAL_STORAGE_KEY, "User");
-        return success(res.data);
+        return success(res.data.data);
     } else {
-        return failure(res.statusText);
+        return failure(res.error);
     }
 }
 
 // LOGIN
-export async function login(email: string, password: string): Promise<Result<{user: User, role: AccountRole}, string>> {
-    const res = await axios_instance.post<{user: User, role: AccountRole}>("/auth/login", {
+export async function login(email: string, password: string): Promise<Result<{ user: User, role: AccountRole }, RequestError>> {
+    const res = await axios_post<{ user: User, role: AccountRole }>("/auth/login", {
         email,
         password
     });
-
-    if (res.data) {
-        const {user, role} = res.data;
+    if (res.type == "success") {
+        const { user, role } = res.data.data;
         localStorage.setItem(ACCOUNT_LOCAL_STORAGE_KEY, JSON.stringify(user));
-        localStorage.setItem(ROLE_LOCAL_STORAGE_KEY, role);
-        return success(res.data);
+        localStorage.setItem(ROLE_LOCAL_STORAGE_KEY, role as string);
+        return success(res.data.data);
     } else {
-        return failure(res.statusText);
+        return failure(res.error);
     }
 }
 
@@ -138,14 +180,14 @@ export function getCurrentUserRole(): AccountRole {
 }
 
 // LOGOUT
-export async function logout(): Promise<Result<null, string>> {
+export async function logout(): Promise<Result<null, RequestError>> {
     localStorage.clear();
-    const res = await axios_instance.post("/auth/logout");
+    const res = await axios_post("/auth/logout");
 
-    if (res.data) {
+    if (res.type == "success") {
         return success(null);
     } else {
-        return failure(res.statusText);
+        return failure(res.error);
     }
 }
 
@@ -154,15 +196,15 @@ export async function getCurrentUser(): Promise<User> {
     return JSON.parse(localStorage.getItem(ACCOUNT_LOCAL_STORAGE_KEY)!)
 }
 
-export async function getAccountProfile(): Promise<Result<Account, string>> {
+export async function getAccountProfile(): Promise<Result<Account, RequestError>> {
     const role = getCurrentUserRole();
-    const res = await axios_instance.get<UserProfile | OrganizationProfile>(role == "Organization" ? "/organization/profile" : "/volunteer/profile");
-    if (res.data) {
+    const res = await axios_get<UserProfile | OrganizationProfile>(role == "Organization" ? "/organization/profile" : "/volunteer/profile");
+    if (res.type == "success") {
         return success({
             role,
-            profile: res.data,
+            profile: res.data.data,
         });
     } else {
-        return failure(res.statusText);
+        return failure(res.error);
     }
 }
