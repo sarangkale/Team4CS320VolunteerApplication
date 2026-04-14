@@ -108,13 +108,13 @@ export default function ActivityDashboard() {
         <div style={styles.tabs}>
           <button
             style={activeTab === "profile" ? styles.tabActive : styles.tabInactive}
-            onClick={() => setActiveTab("profile")}
+            onClick={() => navigate("/volunteer_dashboard/profile")}
           >
             Profile
           </button>
           <button
             style={activeTab === "activity" ? styles.tabActive : styles.tabInactive}
-            onClick={() => setActiveTab("activity")}
+            onClick={() => navigate("/volunteer_dashboard/activity")}
           >
             Activity
           </button>

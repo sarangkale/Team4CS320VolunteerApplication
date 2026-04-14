@@ -275,11 +275,11 @@ export default function VolunteerDashboard() {
           <div className="tabs">
             <button
               className={`tab-btn${activeTab === "profile" ? " active" : ""}`}
-              onClick={() => setActiveTab("profile")}
+              onClick={() => navigate("/volunteer_dashboard/profile")}
             >Profile</button>
             <button
               className={`tab-btn${activeTab === "activity" ? " active" : ""}`}
-              onClick={() => setActiveTab("activity")}
+              onClick={() => navigate("/volunteer_dashboard/activity")}
             >Activity</button>
           </div>
           <button className="edit-btn">Edit</button>
