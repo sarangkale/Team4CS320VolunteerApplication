@@ -23,7 +23,7 @@ const volunteers: Volunteer[] = [
 ];
 
 const applicantInfo: ApplicantInfo = {
-  fullName: "John Smith",
+  fullName: "Placeholder",
   email: "User@email.com",
   phone: "(999)-999-9999",
   location: "Amherst, MA",
@@ -51,7 +51,7 @@ export default function VolunteerUI() {
       <nav style={styles.nav}>
         <div style={styles.navLeft}>
           <div style={styles.logo}>logo</div>
-          <span style={styles.siteName}>Website name</span>
+          <span style={styles.siteName}>Volunteering @ UMass</span>
         </div>
         <button style={styles.logoutBtn}>Log out</button>
       </nav>
@@ -60,7 +60,7 @@ export default function VolunteerUI() {
       <div style={styles.mainCard}>
         {/* Header */}
         <div style={styles.cardHeader}>
-          <h1 style={styles.eventTitle}>Volunteer Opportunity Name</h1>
+          <h1 style={styles.eventTitle}>Volunteer Opportunity Placeholder</h1>
           <button style={styles.backBtn}>Back</button>
         </div>
 
