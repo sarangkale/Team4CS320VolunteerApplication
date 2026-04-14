@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 
 const UPCOMING_EVENTS = [
   {
@@ -72,6 +73,7 @@ function EventCard({ org, date, description, hours }) {
 }
 
 export default function ActivityDashboard() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("activity");
   const [overlay, setOverlay] = useState(null);
 
@@ -93,9 +95,9 @@ export default function ActivityDashboard() {
       <nav style={styles.nav}>
         <div style={styles.navLogo}>logo</div>
         <span style={styles.navSiteName}>Website name</span>
-        <button style={styles.navBtn} onClick={() => setOverlay("profile")}>My profile</button>
-        <button style={styles.navBtn} onClick={() => setOverlay("events")}>View all events</button>
-        <button style={styles.navBtnLogout} onClick={() => setOverlay("logout")}>Log out</button>
+        <button style={styles.navBtn} onClick={() => navigate("/volunteer_dashboard/profile")}>My profile</button>
+        <button style={styles.navBtn} onClick={() => navigate("/volunteer_dashboard/events")}>View all events</button>
+        <button style={styles.navBtnLogout} onClick={() => navigate("/login")}>Log out</button>
       </nav>
 
       {/* MAIN */}

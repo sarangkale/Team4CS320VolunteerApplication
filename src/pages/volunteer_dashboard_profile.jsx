@@ -1,8 +1,10 @@
 import { useState, useRef } from "react";
+import { useNavigate } from "react-router";
 
 const INITIAL_SKILLS = ["React", "Design", "Python", "Writing"];
 
 export default function VolunteerDashboard() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("profile");
   const [overlay, setOverlay] = useState(null);
   const [skills, setSkills] = useState(INITIAL_SKILLS);
@@ -19,9 +21,9 @@ export default function VolunteerDashboard() {
   });
 
   const overlayInfo = {
-    logout: { title: "Log Out", msg: "You would be logged out and redirected to the login page." },
-    profile: { title: "My Profile", msg: "This would navigate to your public profile page." },
-    events: { title: "View All Events", msg: "This would navigate to the events listing page." },
+    logout: { title: "Log Out", navigate: () => navigate("/login") },
+    profile: { title: "My Profile", navigate: () => navigate("/volunteer_dashboard/profile") },
+    events: { title: "View All Events", navigate: () => navigate("/volunteer_dashboard/events") },
   };
 
   const handleFormChange = (e) => {
@@ -261,9 +263,9 @@ export default function VolunteerDashboard() {
       <nav className="nav">
         <div className="nav-logo">logo</div>
         <span className="nav-site-name">Website name</span>
-        <button className="nav-btn" onClick={() => setOverlay("profile")}>My profile</button>
-        <button className="nav-btn" onClick={() => setOverlay("events")}>View all events</button>
-        <button className="nav-btn-logout" onClick={() => setOverlay("logout")}>Log out</button>
+        <button className="nav-btn" onClick={() => navigate("/volunteer_dashboard/profile")}>My profile</button>
+        <button className="nav-btn" onClick={() => navigate("/volunteer_dashboard/events")}>View all events</button>
+        <button className="nav-btn-logout" onClick={() => navigate("/login")}>Log out</button>
       </nav>
 
       <div className="main">
