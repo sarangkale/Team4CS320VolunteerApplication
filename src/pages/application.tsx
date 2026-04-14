@@ -37,8 +37,8 @@ export default function VolunteerUI() {
   const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);
   const [list, setList] = useState<Volunteer[]>(volunteers);
 
-  const handleAccept = (id: number) => {
-    setList((prev) => prev.filter((v) => v.id !== id));
+  const handleAccept = (v: Volunteer) => {
+    setSelectedVolunteer(v);
   };
 
   const handleRemove = (id: number) => {
@@ -100,14 +100,9 @@ export default function VolunteerUI() {
         <div style={styles.listArea}>
           {list.map((v) => (
             <div key={v.id} style={styles.volunteerRow}>
-              <span
-                style={styles.volunteerName}
-                onClick={() => setSelectedVolunteer(v)}
-              >
-                {v.name}
-              </span>
+              <span style={styles.volunteerName}>{v.name}</span>
               <div style={styles.rowActions}>
-                <button style={styles.acceptBtn} onClick={() => handleAccept(v.id)}>Accept</button>
+                <button style={styles.acceptBtn} onClick={() => handleAccept(v)}>Accept</button>
                 <button style={styles.removeBtn} onClick={() => handleRemove(v.id)}>Remove</button>
               </div>
             </div>
@@ -183,10 +178,13 @@ const CARD_BG = "#ffffff";
 const styles: Record<string, React.CSSProperties> = {
   pageWrap: {
     minHeight: "100vh",
+    width: "100vw",
+    marginLeft: "calc(-50vw + 50%)",
     background: BG,
     fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
     fontSize: 14,
     color: "#222",
+    textAlign: "left",
   },
   nav: {
     display: "flex",
@@ -224,10 +222,10 @@ const styles: Record<string, React.CSSProperties> = {
   mainCard: {
     background: CARD_BG,
     margin: "24px auto",
-    maxWidth: 560,
+    maxWidth: 780,
     borderRadius: 10,
     border: `1px solid ${BORDER}`,
-    padding: "20px 24px 24px",
+    padding: "24px 32px 32px",
     boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
   },
   cardHeader: {
@@ -236,7 +234,7 @@ const styles: Record<string, React.CSSProperties> = {
     alignItems: "center",
     marginBottom: 14,
   },
-  eventTitle: { fontSize: 20, fontWeight: 700, margin: 0 },
+  eventTitle: { fontSize: 26, fontWeight: 700, margin: 0 },
   backBtn: {
     background: "#e8e8e8",
     border: `1px solid ${BORDER}`,
@@ -251,9 +249,9 @@ const styles: Record<string, React.CSSProperties> = {
     background: "#e8e8e8",
     border: `1px solid ${BORDER}`,
     borderRadius: 6,
-    padding: "4px 14px",
+    padding: "6px 18px",
     cursor: "pointer",
-    fontSize: 13,
+    fontSize: 15,
     color: "#444",
   },
   topTabActive: {
@@ -271,9 +269,9 @@ const styles: Record<string, React.CSSProperties> = {
     background: "transparent",
     border: `1px solid ${BORDER}`,
     borderRadius: 14,
-    padding: "3px 14px",
+    padding: "4px 18px",
     cursor: "pointer",
-    fontSize: 13,
+    fontSize: 15,
     color: "#555",
   },
   subTabActive: {
@@ -293,12 +291,11 @@ const styles: Record<string, React.CSSProperties> = {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "9px 14px",
+    padding: "12px 18px",
     borderBottom: `1px solid #e8e8e8`,
   },
   volunteerName: {
-    fontSize: 14,
-    cursor: "pointer",
+    fontSize: 16,
     color: "#222",
   },
   rowActions: { display: "flex", gap: 6 },
@@ -307,20 +304,20 @@ const styles: Record<string, React.CSSProperties> = {
     border: "2px solid #3a8a3a",
     color: "#3a8a3a",
     borderRadius: 12,
-    padding: "2px 12px",
+    padding: "3px 16px",
     cursor: "pointer",
     fontWeight: 600,
-    fontSize: 12,
+    fontSize: 14,
   },
   removeBtn: {
     background: "transparent",
     border: "2px solid #c0392b",
     color: "#c0392b",
     borderRadius: 12,
-    padding: "2px 12px",
+    padding: "3px 16px",
     cursor: "pointer",
     fontWeight: 600,
-    fontSize: 12,
+    fontSize: 14,
   },
 
   /* Modal */
@@ -336,26 +333,26 @@ const styles: Record<string, React.CSSProperties> = {
   modal: {
     background: CARD_BG,
     borderRadius: 10,
-    padding: "24px 28px",
-    width: 480,
+    padding: "28px 32px",
+    width: 580,
     maxWidth: "92vw",
     boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
     position: "relative",
   },
-  modalTitle: { fontSize: 18, fontWeight: 700, margin: "0 0 16px" },
+  modalTitle: { fontSize: 22, fontWeight: 700, margin: "0 0 18px" },
   formGrid: {
     display: "grid",
     gridTemplateColumns: "1fr 1fr",
     gap: "10px 16px",
   },
   formGroup: { display: "flex", flexDirection: "column", gap: 3 },
-  label: { fontSize: 12, fontWeight: 600, color: "#333" },
+  label: { fontSize: 14, fontWeight: 600, color: "#333" },
   req: { color: "#c0392b" },
   input: {
     border: `1px solid ${BORDER}`,
     borderRadius: 5,
-    padding: "5px 8px",
-    fontSize: 13,
+    padding: "6px 10px",
+    fontSize: 15,
     background: "#fafafa",
     color: "#333",
     outline: "none",
@@ -363,11 +360,11 @@ const styles: Record<string, React.CSSProperties> = {
   textarea: {
     border: `1px solid ${BORDER}`,
     borderRadius: 5,
-    padding: "5px 8px",
-    fontSize: 13,
+    padding: "6px 10px",
+    fontSize: 15,
     background: "#fafafa",
     resize: "none",
-    height: 52,
+    height: 60,
     width: "100%",
     boxSizing: "border-box",
   },
@@ -376,16 +373,16 @@ const styles: Record<string, React.CSSProperties> = {
     background: OLIVE_LIGHT,
     color: "#fff",
     borderRadius: 12,
-    padding: "3px 14px",
-    fontSize: 12,
+    padding: "4px 16px",
+    fontSize: 14,
     fontWeight: 500,
   },
   addSkillBtn: {
     background: "#e8e8e8",
     border: `1px solid ${BORDER}`,
     borderRadius: 12,
-    padding: "3px 12px",
-    fontSize: 12,
+    padding: "4px 14px",
+    fontSize: 14,
     cursor: "pointer",
   },
   modalFooter: {
