@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router";
-import { getCurrentUserRole, login, type RequestError } from "../auth/auth";
+import { getCurrentUserRole, login } from "../auth/auth";
+import { type RequestError } from "../lib/axios.ts";
 import { useState } from "react";
 
 export default function LoginPage() {
@@ -9,11 +10,9 @@ export default function LoginPage() {
 
     let navigate = useNavigate();
     async function loginSubmit(formData: FormData) {
-        console.warn("Submitting");
         const email = formData.get("email") as string;
         const password = formData.get("password") as string;
         const res = await login(email, password);
-        console.log(res);
 
         switch (res.type) {
             case "success": {
