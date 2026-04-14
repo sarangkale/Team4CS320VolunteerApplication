@@ -64,5 +64,5 @@ export default async function createListing(req: express.Request, res: express.R
 
     // TODO: Implement Supabase row-level security policy for update
     await supabase.from("organization").update({ all_listings: `${profile.all_listings},${creationData}` });
-    return res.json({ listing, id: creationData });
+    return res.json({ listing, id: creationData[0]!.listing_id });
 }

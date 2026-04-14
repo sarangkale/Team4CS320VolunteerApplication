@@ -1,5 +1,6 @@
 import type { PostgrestError, Session, SupabaseClient } from "@supabase/supabase-js";
 import express from "express";
+import type { CookieOptions } from "react-router";
 
 export type UserProfile = {
     bio: string | null;
@@ -70,46 +71,33 @@ export function bodyHasEntries(requiredKeys: string[], body: Record<string, stri
     }
 }
 
+const cookieOpts: CookieOptions = {
+    httpOnly: true,
+    secure: true,
+    sameSite: "lax",
+    path: "/",
+};
+
 export function createCookies(session: Session, res: express.Response) {
     res.cookie(
         "supabase-access-token", session.access_token,
-        {
-            httpOnly: true,
-            secure: false,
-            sameSite: "lax",
-            path: "/",
-        }
+        cookieOpts
     );
     res.cookie(
         "supabase-refresh-token", session.refresh_token,
-        {
-            httpOnly: true,
-            secure: false,
-            sameSite: "lax",
-            path: "/",
-        }
+        cookieOpts
     );
 }
 
 export function clearCookies(res: express.Response) {
     res.clearCookie(
         "supabase-access-token",
-        {
-            httpOnly: true,
-            secure: false,
-            sameSite: "lax",
-            path: "/",
-        }
+        cookieOpts
     );
 
     res.clearCookie(
         "supabase-refresh-token",
-        {
-            httpOnly: true,
-            secure: false,
-            sameSite: "lax",
-            path: "/",
-        }
+        cookieOpts
     );
 }
 
