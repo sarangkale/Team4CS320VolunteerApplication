@@ -1,7 +1,6 @@
 import { /* AuthError, PostgrestError, type Session, */ type User/* , type UserResponse */ } from "@supabase/supabase-js";
+import { axios_get, axios_post, type RequestError } from "../lib/axios";
 // import { supabase } from "../lib/supabase"
-
-import axios, { AxiosError, type AxiosResponse } from "axios";
 
 const ACCOUNT_LOCAL_STORAGE_KEY = "Account";
 const ROLE_LOCAL_STORAGE_KEY = "Role";
@@ -61,53 +60,6 @@ export type OrganizationProfile = {
     password_hash?: string | null;
     website?: string | null;
 };
-
-const axios_instance = axios.create({
-    baseURL: "http://localhost:3000",
-});
-
-export type RequestError = {
-    name: string,
-    msg: string,
-}
-
-function handle_axios_error(err: Error | AxiosError): Failure<RequestError> {
-    if (axios.isAxiosError(err)) {
-        const axios_err = err as AxiosError;
-        return {
-            type: "error",
-            error:
-            {
-                name: axios_err.response?.statusText!,
-                msg: axios_err.response?.request["responseText"],
-            }
-        };
-    } else {
-        return {
-            type: "error",
-            error: {
-                name: err.name,
-                msg: err.message,
-            }
-        };
-    }
-}
-
-function handle_axios_success<S>(val: AxiosResponse<S, any, {}>): Success<AxiosResponse<S, any, {}>> {
-    return { type: "success", data: val };
-}
-
-async function axios_post<S>(url: string, data?: any): Promise<Result<AxiosResponse<S, any, {}>, RequestError>> {
-    return await axios_instance.post<S>(url, data)
-    .then(handle_axios_success)
-    .catch(handle_axios_error);
-}
-
-async function axios_get<S>(url: string): Promise<Result<AxiosResponse<S, any, {}>, RequestError>> {
-    return await axios_instance.get<S>(url)
-    .then(handle_axios_success)
-    .catch(handle_axios_error);
-}
 
 // USER SIGN UP
 export async function userSignUp(
