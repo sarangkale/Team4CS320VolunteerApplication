@@ -24,7 +24,7 @@ function LoginPage() {
                 }
 
                 if (roleResult.data === "User") {
-                    navigate("/volunteer_dashboard");
+                    navigate("/volunteer_dashboard/events");
                 } else {
                     navigate("/organization_dashboard");
                 }

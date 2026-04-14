@@ -73,7 +73,7 @@ export default function SignupPage() {
         if (res.type == "error") {
             setSignupError((_) => res.error.message);
         } else {
-            navigate("/volunteer_dashboard");
+            navigate("/volunteer_dashboard/events");
             }
     }
 
