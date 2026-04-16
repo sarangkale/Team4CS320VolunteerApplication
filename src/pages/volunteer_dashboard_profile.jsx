@@ -24,316 +24,155 @@ export default function VolunteerDashboard() {
     events: { title: "View All Events", msg: "This would navigate to the events listing page." },
   };
 
-  const handleFormChange = (e) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
+  const handleFormChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handleSkillKeyDown = (e) => {
     if (e.key === "Enter") {
       const val = skillInput.trim();
       if (val && !skills.includes(val)) setSkills((prev) => [...prev, val]);
-      setSkillInput("");
-      setShowSkillInput(false);
+      setSkillInput(""); setShowSkillInput(false);
     } else if (e.key === "Escape") {
-      setSkillInput("");
-      setShowSkillInput(false);
+      setSkillInput(""); setShowSkillInput(false);
     }
   };
 
   const removeSkill = (skill) => setSkills((prev) => prev.filter((s) => s !== skill));
+  const openSkillInput = () => { setShowSkillInput(true); setTimeout(() => skillInputRef.current?.focus(), 50); };
 
-  const openSkillInput = () => {
-    setShowSkillInput(true);
-    setTimeout(() => skillInputRef.current?.focus(), 50);
-  };
+  const inputCls = "bg-[#D9D9D9] border-none rounded-[6px] py-[9px] px-[13px] text-[15px] text-[#1a1a1a] outline-none w-full focus:bg-[#e2e2e2] focus:ring-2 focus:ring-[#8E9B77] transition-all duration-200";
 
   return (
-    <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap');
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        :root {
-          --green-dark: #485C11;
-          --green-mid: #8E9B77;
-          --green-light: #c5d09c;
-          --gray-bg: #D9D9D9;
-          --white: #ffffff;
-          --text: #1a1a1a;
-          --text-light: #666;
-          --red: #FF0000;
-          --pill: 9999px;
-        }
-        body { font-family: 'DM Sans', sans-serif; background: #ebebeb; min-height: 100vh; color: var(--text); }
+    <div className="bg-[#ebebeb] min-h-screen text-[#1a1a1a]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
 
-        .nav {
-          background: var(--gray-bg);
-          display: flex;
-          align-items: center;
-          padding: 0 32px;
-          height: 88px;
-          gap: 14px;
-          position: sticky;
-          top: 0;
-          z-index: 100;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-        }
-        .nav-logo {
-          background: var(--green-dark);
-          color: white;
-          border-radius: var(--pill);
-          width: 82px;
-          height: 70px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: 700;
-          font-size: 18px;
-          cursor: pointer;
-          flex-shrink: 0;
-          transition: opacity 0.2s;
-        }
-        .nav-logo:hover { opacity: 0.85; }
-        .nav-site-name { font-weight: 700; font-size: 21px; margin-right: auto; }
-        .nav-btn {
-          background: white;
-          border: none;
-          border-radius: var(--pill);
-          padding: 13px 26px;
-          font-size: 16px;
-          font-family: 'DM Sans', sans-serif;
-          font-weight: 500;
-          color: var(--green-dark);
-          cursor: pointer;
-          transition: background 0.2s, transform 0.15s;
-        }
-        .nav-btn:hover { background: var(--green-light); transform: translateY(-1px); }
-        .nav-btn-logout {
-          background: var(--green-dark);
-          color: white;
-          border: none;
-          border-radius: var(--pill);
-          padding: 13px 26px;
-          font-size: 16px;
-          font-family: 'DM Sans', sans-serif;
-          font-weight: 500;
-          cursor: pointer;
-          transition: background 0.2s, transform 0.15s;
-        }
-        .nav-btn-logout:hover { background: #3a4c0d; transform: translateY(-1px); }
-
-        .main { max-width: 1140px; margin: 0 auto; padding: 36px 24px 60px; }
-        .greeting { font-size: 40px; font-weight: 700; margin-bottom: 24px; }
-
-        .tab-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 26px; }
-        .tabs { background: var(--gray-bg); border-radius: var(--pill); padding: 6px; display: inline-flex; gap: 4px; }
-        .tab-btn {
-          background: transparent;
-          border: none;
-          border-radius: var(--pill);
-          padding: 10px 28px;
-          font-size: 16px;
-          font-family: 'DM Sans', sans-serif;
-          font-weight: 400;
-          cursor: pointer;
-          transition: background 0.2s;
-          color: var(--text);
-        }
-        .tab-btn.active { background: white; font-weight: 500; box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
-        .tab-btn:not(.active):hover { background: rgba(255,255,255,0.55); }
-
-        .edit-btn {
-          background: var(--gray-bg);
-          border: none;
-          border-radius: var(--pill);
-          padding: 10px 34px;
-          font-size: 16px;
-          font-family: 'DM Sans', sans-serif;
-          cursor: pointer;
-          transition: background 0.2s;
-        }
-        .edit-btn:hover { background: #c2c2c2; }
-
-        .card-wrapper { background: var(--gray-bg); border-radius: 20px; padding: 12px; }
-        .card { background: white; border-radius: 14px; padding: 30px 34px 34px; }
-        .card-title { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
-        .card-subtitle { font-size: 14px; font-weight: 300; color: var(--text-light); margin-bottom: 28px; }
-
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 44px; }
-        .field { display: flex; flex-direction: column; gap: 7px; }
-        .field.full { grid-column: 1 / -1; }
-        label { font-size: 15px; font-weight: 400; display: flex; align-items: center; gap: 3px; }
-        label .req { color: var(--red); }
-        input[type="text"], input[type="email"], input[type="tel"], textarea {
-          background: var(--gray-bg);
-          border: none;
-          border-radius: 6px;
-          padding: 9px 13px;
-          font-size: 15px;
-          font-family: 'DM Sans', sans-serif;
-          color: var(--text);
-          outline: none;
-          width: 100%;
-          transition: box-shadow 0.2s, background 0.2s;
-        }
-        input:focus, textarea:focus { background: #e2e2e2; box-shadow: 0 0 0 2px var(--green-mid); }
-        textarea { resize: vertical; min-height: 50px; height: 50px; }
-
-        .skills-section { margin-top: 26px; }
-        .skills-label { font-size: 15px; margin-bottom: 10px; }
-        .skills-container { display: flex; flex-wrap: wrap; gap: 9px; align-items: center; }
-        .skill-tag {
-          background: var(--green-mid);
-          color: white;
-          border-radius: var(--pill);
-          padding: 5px 13px;
-          font-size: 13px;
-          font-weight: 500;
-          display: flex;
-          align-items: center;
-          gap: 7px;
-        }
-        .remove-skill {
-          background: none;
-          border: none;
-          color: white;
-          cursor: pointer;
-          font-size: 15px;
-          line-height: 1;
-          padding: 0;
-          opacity: 0.7;
-          transition: opacity 0.15s;
-        }
-        .remove-skill:hover { opacity: 1; }
-        .skill-add-btn {
-          background: var(--gray-bg);
-          border: none;
-          border-radius: var(--pill);
-          padding: 5px 16px;
-          font-size: 14px;
-          font-family: 'DM Sans', sans-serif;
-          cursor: pointer;
-          color: var(--text);
-          transition: background 0.2s;
-        }
-        .skill-add-btn:hover { background: #c6c6c6; }
-        .skill-mini-input {
-          width: 140px;
-          padding: 5px 11px !important;
-          font-size: 13px !important;
-          height: auto !important;
-        }
-
-        .activity-placeholder { text-align: center; padding: 60px 24px; color: var(--text-light); }
-        .activity-placeholder h3 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
-
-        .overlay-bg {
-          position: fixed; inset: 0;
-          background: rgba(0,0,0,0.42);
-          z-index: 200;
-          display: flex; align-items: center; justify-content: center;
-        }
-        .overlay-card {
-          background: white;
-          border-radius: 20px;
-          padding: 44px 52px;
-          text-align: center;
-          max-width: 400px;
-          width: 90%;
-          box-shadow: 0 8px 40px rgba(0,0,0,0.2);
-        }
-        .overlay-card h2 { font-size: 24px; font-weight: 700; margin-bottom: 10px; }
-        .overlay-card p { color: var(--text-light); margin-bottom: 26px; font-size: 15px; }
-        .overlay-close {
-          background: var(--green-dark);
-          color: white;
-          border: none;
-          border-radius: var(--pill);
-          padding: 12px 30px;
-          font-size: 15px;
-          font-family: 'DM Sans', sans-serif;
-          font-weight: 500;
-          cursor: pointer;
-          transition: background 0.2s;
-        }
-        .overlay-close:hover { background: #3a4c0d; }
-      `}</style>
-
-      <nav className="nav">
-        <div className="nav-logo">logo</div>
-        <span className="nav-site-name">Website name</span>
-        <button className="nav-btn" onClick={() => setOverlay("profile")}>My profile</button>
-        <button className="nav-btn" onClick={() => setOverlay("events")}>View all events</button>
-        <button className="nav-btn-logout" onClick={() => setOverlay("logout")}>Log out</button>
+      {/* NAV */}
+      <nav className="bg-[#D9D9D9] flex items-center px-8 h-[88px] gap-[14px] sticky top-0 z-[100] shadow-[0_2px_8px_rgba(0,0,0,0.07)]">
+        <div className="bg-[#485C11] text-white rounded-full w-[82px] h-[70px] flex items-center justify-center font-bold text-[18px] cursor-pointer shrink-0 hover:opacity-85 transition-opacity duration-200">
+          logo
+        </div>
+        <span className="font-bold text-[21px] mr-auto">Website name</span>
+        <button
+          className="bg-white border-none rounded-full py-[13px] px-[26px] text-[16px] font-medium text-[#485C11] cursor-pointer hover:bg-[#c5d09c] hover:-translate-y-px transition-all duration-200"
+          style={{ fontFamily: "'DM Sans', sans-serif" }}
+          onClick={() => setOverlay("profile")}
+        >My profile</button>
+        <button
+          className="bg-white border-none rounded-full py-[13px] px-[26px] text-[16px] font-medium text-[#485C11] cursor-pointer hover:bg-[#c5d09c] hover:-translate-y-px transition-all duration-200"
+          style={{ fontFamily: "'DM Sans', sans-serif" }}
+          onClick={() => setOverlay("events")}
+        >View all events</button>
+        <button
+          className="bg-[#485C11] text-white border-none rounded-full py-[13px] px-[26px] text-[16px] font-medium cursor-pointer hover:bg-[#3a4c0d] hover:-translate-y-px transition-all duration-200"
+          style={{ fontFamily: "'DM Sans', sans-serif" }}
+          onClick={() => setOverlay("logout")}
+        >Log out</button>
       </nav>
 
-      <div className="main">
-        <h1 className="greeting">HELLO JOHN!</h1>
+      {/* MAIN */}
+      <div className="max-w-[1140px] mr-auto px-6 pt-9 pb-[60px]">
+        <h1 className="text-[40px] font-bold mb-6">HELLO JOHN!</h1>
 
-        <div className="tab-row">
-          <div className="tabs">
-            <button
-              className={`tab-btn${activeTab === "profile" ? " active" : ""}`}
-              onClick={() => setActiveTab("profile")}
-            >Profile</button>
-            <button
-              className={`tab-btn${activeTab === "activity" ? " active" : ""}`}
-              onClick={() => setActiveTab("activity")}
-            >Activity</button>
+        {/* TAB ROW */}
+        <div className="flex items-center justify-between mb-[26px]">
+          <div className="bg-[#D9D9D9] rounded-full p-[6px] inline-flex gap-1">
+            {["profile", "activity"].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`border-none rounded-full py-[10px] px-7 text-[16px] cursor-pointer capitalize transition-all duration-200 ${
+                  activeTab === tab
+                    ? "bg-white font-medium shadow-[0_1px_4px_rgba(0,0,0,0.12)] text-[#1a1a1a]"
+                    : "bg-transparent font-normal text-[#1a1a1a] hover:bg-white/55"
+                }`}
+                style={{ fontFamily: "'DM Sans', sans-serif" }}
+              >
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </button>
+            ))}
           </div>
-          <button className="edit-btn">Edit</button>
+          <button
+            className="bg-[#D9D9D9] border-none rounded-full py-[10px] px-[34px] text-[16px] cursor-pointer hover:bg-[#c2c2c2] transition-colors duration-200"
+            style={{ fontFamily: "'DM Sans', sans-serif" }}
+          >Edit</button>
         </div>
 
+        {/* PROFILE TAB */}
         {activeTab === "profile" && (
-          <div className="card-wrapper">
-            <div className="card">
-              <div className="card-title">Account Information</div>
-              <div className="card-subtitle">Manage your Account profile</div>
+          <div className="bg-[#D9D9D9] rounded-[20px] p-3">
+            <div className="bg-white rounded-[14px] px-[34px] pt-[30px] pb-[34px]">
+              <div className="text-[22px] font-semibold mb-1">Account Information</div>
+              <div className="text-[14px] font-light text-[#666] mb-7">Manage your Account profile</div>
 
-              <div className="form-grid">
-                <div className="field">
-                  <label>Full Name <span className="req">*</span></label>
-                  <input type="text" name="fullName" value={form.fullName} onChange={handleFormChange} placeholder="John Smith" />
+              <div className="grid grid-cols-2 gap-x-11 gap-y-[22px]">
+                <div className="flex flex-col gap-[7px]">
+                  <label className="text-[15px] font-normal flex items-center gap-[3px]">
+                    Full Name <span className="text-red-600">*</span>
+                  </label>
+                  <input type="text" name="fullName" value={form.fullName} onChange={handleFormChange} placeholder="John Smith" className={inputCls} />
                 </div>
-                <div className="field">
-                  <label>Email <span className="req">*</span></label>
-                  <input type="email" name="email" value={form.email} onChange={handleFormChange} placeholder="user@email.com" />
+                <div className="flex flex-col gap-[7px]">
+                  <label className="text-[15px] font-normal flex items-center gap-[3px]">
+                    Email <span className="text-red-600">*</span>
+                  </label>
+                  <input type="email" name="email" value={form.email} onChange={handleFormChange} placeholder="user@email.com" className={inputCls} />
                 </div>
-                <div className="field">
-                  <label>Phone Number <span className="req">*</span></label>
-                  <input type="tel" name="phone" value={form.phone} onChange={handleFormChange} placeholder="(999)-999-9999" />
+                <div className="flex flex-col gap-[7px]">
+                  <label className="text-[15px] font-normal flex items-center gap-[3px]">
+                    Phone Number <span className="text-red-600">*</span>
+                  </label>
+                  <input type="tel" name="phone" value={form.phone} onChange={handleFormChange} placeholder="(999)-999-9999" className={inputCls} />
                 </div>
-                <div className="field">
-                  <label>Location <span className="req">*</span></label>
-                  <input type="text" name="location" value={form.location} onChange={handleFormChange} placeholder="City, State" />
+                <div className="flex flex-col gap-[7px]">
+                  <label className="text-[15px] font-normal flex items-center gap-[3px]">
+                    Location <span className="text-red-600">*</span>
+                  </label>
+                  <input type="text" name="location" value={form.location} onChange={handleFormChange} placeholder="City, State" className={inputCls} />
                 </div>
-                <div className="field full">
-                  <label>Bio</label>
-                  <textarea name="bio" value={form.bio} onChange={handleFormChange} placeholder="Tell us about yourself..." />
+                <div className="flex flex-col gap-[7px] col-span-full">
+                  <label className="text-[15px] font-normal">Bio</label>
+                  <textarea
+                    name="bio"
+                    value={form.bio}
+                    onChange={handleFormChange}
+                    placeholder="Tell us about yourself..."
+                    className={`${inputCls} resize-y min-h-[50px] h-[50px]`}
+                  />
                 </div>
               </div>
 
-              <div className="skills-section">
-                <div className="skills-label">Skills</div>
-                <div className="skills-container">
+              {/* Skills */}
+              <div className="mt-[26px]">
+                <div className="text-[15px] mb-2.5">Skills</div>
+                <div className="flex flex-wrap gap-[9px] items-center">
                   {skills.map((skill) => (
-                    <span key={skill} className="skill-tag">
+                    <span
+                      key={skill}
+                      className="bg-[#8E9B77] text-white rounded-full py-[5px] px-[13px] text-[13px] font-medium flex items-center gap-[7px]"
+                    >
                       {skill}
-                      <button className="remove-skill" onClick={() => removeSkill(skill)} title="Remove">×</button>
+                      <button
+                        onClick={() => removeSkill(skill)}
+                        title="Remove"
+                        className="bg-none border-none text-white cursor-pointer text-[15px] leading-none p-0 opacity-70 hover:opacity-100 transition-opacity duration-150"
+                      >×</button>
                     </span>
                   ))}
                   {showSkillInput && (
                     <input
                       ref={skillInputRef}
                       type="text"
-                      className="skill-mini-input"
                       value={skillInput}
                       onChange={(e) => setSkillInput(e.target.value)}
                       onKeyDown={handleSkillKeyDown}
                       placeholder="e.g. Cooking"
+                      className="w-[140px] bg-[#D9D9D9] border-none rounded-[6px] py-[5px] px-[11px] text-[13px] text-[#1a1a1a] outline-none focus:bg-[#e2e2e2] focus:ring-2 focus:ring-[#8E9B77]"
                     />
                   )}
                   {!showSkillInput && (
-                    <button className="skill-add-btn" onClick={openSkillInput}>+ Skill</button>
+                    <button
+                      onClick={openSkillInput}
+                      className="bg-[#D9D9D9] border-none rounded-full py-[5px] px-4 text-[14px] cursor-pointer text-[#1a1a1a] hover:bg-[#c6c6c6] transition-colors duration-200"
+                      style={{ fontFamily: "'DM Sans', sans-serif" }}
+                    >+ Skill</button>
                   )}
                 </div>
               </div>
@@ -341,11 +180,12 @@ export default function VolunteerDashboard() {
           </div>
         )}
 
+        {/* ACTIVITY TAB */}
         {activeTab === "activity" && (
-          <div className="card-wrapper">
-            <div className="card">
-              <div className="activity-placeholder">
-                <h3>No activity yet</h3>
+          <div className="bg-[#D9D9D9] rounded-[20px] p-3">
+            <div className="bg-white rounded-[14px] px-[34px] pt-[30px] pb-[34px]">
+              <div className="text-center py-[60px] px-6 text-[#666]">
+                <h3 className="text-[20px] font-semibold mb-2">No activity yet</h3>
                 <p>Your event history and volunteer hours will appear here.</p>
               </div>
             </div>
@@ -353,15 +193,23 @@ export default function VolunteerDashboard() {
         )}
       </div>
 
+      {/* OVERLAY */}
       {overlay && (
-        <div className="overlay-bg" onClick={(e) => { if (e.target === e.currentTarget) setOverlay(null); }}>
-          <div className="overlay-card">
-            <h2>{overlayInfo[overlay]?.title}</h2>
-            <p>{overlayInfo[overlay]?.msg}</p>
-            <button className="overlay-close" onClick={() => setOverlay(null)}>Go back</button>
+        <div
+          className="fixed inset-0 bg-black/[0.42] z-[200] flex items-center justify-center"
+          onClick={(e) => { if (e.target === e.currentTarget) setOverlay(null); }}
+        >
+          <div className="bg-white rounded-[20px] py-11 px-[52px] text-center max-w-[400px] w-[90%] shadow-[0_8px_40px_rgba(0,0,0,0.2)]">
+            <h2 className="text-[24px] font-bold mb-2.5">{overlayInfo[overlay]?.title}</h2>
+            <p className="text-[#666] mb-[26px] text-[15px]">{overlayInfo[overlay]?.msg}</p>
+            <button
+              className="bg-[#485C11] text-white border-none rounded-full py-3 px-[30px] text-[15px] font-medium cursor-pointer hover:bg-[#3a4c0d] transition-colors duration-200"
+              style={{ fontFamily: "'DM Sans', sans-serif" }}
+              onClick={() => setOverlay(null)}
+            >Go back</button>
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

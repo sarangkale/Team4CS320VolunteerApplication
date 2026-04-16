@@ -1,71 +1,24 @@
 import { useState } from "react";
 
 const UPCOMING_EVENTS = [
-  {
-    id: 1,
-    org: "Volunteer Org #1",
-    date: "January 01, 2026   11:30 AM",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    hours: "XX hrs",
-  },
-  {
-    id: 2,
-    org: "Volunteer Org #2",
-    date: "January 01, 2026   11:30 AM",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    hours: "XX hrs",
-  },
-  {
-    id: 3,
-    org: "Volunteer Org #3",
-    date: "January 01, 2026   11:30 AM",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    hours: "XX hrs",
-  },
+  { id: 1, org: "Volunteer Org #1", date: "January 01, 2026   11:30 AM", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", hours: "XX hrs" },
+  { id: 2, org: "Volunteer Org #2", date: "January 01, 2026   11:30 AM", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", hours: "XX hrs" },
+  { id: 3, org: "Volunteer Org #3", date: "January 01, 2026   11:30 AM", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", hours: "XX hrs" },
 ];
 
-const HISTORY_EVENTS = [
-  {
-    id: 1,
-    org: "Volunteer Org #1",
-    date: "January 01, 2026   11:30 AM",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    hours: "XX hrs",
-  },
-  {
-    id: 2,
-    org: "Volunteer Org #2",
-    date: "January 01, 2026   11:30 AM",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    hours: "XX hrs",
-  },
-  {
-    id: 3,
-    org: "Volunteer Org #3",
-    date: "January 01, 2026   11:30 AM",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    hours: "XX hrs",
-  },
-];
-
+const HISTORY_EVENTS = [...UPCOMING_EVENTS];
 const TOTAL_HOURS = "XX";
 
 function EventCard({ org, date, description, hours }) {
   return (
-    <div style={styles.eventCard}>
-      <div style={styles.eventTop}>
-        <span style={styles.eventOrg}>{org}</span>
-        <span style={styles.eventDate}>{date}</span>
+    <div className="bg-[#D9D9D9] rounded-[15px] px-5 py-4 flex flex-col gap-2.5">
+      <div className="flex items-center justify-between">
+        <span className="text-[18px] font-semibold">{org}</span>
+        <span className="text-[17px] font-medium text-[#222]">{date}</span>
       </div>
-      <div style={styles.eventBottom}>
-        <span style={styles.eventDesc}>{description}</span>
-        <span style={styles.eventHours}>{hours}</span>
+      <div className="flex items-center justify-between gap-4">
+        <span className="text-[15px] text-[#333] flex-1 leading-[1.5]">{description}</span>
+        <span className="text-[18px] font-semibold whitespace-nowrap shrink-0">{hours}</span>
       </div>
     </div>
   );
@@ -82,70 +35,74 @@ export default function ActivityDashboard() {
   };
 
   return (
-    <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap');
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'DM Sans', sans-serif; background: #ebebeb; min-height: 100vh; color: #1a1a1a; }
-      `}</style>
+    <div className="bg-[#ebebeb] min-h-screen text-[#1a1a1a]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
 
       {/* NAV */}
-      <nav style={styles.nav}>
-        <div style={styles.navLogo}>logo</div>
-        <span style={styles.navSiteName}>Website name</span>
-        <button style={styles.navBtn} onClick={() => setOverlay("profile")}>My profile</button>
-        <button style={styles.navBtn} onClick={() => setOverlay("events")}>View all events</button>
-        <button style={styles.navBtnLogout} onClick={() => setOverlay("logout")}>Log out</button>
+      <nav className="bg-[#D9D9D9] flex items-center px-8 h-[88px] gap-[14px] sticky top-0 z-[100] shadow-[0_2px_8px_rgba(0,0,0,0.07)]">
+        <div className="bg-[#485C11] text-white rounded-full w-[82px] h-[70px] flex items-center justify-center font-bold text-[18px] cursor-pointer shrink-0">
+          logo
+        </div>
+        <span className="font-bold text-[21px] mr-auto">Website name</span>
+        <button
+          className="bg-white border-none rounded-full py-[13px] px-[26px] text-[16px] font-medium text-[#485C11] cursor-pointer"
+          onClick={() => setOverlay("profile")}
+        >My profile</button>
+        <button
+          className="bg-white border-none rounded-full py-[13px] px-[26px] text-[16px] font-medium text-[#485C11] cursor-pointer"
+          onClick={() => setOverlay("events")}
+        >View all events</button>
+        <button
+          className="bg-[#485C11] text-white border-none rounded-full py-[13px] px-[26px] text-[16px] font-medium cursor-pointer"
+          onClick={() => setOverlay("logout")}
+        >Log out</button>
       </nav>
 
       {/* MAIN */}
-      <div style={styles.main}>
-        <h1 style={styles.greeting}>HELLO JOHN!</h1>
+      <div className="max-w-[1140px] mx-auto px-6 pt-8 pb-[60px]">
+        <h1 className="text-[40px] font-bold mb-[22px]">HELLO JOHN!</h1>
 
         {/* TABS */}
-        <div style={styles.tabs}>
-          <button
-            style={activeTab === "profile" ? styles.tabActive : styles.tabInactive}
-            onClick={() => setActiveTab("profile")}
-          >
-            Profile
-          </button>
-          <button
-            style={activeTab === "activity" ? styles.tabActive : styles.tabInactive}
-            onClick={() => setActiveTab("activity")}
-          >
-            Activity
-          </button>
+        <div className="bg-[#D9D9D9] rounded-full p-[6px] inline-flex gap-1 mb-7">
+          {["profile", "activity"].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`border-none rounded-full py-[10px] px-7 text-[16px] cursor-pointer capitalize transition-all duration-200 ${
+                activeTab === tab
+                  ? "bg-white font-medium shadow-[0_1px_4px_rgba(0,0,0,0.12)] text-[#1a1a1a]"
+                  : "bg-transparent font-normal text-[#1a1a1a]"
+              }`}
+              style={{ fontFamily: "'DM Sans', sans-serif" }}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </button>
+          ))}
         </div>
 
-        {/* UPCOMING SECTION */}
-        <div style={styles.section}>
-          <div style={styles.cardWrapper}>
-            <div style={styles.card}>
-              <div style={styles.sectionHeader}>
-                <span style={styles.sectionTitle}>Upcoming</span>
+        {/* UPCOMING */}
+        <div className="mb-7">
+          <div className="bg-[#D9D9D9] rounded-[20px] p-3">
+            <div className="bg-white rounded-[14px] px-7 pt-6 pb-7">
+              <div className="flex items-center justify-between mb-[18px]">
+                <span className="text-[28px] font-normal">Upcoming</span>
               </div>
-              <div style={styles.eventList}>
-                {UPCOMING_EVENTS.map((e) => (
-                  <EventCard key={e.id} {...e} />
-                ))}
+              <div className="flex flex-col gap-[14px]">
+                {UPCOMING_EVENTS.map((e) => <EventCard key={e.id} {...e} />)}
               </div>
             </div>
           </div>
         </div>
 
-        {/* VOLUNTEER HISTORY SECTION */}
-        <div style={styles.section}>
-          <div style={styles.cardWrapper}>
-            <div style={styles.card}>
-              <div style={styles.sectionHeader}>
-                <span style={styles.sectionTitle}>Volunteer History</span>
-                <span style={styles.totalHours}>Total number of hours: {TOTAL_HOURS}</span>
+        {/* VOLUNTEER HISTORY */}
+        <div className="mb-7">
+          <div className="bg-[#D9D9D9] rounded-[20px] p-3">
+            <div className="bg-white rounded-[14px] px-7 pt-6 pb-7">
+              <div className="flex items-center justify-between mb-[18px]">
+                <span className="text-[28px] font-normal">Volunteer History</span>
+                <span className="text-[18px] font-normal text-[#333]">Total number of hours: {TOTAL_HOURS}</span>
               </div>
-              <div style={styles.eventList}>
-                {HISTORY_EVENTS.map((e) => (
-                  <EventCard key={e.id} {...e} />
-                ))}
+              <div className="flex flex-col gap-[14px]">
+                {HISTORY_EVENTS.map((e) => <EventCard key={e.id} {...e} />)}
               </div>
             </div>
           </div>
@@ -155,226 +112,20 @@ export default function ActivityDashboard() {
       {/* OVERLAY */}
       {overlay && (
         <div
-          style={styles.overlayBg}
+          className="fixed inset-0 bg-black/[0.42] z-[200] flex items-center justify-center"
           onClick={(e) => { if (e.target === e.currentTarget) setOverlay(null); }}
         >
-          <div style={styles.overlayCard}>
-            <h2 style={styles.overlayTitle}>{overlayInfo[overlay]?.title}</h2>
-            <p style={styles.overlayMsg}>{overlayInfo[overlay]?.msg}</p>
-            <button style={styles.overlayClose} onClick={() => setOverlay(null)}>Go back</button>
+          <div className="bg-white rounded-[20px] py-11 px-[52px] text-center max-w-[400px] w-[90%] shadow-[0_8px_40px_rgba(0,0,0,0.2)]">
+            <h2 className="text-[24px] font-bold mb-2.5">{overlayInfo[overlay]?.title}</h2>
+            <p className="text-[#666] mb-[26px] text-[15px]">{overlayInfo[overlay]?.msg}</p>
+            <button
+              className="bg-[#485C11] text-white border-none rounded-full py-3 px-[30px] text-[15px] font-medium cursor-pointer"
+              style={{ fontFamily: "'DM Sans', sans-serif" }}
+              onClick={() => setOverlay(null)}
+            >Go back</button>
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }
-
-const styles = {
-  nav: {
-    background: "#D9D9D9",
-    display: "flex",
-    alignItems: "center",
-    padding: "0 32px",
-    height: 88,
-    gap: 14,
-    position: "sticky",
-    top: 0,
-    zIndex: 100,
-    boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
-  },
-  navLogo: {
-    background: "#485C11",
-    color: "white",
-    borderRadius: 9999,
-    width: 82,
-    height: 70,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontWeight: 700,
-    fontSize: 18,
-    cursor: "pointer",
-    flexShrink: 0,
-  },
-  navSiteName: {
-    fontWeight: 700,
-    fontSize: 21,
-    marginRight: "auto",
-  },
-  navBtn: {
-    background: "white",
-    border: "none",
-    borderRadius: 9999,
-    padding: "13px 26px",
-    fontSize: 16,
-    fontFamily: "'DM Sans', sans-serif",
-    fontWeight: 500,
-    color: "#485C11",
-    cursor: "pointer",
-  },
-  navBtnLogout: {
-    background: "#485C11",
-    color: "white",
-    border: "none",
-    borderRadius: 9999,
-    padding: "13px 26px",
-    fontSize: 16,
-    fontFamily: "'DM Sans', sans-serif",
-    fontWeight: 500,
-    cursor: "pointer",
-  },
-  main: {
-    maxWidth: 1140,
-    margin: "0 auto",
-    padding: "32px 24px 60px",
-  },
-  greeting: {
-    fontSize: 40,
-    fontWeight: 700,
-    marginBottom: 22,
-  },
-  tabs: {
-    background: "#D9D9D9",
-    borderRadius: 9999,
-    padding: 6,
-    display: "inline-flex",
-    gap: 4,
-    marginBottom: 28,
-  },
-  tabActive: {
-    background: "white",
-    border: "none",
-    borderRadius: 9999,
-    padding: "10px 28px",
-    fontSize: 16,
-    fontFamily: "'DM Sans', sans-serif",
-    fontWeight: 500,
-    cursor: "pointer",
-    color: "#1a1a1a",
-    boxShadow: "0 1px 4px rgba(0,0,0,0.12)",
-  },
-  tabInactive: {
-    background: "transparent",
-    border: "none",
-    borderRadius: 9999,
-    padding: "10px 28px",
-    fontSize: 16,
-    fontFamily: "'DM Sans', sans-serif",
-    fontWeight: 400,
-    cursor: "pointer",
-    color: "#1a1a1a",
-  },
-  section: {
-    marginBottom: 28,
-  },
-  cardWrapper: {
-    background: "#D9D9D9",
-    borderRadius: 20,
-    padding: 12,
-  },
-  card: {
-    background: "white",
-    borderRadius: 14,
-    padding: "24px 28px 28px",
-  },
-  sectionHeader: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 18,
-  },
-  sectionTitle: {
-    fontSize: 28,
-    fontWeight: 400,
-  },
-  totalHours: {
-    fontSize: 18,
-    fontWeight: 400,
-    color: "#333",
-  },
-  eventList: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 14,
-  },
-  eventCard: {
-    background: "#D9D9D9",
-    borderRadius: 15,
-    padding: "16px 20px",
-    display: "flex",
-    flexDirection: "column",
-    gap: 10,
-  },
-  eventTop: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  eventOrg: {
-    fontSize: 18,
-    fontWeight: 600,
-  },
-  eventDate: {
-    fontSize: 17,
-    fontWeight: 500,
-    color: "#222",
-  },
-  eventBottom: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 16,
-  },
-  eventDesc: {
-    fontSize: 15,
-    fontWeight: 400,
-    color: "#333",
-    flex: 1,
-    lineHeight: 1.5,
-  },
-  eventHours: {
-    fontSize: 18,
-    fontWeight: 600,
-    whiteSpace: "nowrap",
-    flexShrink: 0,
-  },
-  overlayBg: {
-    position: "fixed",
-    inset: 0,
-    background: "rgba(0,0,0,0.42)",
-    zIndex: 200,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  overlayCard: {
-    background: "white",
-    borderRadius: 20,
-    padding: "44px 52px",
-    textAlign: "center",
-    maxWidth: 400,
-    width: "90%",
-    boxShadow: "0 8px 40px rgba(0,0,0,0.2)",
-  },
-  overlayTitle: {
-    fontSize: 24,
-    fontWeight: 700,
-    marginBottom: 10,
-  },
-  overlayMsg: {
-    color: "#666",
-    marginBottom: 26,
-    fontSize: 15,
-  },
-  overlayClose: {
-    background: "#485C11",
-    color: "white",
-    border: "none",
-    borderRadius: 9999,
-    padding: "12px 30px",
-    fontSize: 15,
-    fontFamily: "'DM Sans', sans-serif",
-    fontWeight: 500,
-    cursor: "pointer",
-  },
-};

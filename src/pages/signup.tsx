@@ -2,35 +2,38 @@ import { Link, useNavigate } from "react-router";
 import { getCurrentUserRole, organizationSignUp, userSignUp, type AccountRole } from "../auth/auth";
 import { useState } from "react";
 
+const inputClass = "w-full py-3.5 px-4 bg-gray-100 border-none rounded-xl text-sm text-gray-800 outline-none box-border";
+const labelClass = "block text-sm font-semibold text-gray-900 mb-2";
+
 function UserForm() {
     return (<>
-        <div style={styles.row}>
+        <div className="grid grid-cols-2 gap-4">
             <div>
-                <label style={styles.label}>First Name</label>
-                <input type="text" name="first_name" placeholder="Jane" style={styles.input} />
+                <label className={labelClass}>First Name</label>
+                <input type="text" name="first_name" placeholder="Jane" className={inputClass} />
             </div>
             <div>
-                <label style={styles.label}>Last Name</label>
-                <input type="text" name="last_name" placeholder="Smith" style={styles.input} />
-            </div>
-        </div>
-        <div>
-            <label style={styles.label}>Email</label>
-            <input type="email" name="email" placeholder="you@example.com" style={styles.input} />
-        </div>
-        <div style={styles.row}>
-            <div>
-                <label style={styles.label}>School</label>
-                <input type="text" name="school" placeholder="UMass Amherst" style={styles.input} />
-            </div>
-            <div>
-                <label style={styles.label}>Grad Year</label>
-                <input type="number" name="grad_year" placeholder="2026" style={styles.input} />
+                <label className={labelClass}>Last Name</label>
+                <input type="text" name="last_name" placeholder="Smith" className={inputClass} />
             </div>
         </div>
         <div>
-            <label style={styles.label}>Password</label>
-            <input type="password" name="password" placeholder="••••••••" style={styles.input} />
+            <label className={labelClass}>Email</label>
+            <input type="email" name="email" placeholder="you@example.com" className={inputClass} />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+            <div>
+                <label className={labelClass}>School</label>
+                <input type="text" name="school" placeholder="UMass Amherst" className={inputClass} />
+            </div>
+            <div>
+                <label className={labelClass}>Grad Year</label>
+                <input type="number" name="grad_year" placeholder="2026" className={inputClass} />
+            </div>
+        </div>
+        <div>
+            <label className={labelClass}>Password</label>
+            <input type="password" name="password" placeholder="••••••••" className={inputClass} />
         </div>
     </>);
 }
@@ -38,20 +41,20 @@ function UserForm() {
 function OrganizationForm() {
     return (<>
         <div>
-            <label style={styles.label}>Organization Name</label>
-            <input type="text" name="org_name" placeholder="Charity Organization" style={styles.input} />
+            <label className={labelClass}>Organization Name</label>
+            <input type="text" name="org_name" placeholder="Charity Organization" className={inputClass} />
         </div>
         <div>
-            <label style={styles.label}>Email</label>
-            <input type="email" name="email" placeholder="you@example.com" style={styles.input} />
+            <label className={labelClass}>Email</label>
+            <input type="email" name="email" placeholder="you@example.com" className={inputClass} />
         </div>
         <div>
-            <label style={styles.label}>Website</label>
-            <input type="url" name="website" placeholder="https://yourorg.com" style={styles.input} />
+            <label className={labelClass}>Website</label>
+            <input type="url" name="website" placeholder="https://yourorg.com" className={inputClass} />
         </div>
         <div>
-            <label style={styles.label}>Password</label>
-            <input type="password" name="password" placeholder="••••••••" style={styles.input} />
+            <label className={labelClass}>Password</label>
+            <input type="password" name="password" placeholder="••••••••" className={inputClass} />
         </div>
     </>);
 }
@@ -100,201 +103,112 @@ export default function SignupPage() {
         }
     }
 
+    const isVolunteer = currentSignupMode === "User";
+    const isOrg = currentSignupMode === "Organization";   
     return (
-      <div style={styles.page}>
-        <div style={styles.card}>
+        <div
+            className="fixed inset-0 flex items-center justify-center p-4 overflow-y-auto bg-gradient-to-br from-[#e8f5e9] via-[#c8e6c9] to-[#a5d6a7]"
+            style={{ fontFamily: "'DM Sans', sans-serif" }}
+        >
+            <div className="bg-white rounded-3xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-10 w-full max-w-[480px]">
 
-            <div style={styles.header}>
-            <h1 style={styles.title}>Create Account</h1>
-            <p style={styles.subtitle}>Join us today</p>
+                {/* Header */}
+                <div className="text-center mb-8">
+                    <h1 className="text-3xl font-bold text-gray-900 mt-0 mb-2">Create Account</h1>
+                    <p className="text-gray-400 text-sm m-0">Join us today</p>
+                </div>
+
+                {/* Toggle */}
+                <div className="flex bg-gray-100 rounded-full p-1 mb-8">
+                    <Link
+                        to="/login"
+                        className="flex-1 py-2.5 rounded-full text-sm font-semibold bg-transparent text-gray-400 no-underline text-center transition-all duration-200"
+                    >
+                        Login
+                    </Link>
+                    <button
+                        type="button"
+                        className="flex-1 py-2.5 rounded-full text-sm font-semibold bg-white text-gray-900 shadow-sm border-none cursor-pointer transition-all duration-200"
+                    >
+                        Sign Up
+                    </button>
+                </div>
+
+                {/* Role selection */}
+                <div className="mb-6">
+                    <p className="text-sm font-semibold text-gray-900 mb-3">I am a:</p>
+                    <div className="grid grid-cols-2 gap-4">
+
+                        <button
+                            type="button"
+                            onClick={() => setCurrentSignupMode("User")}
+                            className={`flex flex-col items-center justify-center py-7 px-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 ${
+                                isVolunteer ? "border-[#2d6a4f] bg-[#d8f3dc]" : "border-gray-200 bg-white"
+                            }`}
+                        >
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
+                                stroke={isVolunteer ? "#2d6a4f" : "#9ca3af"}
+                                strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+                                className="mb-2">
+                                <path d="M16 11c1.657 0 3-1.343 3-3S17.657 5 16 5" />
+                                <path d="M19 17c0-1.657-1.343-3-3-3" />
+                                <circle cx="10" cy="8" r="3" />
+                                <path d="M4 20c0-3.314 2.686-6 6-6s6 2.686 6 6" />
+                            </svg>
+                            <span className={`text-sm font-semibold ${isVolunteer ? "text-[#1b4332]" : "text-gray-700"}`}>
+                                Volunteer
+                            </span>
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => setCurrentSignupMode("Organization")}
+                            className={`flex flex-col items-center justify-center py-7 px-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 ${
+                                isOrg ? "border-[#2d6a4f] bg-[#d8f3dc]" : "border-gray-200 bg-white"
+                            }`}
+                        >
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
+                                stroke={isOrg ? "#2d6a4f" : "#9ca3af"}
+                                strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+                                className="mb-2">
+                                <rect x="3" y="3" width="7" height="18" rx="1" />
+                                <rect x="10" y="8" width="11" height="13" rx="1" />
+                                <line x1="6" y1="7" x2="6" y2="7.01" strokeWidth="2" />
+                                <line x1="6" y1="11" x2="6" y2="11.01" strokeWidth="2" />
+                                <line x1="6" y1="15" x2="6" y2="15.01" strokeWidth="2" />
+                                <line x1="14" y1="12" x2="14" y2="12.01" strokeWidth="2" />
+                                <line x1="18" y1="12" x2="18" y2="12.01" strokeWidth="2" />
+                                <line x1="14" y1="16" x2="14" y2="16.01" strokeWidth="2" />
+                                <line x1="18" y1="16" x2="18" y2="16.01" strokeWidth="2" />
+                            </svg>
+                            <span className={`text-sm font-semibold ${isOrg ? "text-[#1b4332]" : "text-gray-700"}`}>
+                                Organization
+                            </span>
+                        </button>
+
+                    </div>
+                </div>
+
+                {/* Form */}
+                <form action={signupSubmit} className="flex flex-col gap-5">
+                    <input type="hidden" name="role" value={currentSignupMode} />
+
+                    {currentSignupMode === "User" ? <UserForm /> : <OrganizationForm />}
+
+                    {signupError.length !== 0 && (
+                        <p className="text-red-500 text-sm m-0">{signupError}</p>
+                    )}
+
+                    <button
+                        type="submit"
+                        className="w-full p-4 bg-[#1c832f] hover:bg-[#1b4332] text-white border-none rounded-2xl text-sm font-semibold cursor-pointer transition-colors duration-150"
+                    >
+                        Create Account
+                    </button>
+                </form>
+
             </div>
-
-            <div style={styles.toggleContainer}>
-            <Link to="/login" style={{ ...styles.toggleBtn(false), textDecoration: "none", textAlign: "center" }}>
-                Login
-            </Link>
-            <button type="button" style={styles.toggleBtn(true)}>Sign Up</button>
-            </div>
-
-            <div style={{ marginBottom: "1.5rem" }}>
-            <p style={{ fontSize: "0.875rem", fontWeight: 600, color: "#111827", marginBottom: "0.75rem" }}>I am a:</p>
-            <div style={styles.roleGrid}>
-
-                <button type="button" onClick={() => setCurrentSignupMode("User")} style={styles.roleBtn(currentSignupMode === "User")}>
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
-                    stroke={currentSignupMode === "User" ? "#2d6a4f" : "#9ca3af"}
-                    strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
-                    style={{ marginBottom: "0.5rem" }}>
-                    <path d="M16 11c1.657 0 3-1.343 3-3S17.657 5 16 5" />
-                    <path d="M19 17c0-1.657-1.343-3-3-3" />
-                    <circle cx="10" cy="8" r="3" />
-                    <path d="M4 20c0-3.314 2.686-6 6-6s6 2.686 6 6" />
-                </svg>
-                <span style={styles.roleLabel(currentSignupMode === "User")}>Volunteer</span>
-                </button>
-
-                <button type="button" onClick={() => setCurrentSignupMode("Organization")} style={styles.roleBtn(currentSignupMode === "Organization")}>
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
-                    stroke={currentSignupMode === "Organization" ? "#2d6a4f" : "#9ca3af"}
-                    strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
-                    style={{ marginBottom: "0.5rem" }}>
-                    <rect x="3" y="3" width="7" height="18" rx="1" />
-                    <rect x="10" y="8" width="11" height="13" rx="1" />
-                    <line x1="6" y1="7" x2="6" y2="7.01" strokeWidth="2" />
-                    <line x1="6" y1="11" x2="6" y2="11.01" strokeWidth="2" />
-                    <line x1="6" y1="15" x2="6" y2="15.01" strokeWidth="2" />
-                    <line x1="14" y1="12" x2="14" y2="12.01" strokeWidth="2" />
-                    <line x1="18" y1="12" x2="18" y2="12.01" strokeWidth="2" />
-                    <line x1="14" y1="16" x2="14" y2="16.01" strokeWidth="2" />
-                    <line x1="18" y1="16" x2="18" y2="16.01" strokeWidth="2" />
-                </svg>
-                <span style={styles.roleLabel(currentSignupMode === "Organization")}>Organization</span>
-                </button>
-
-            </div>
-            </div>
-
-            <form action={signupSubmit} style={styles.form}>
-            {/* Tells signupSubmit which role was selected */}
-            <input type="hidden" name="role" value={currentSignupMode} />
-
-            {currentSignupMode === "User" ? <UserForm /> : <OrganizationForm />}
-
-            {signupError.length !== 0 && <p style={styles.errorText}>{signupError}</p>}
-
-            <button type="submit" style={styles.submitBtn}
-                onMouseEnter={e => (e.currentTarget.style.background = "#1b4332")}
-                onMouseLeave={e => (e.currentTarget.style.background = "#1c832f")}>
-                Create Account
-            </button>  
-            </form>
-
-        </div>
         </div>
     );
 
 }
-
-const styles = {
-  page: {
-    position: "fixed" as const,
-    inset: 0,
-    background: "linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 50%, #a5d6a7 100%)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "1rem",
-    overflowY: "auto" as const,
-    fontFamily: "'DM Sans', sans-serif",
-  },
-  card: {
-    background: "#ffffff",
-    borderRadius: "1.5rem",
-    boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
-    padding: "2.5rem",
-    width: "100%",
-    maxWidth: "480px",
-  },
-  header: {
-    textAlign: "center" as const,
-    marginBottom: "2rem",
-  },
-  title: {
-    fontSize: "1.875rem",
-    fontWeight: 700,
-    color: "#111827",
-    margin: "0 0 0.5rem",
-  },
-  subtitle: {
-    color: "#9ca3af",
-    fontSize: "0.875rem",
-    margin: 0,
-  },
-  toggleContainer: {
-    display: "flex",
-    background: "#f3f4f6",
-    borderRadius: "9999px",
-    padding: "4px",
-    marginBottom: "2rem",
-  },
-  toggleBtn: (active: boolean) => ({
-    flex: 1,
-    padding: "0.625rem",
-    borderRadius: "9999px",
-    border: "none",
-    cursor: "pointer",
-    fontSize: "0.875rem",
-    fontWeight: 600,
-    transition: "all 0.2s",
-    background: active ? "#ffffff" : "transparent",
-    color: active ? "#111827" : "#9ca3af",
-    boxShadow: active ? "0 1px 4px rgba(0,0,0,0.1)" : "none",
-  }),
-  roleGrid: {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: "1rem",
-  },
-  roleBtn: (active: boolean) => ({
-    display: "flex",
-    flexDirection: "column" as const,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "1.75rem 1rem",
-    borderRadius: "1rem",
-    border: `2px solid ${active ? "#2d6a4f" : "#e5e7eb"}`,
-    background: active ? "#d8f3dc" : "#ffffff",
-    cursor: "pointer",
-    transition: "all 0.2s",
-  }),
-  roleLabel: (active: boolean) => ({
-    fontSize: "0.875rem",
-    fontWeight: 600,
-    color: active ? "#1b4332" : "#374151",
-  }),
-  form: {
-    display: "flex",
-    flexDirection: "column" as const,
-    gap: "1.25rem",
-  },
-  label: {
-    display: "block",
-    fontSize: "0.875rem",
-    fontWeight: 600,
-    color: "#111827",
-    marginBottom: "0.5rem",
-  },
-  input: {
-    width: "100%",
-    padding: "0.875rem 1rem",
-    background: "#f3f4f6",
-    border: "none",
-    borderRadius: "0.75rem",
-    fontSize: "0.875rem",
-    color: "#1f2937",
-    outline: "none",
-    boxSizing: "border-box" as const,
-  },
-  submitBtn: {
-    width: "100%",
-    padding: "1rem",
-    background: "#1c832f",
-    color: "#ffffff",
-    border: "none",
-    borderRadius: "1rem",
-    fontSize: "0.875rem",
-    fontWeight: 600,
-    cursor: "pointer",
-    transition: "background 0.15s",
-  },
-  errorText: {
-    color: "#ef4444",
-    fontSize: "0.875rem",
-    margin: 0,
-  },
-  row: {
-  display: "grid",
-  gridTemplateColumns: "1fr 1fr",
-  gap: "1rem",
-  },
-};

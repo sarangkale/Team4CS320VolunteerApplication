@@ -3,122 +3,69 @@ import { Link } from 'react-router'
 
 function App() {    
     return (
-        <div style={{
-            fontFamily: "'Georgia', 'Times New Roman', serif",
-            minHeight: '100vh',
-            backgroundColor: '#ffffff',
-        }}>
+        <div className="min-h-screen bg-white" style={{ fontFamily: "'Georgia', 'Times New Roman', serif" }}>
+
             {/* Nav */}
-            <nav style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '16px 24px',
-                backgroundColor: '#ffffff',
-            }}>
-                <div style={{
-                    backgroundColor: '#4a6332',
-                    color: 'white',
-                    borderRadius: '50%',
-                    width: '52px',
-                    height: '52px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '12px',
-                    fontWeight: 'bold',
-                    fontFamily: 'sans-serif',
-                }}>
+            <nav className="flex justify-between items-center px-6 py-4 bg-white">
+                <div className="bg-[#4a6332] text-white rounded-full w-[62px] h-[62px] flex items-center justify-center text-xs font-bold font-sans">
                     logo
                 </div>
-                <Link to="/login" style={{
-                    backgroundColor: '#4a6332',
-                    color: 'white',
-                    padding: '10px 28px',
-                    borderRadius: '8px',
-                    textDecoration: 'none',
-                    fontFamily: 'sans-serif',
-                    fontWeight: '500',
-                    fontSize: '15px',
-                }}>
+                <Link
+                    to="/login"
+                    className="bg-[#4a6332] text-white py-2.5 px-7 rounded-lg no-underline font-sans font-medium text-[15px]"
+                >
                     Log in
                 </Link>
             </nav>
 
             {/* Main card */}
-            <main style={{
-                margin: '0 16px 32px',
-                backgroundColor: '#e8e8e8',
-                borderRadius: '16px',
-                overflow: 'hidden',
-            }}>
+            <main className="mx-4 mb-8 bg-[#e8e8e8] rounded-2xl overflow-hidden">
+
                 {/* Hero */}
-                <section style={{
-                    padding: 'clamp(40px, 8vw, 80px) clamp(20px, 6vw, 60px)',
-                }}>
-                    <h1 style={{
-                        fontSize: 'clamp(2.2rem, 7vw, 4.5rem)',
-                        fontWeight: '900',
-                        margin: '0',
-                        lineHeight: '1.1',
-                        color: '#111111',
-                        fontFamily: "'Georgia', serif",
-                    }}>
+                <section style={{ padding: 'clamp(40px, 8vw, 80px) clamp(20px, 6vw, 60px)' }}>
+                    <h1
+                        className="font-black m-0 leading-[1.1] text-[#111111]"
+                        style={{ fontSize: 'clamp(2.2rem, 7vw, 4.5rem)', fontFamily: "'Georgia', serif" }}
+                    >
                         Volunteering Made Easy.
                     </h1>
                 </section>
 
                 {/* Two-column green banner */}
-                <section style={{
-                    backgroundColor: '#7a8f5f',
-                    padding: 'clamp(28px, 5vw, 48px) clamp(20px, 6vw, 60px)',
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-                    gap: '32px',
-                }}>
+                <section
+                    className="bg-[#7a8f5f] grid gap-8 font-sans"
+                    style={{
+                        padding: 'clamp(28px, 5vw, 48px) clamp(20px, 6vw, 60px)',
+                        gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+                    }}
+                >
                     <div>
-                        <h2 style={{
-                            fontSize: 'clamp(1.1rem, 3vw, 1.4rem)',
-                            fontWeight: '800',
-                            marginTop: '0',
-                            marginBottom: '16px',
-                            color: '#111',
-                            fontFamily: 'sans-serif',
-                        }}>
+                        <h2
+                            className="font-extrabold mt-0 mb-4 text-[#111]"
+                            style={{ fontSize: 'clamp(1.1rem, 3vw, 1.4rem)' }}
+                        >
                             For volunteers
                         </h2>
-                        <ul style={{
-                            margin: '0',
-                            paddingLeft: '20px',
-                            color: '#111',
-                            lineHeight: '1.8',
-                            fontFamily: 'sans-serif',
-                            fontSize: 'clamp(0.85rem, 2vw, 1rem)',
-                        }}>
+                        <ul
+                            className="m-0 pl-5 text-[#111] leading-[1.8]"
+                            style={{ fontSize: 'clamp(0.85rem, 2vw, 1rem)' }}
+                        >
                             <li>Find volunteering opportunities near you</li>
                             <li>Filter based on your needs</li>
                             <li>View all your completed hours in one spot</li>
                         </ul>
                     </div>
                     <div>
-                        <h2 style={{
-                            fontSize: 'clamp(1.1rem, 3vw, 1.4rem)',
-                            fontWeight: '800',
-                            marginTop: '0',
-                            marginBottom: '16px',
-                            color: '#111',
-                            fontFamily: 'sans-serif',
-                        }}>
+                        <h2
+                            className="font-extrabold mt-0 mb-4 text-[#111]"
+                            style={{ fontSize: 'clamp(1.1rem, 3vw, 1.4rem)' }}
+                        >
                             For organizations
                         </h2>
-                        <ul style={{
-                            margin: '0',
-                            paddingLeft: '20px',
-                            color: '#111',
-                            lineHeight: '1.8',
-                            fontFamily: 'sans-serif',
-                            fontSize: 'clamp(0.85rem, 2vw, 1rem)',
-                        }}>
+                        <ul
+                            className="m-0 pl-5 text-[#111] leading-[1.8]"
+                            style={{ fontSize: 'clamp(0.85rem, 2vw, 1rem)' }}
+                        >
                             <li>Post opportunities for any situation</li>
                             <li>View and choose the applicants that best suit your situation</li>
                         </ul>
@@ -126,47 +73,36 @@ function App() {
                 </section>
 
                 {/* CTA */}
-                <section style={{
-                    padding: 'clamp(32px, 6vw, 60px) clamp(20px, 6vw, 60px)',
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    alignItems: 'center',
-                    gap: '24px',
-                }}>
+                <section
+                    className="flex flex-wrap items-center gap-6"
+                    style={{ padding: 'clamp(32px, 6vw, 60px) clamp(20px, 6vw, 60px)' }}
+                >
                     <div style={{ flex: '1 1 280px' }}>
-                        <h2 style={{
-                            fontSize: 'clamp(1.6rem, 5vw, 2.8rem)',
-                            fontWeight: '900',
-                            margin: '0 0 28px',
-                            color: '#111',
-                            fontFamily: "'Georgia', serif",
-                        }}>
+                        <h2
+                            className="font-black m-0 mb-7 text-[#111]"
+                            style={{ fontSize: 'clamp(1.6rem, 5vw, 2.8rem)', fontFamily: "'Georgia', serif" }}
+                        >
                             Don't wait -- join today!
                         </h2>
-                        <Link to="/signup" style={{
-                            display: 'inline-block',
-                            backgroundColor: '#3a5220',
-                            color: 'white',
-                            padding: '16px 36px',
-                            borderRadius: '50px',
-                            textDecoration: 'none',
-                            fontFamily: 'sans-serif',
-                            fontWeight: '700',
-                            fontSize: 'clamp(1rem, 2.5vw, 1.2rem)',
-                        }}>
+                        <Link
+                            to="/signup"
+                            className="inline-block bg-[#3a5220] text-white py-4 px-9 rounded-[50px] no-underline font-sans font-bold"
+                            style={{ fontSize: 'clamp(1rem, 2.5vw, 1.2rem)' }}
+                        >
                             Start now!
                         </Link>
                     </div>
 
                     {/* Hands image */}
-                    <div style={{ flex: '1 1 200px', display: 'flex', justifyContent: 'center' }}>
+                    <div className="flex justify-center" style={{ flex: '1 1 200px' }}>
                         <img
                             src="/src/assets/LandingPageHands.png"
                             alt="Diverse hands raised with hearts"
-                            style={{ width: '100%', maxWidth: '700px', objectFit: 'contain' }}
+                            className="w-full max-w-[700px] object-contain"
                         />
                     </div>
                 </section>
+
             </main>
         </div>
     )
