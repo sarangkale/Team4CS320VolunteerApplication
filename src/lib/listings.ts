@@ -63,6 +63,7 @@ export async function geocodeAddress(
     if (!response.ok) {
       return null;
     }
+}
 
     const data = await response.json();
 

@@ -107,6 +107,7 @@ export type Database = {
           org_id: string
           transport: string | null
           volunteer_time: string | null
+          applicants?: string | null
         }
         Insert: {
           capacity?: number | null
@@ -121,6 +122,7 @@ export type Database = {
           org_id: string
           transport?: string | null
           volunteer_time?: string | null
+          applicants?: string | null
         }
         Update: {
           capacity?: number | null
@@ -135,6 +137,7 @@ export type Database = {
           org_id?: string
           transport?: string | null
           volunteer_time?: string | null
+          applicants?: string | null
         }
         Relationships: []
       }
