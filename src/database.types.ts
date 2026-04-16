@@ -182,7 +182,7 @@ export type Database = {
           major: string | null
           phone: number | null
           school: string | null
-          skill: string | null
+          skills: string[] | null
           total_hours_completed: number | null
           user_id: string
         }
