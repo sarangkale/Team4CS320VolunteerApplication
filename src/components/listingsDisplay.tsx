@@ -6,29 +6,68 @@ import {
 } from "../lib/listings";
 
 const CATEGORY_OPTIONS = [
-  "Animals", "Arts", "Community", "Education", 
-  "Environment", "Health", "Human Rights", "Youth"
+  "Animals",
+  "Arts",
+  "Community",
+  "Education",
+  "Environment",
+  "Health",
+  "Human Rights",
+  "Youth",
 ];
 
 const SKILL_OPTIONS = [
-  "Fundraising", "Mentoring", "Graphic Design", 
-  "Social Media", "Data Entry", "Bilingual", "Event Planning"
+  "Fundraising",
+  "Mentoring",
+  "Graphic Design",
+  "Social Media",
+  "Data Entry",
+  "Bilingual",
+  "Event Planning",
 ];
 
 const TRANSPORT_OPTIONS = ["Bus", "Car", "Walk", "Remote"];
 
 const PAGE_SIZE = 10;
 
+function calculateDistanceMiles(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+): number {
+  const toRadians = (degrees: number) => (degrees * Math.PI) / 180;
+
+  const R = 3958.8;
+  const dLat = toRadians(lat2 - lat1);
+  const dLon = toRadians(lon2 - lon1);
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRadians(lat1)) *
+      Math.cos(toRadians(lat2)) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
 export default function ListingsDisplay() {
   const [listings, setListings] = useState<ListingData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
-  const [customSkill, setCustomSkill] = useState("");
-  const [skillToAdd, setSkillToAdd] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(false);
+
+  const [userLocation, setUserLocation] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
+
+  const [locationError, setLocationError] = useState("");
+  const [maxDistance, setMaxDistance] = useState<number | null>(null);
 
   const [filters, setFilters] = useState<ListingFilters>({
     searchTerm: "",
@@ -47,7 +86,47 @@ export default function ListingsDisplay() {
       const result = await retrieveListings(start, end, filters);
 
       if (result.type === "success") {
-        setListings(result.data);
+        let updatedListings = result.data.map((listing) => {
+          if (
+            userLocation &&
+            listing.latitude != null &&
+            listing.longitude != null
+          ) {
+            const distance = calculateDistanceMiles(
+              userLocation.latitude,
+              userLocation.longitude,
+              listing.latitude,
+              listing.longitude
+            );
+
+            return {
+              ...listing,
+              distance,
+            };
+          }
+
+          return {
+            ...listing,
+            distance: null,
+          };
+        });
+
+        if (userLocation) {
+          updatedListings = updatedListings.sort((a, b) => {
+            if (a.distance == null) return 1;
+            if (b.distance == null) return -1;
+            return a.distance - b.distance;
+          });
+        }
+
+        if (maxDistance != null) {
+          updatedListings = updatedListings.filter(
+            (listing) =>
+              listing.distance != null && listing.distance <= maxDistance
+          );
+        }
+
+        setListings(updatedListings);
         setHasMore(result.data.length === PAGE_SIZE);
       } else {
         setError(result.error.message);
@@ -57,20 +136,20 @@ export default function ListingsDisplay() {
     }
 
     loadListings();
-  }, [filters, page]);
+  }, [filters, page, userLocation, maxDistance]);
 
-  // Reset to page 0 whenever filters change
   useEffect(() => {
     setPage(0);
-  }, [filters]);
+  }, [filters, maxDistance]);
 
   const activeFilterCount = useMemo(() => {
     let count = 0;
     if (filters.categories?.length) count++;
     if (filters.skill?.length) count++;
     if (filters.transport?.length) count++;
+    if (maxDistance != null) count++;
     return count;
-  }, [filters]);
+  }, [filters, maxDistance]);
 
   function toggleArrayFilter(
     key: keyof Pick<ListingFilters, "categories" | "skill" | "transport">,
@@ -79,9 +158,12 @@ export default function ListingsDisplay() {
     setFilters((prev) => {
       const current = prev[key] ?? [];
       const exists = current.includes(value);
+
       return {
         ...prev,
-        [key]: exists ? current.filter((item) => item !== value) : [...current, value],
+        [key]: exists
+          ? current.filter((item) => item !== value)
+          : [...current, value],
       };
     });
   }
@@ -93,6 +175,28 @@ export default function ListingsDisplay() {
       skill: [],
       transport: [],
     }));
+    setMaxDistance(null);
+  }
+
+  function requestUserLocation() {
+    if (!navigator.geolocation) {
+      setLocationError("Geolocation is not supported by this browser.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        });
+        setLocationError("");
+      },
+      (error) => {
+        console.error(error);
+        setLocationError("Unable to access your location.");
+      }
+    );
   }
 
   return (
@@ -106,12 +210,17 @@ export default function ListingsDisplay() {
     >
       <h2>Volunteer Opportunities</h2>
 
-      <div style={{ display: "flex", gap: "12px", marginBottom: "20px" }}>
+      <div style={{ display: "flex", gap: "12px", marginBottom: "20px", flexWrap: "wrap" }}>
         <input
           type="text"
           placeholder="Search listings or organizations"
           value={filters.searchTerm ?? ""}
-          onChange={(e) => setFilters((prev) => ({ ...prev, searchTerm: e.target.value }))}
+          onChange={(e) =>
+            setFilters((prev) => ({
+              ...prev,
+              searchTerm: e.target.value,
+            }))
+          }
           style={{
             padding: "10px",
             borderRadius: "8px",
@@ -135,9 +244,31 @@ export default function ListingsDisplay() {
         >
           Filters {activeFilterCount > 0 ? `(${activeFilterCount})` : ""}
         </button>
+
+        <button
+          onClick={requestUserLocation}
+          style={{
+            padding: "10px 16px",
+            borderRadius: "999px",
+            border: "1px solid #ccc",
+            background: "white",
+            color: "black",
+            cursor: "pointer",
+          }}
+        >
+          Use my location
+        </button>
       </div>
 
-      {/* Backdrop — closes drawer on outside click */}
+      {userLocation && (
+        <p>
+          Your location: {userLocation.latitude.toFixed(4)},{" "}
+          {userLocation.longitude.toFixed(4)}
+        </p>
+      )}
+
+      {locationError && <p style={{ color: "red" }}>{locationError}</p>}
+
       {showFilters && (
         <div
           onClick={() => setShowFilters(false)}
@@ -199,7 +330,12 @@ export default function ListingsDisplay() {
             {CATEGORY_OPTIONS.map((option) => (
               <label
                 key={option}
-                style={{ display: "block", marginBottom: "12px", textAlign: "left", color: "black" }}
+                style={{
+                  display: "block",
+                  marginBottom: "12px",
+                  textAlign: "left",
+                  color: "black",
+                }}
               >
                 <input
                   type="checkbox"
@@ -216,7 +352,12 @@ export default function ListingsDisplay() {
             {SKILL_OPTIONS.map((option) => (
               <label
                 key={option}
-                style={{ display: "block", marginBottom: "12px", textAlign: "left", color: "black" }}
+                style={{
+                  display: "block",
+                  marginBottom: "12px",
+                  textAlign: "left",
+                  color: "black",
+                }}
               >
                 <input
                   type="checkbox"
@@ -233,7 +374,12 @@ export default function ListingsDisplay() {
             {TRANSPORT_OPTIONS.map((option) => (
               <label
                 key={option}
-                style={{ display: "block", marginBottom: "12px", textAlign: "left", color: "black" }}
+                style={{
+                  display: "block",
+                  marginBottom: "12px",
+                  textAlign: "left",
+                  color: "black",
+                }}
               >
                 <input
                   type="checkbox"
@@ -243,6 +389,28 @@ export default function ListingsDisplay() {
                 {option}
               </label>
             ))}
+          </div>
+
+          <div style={{ marginBottom: "24px" }}>
+            <h3 style={{ color: "black" }}>Distance</h3>
+            <select
+              value={maxDistance ?? ""}
+              onChange={(e) =>
+                setMaxDistance(e.target.value ? Number(e.target.value) : null)
+              }
+              style={{
+                width: "100%",
+                padding: "10px",
+                borderRadius: "8px",
+                border: "1px solid #ccc",
+              }}
+            >
+              <option value="">Any distance</option>
+              <option value="5">Within 5 miles</option>
+              <option value="10">Within 10 miles</option>
+              <option value="25">Within 25 miles</option>
+              <option value="50">Within 50 miles</option>
+            </select>
           </div>
 
           <div
@@ -318,10 +486,27 @@ export default function ListingsDisplay() {
               <p><strong>Category:</strong> {listing.categories}</p>
               <p><strong>Needed Skill:</strong> {listing.needed_skill?.join(", ")}</p>
               <p><strong>Transport:</strong> {listing.transport}</p>
+              <p>
+                <strong>Address:</strong> {listing.street}, {listing.city},{" "}
+                {listing.state} {listing.zip_code}
+              </p>
+              <p>
+                <strong>Distance:</strong>{" "}
+                {listing.distance != null
+                  ? `${listing.distance.toFixed(2)} miles`
+                  : "Unknown"}
+              </p>
             </div>
           ))}
 
-          <div style={{ display: "flex", gap: "12px", marginTop: "16px", alignItems: "center" }}>
+          <div
+            style={{
+              display: "flex",
+              gap: "12px",
+              marginTop: "16px",
+              alignItems: "center",
+            }}
+          >
             <button
               onClick={() => setPage((p) => Math.max(0, p - 1))}
               disabled={page === 0}

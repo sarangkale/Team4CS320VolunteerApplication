@@ -12,9 +12,12 @@ const SKILL_OPTIONS = [
 ];
 
 export default function ListingCreation() {
-  const [successMessage, setSuccessMessage] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
 
   async function createListingSubmit(formData: FormData) {
+    setSuccessMessage("");
+    setErrorMessage("");
     const name = formData.get("listing_name") as string;
     const capacity = Number.parseInt(formData.get("listing_capacity") as string);
     const description = formData.get("listing_description") as string;
@@ -22,10 +25,14 @@ export default function ListingCreation() {
     const duration = formData.get("listing_duration") as string;
     const category = formData.get("listing_category") as string;
     const transport = formData.get("listing_transport") as string;
+    const street = formData.get("street") as string;
+    const city = formData.get("city") as string;
+    const state = formData.get("state") as string;
+    const zipCode = formData.get("zip_code") as string;
 
     const selectedSkills = formData.getAll("listing_skill") as string[];
 
-    await createListing(
+    const result = await createListing(
       name,
       description,
       date,
@@ -33,11 +40,23 @@ export default function ListingCreation() {
       capacity,
       category,
       selectedSkills,
-      transport
+      transport,
+      street,
+      city,
+      state,
+      zipCode
     );
 
-    setSuccessMessage("Listing created successfully.");
-  }
+    if (result.type === "success") {
+        setSuccessMessage("Listing created successfully.");
+      } else {
+        setErrorMessage(
+          typeof result.error === "string"
+            ? result.error
+            : result.error.message
+        );
+      }
+    }
 
   return (
     <form action={createListingSubmit}>
@@ -70,6 +89,25 @@ export default function ListingCreation() {
         name="listing_duration"
         placeholder="Listing duration"
       />
+      <input 
+        type="text" 
+        name="street" 
+        placeholder="Street address" 
+        />
+      <input type="text" 
+        name="city" 
+        placeholder="City"
+        />
+      <input 
+        type="text" 
+        name="state" 
+        placeholder="State" 
+      />
+      <input 
+        type="text"
+        name="zip_code" 
+        placeholder="ZIP code" 
+        />
       <br />
 
       <select name="listing_category" defaultValue="">
@@ -113,6 +151,10 @@ export default function ListingCreation() {
 
       {successMessage && (
         <p style={{ color: "green" }}>{successMessage}</p>
+      )}
+
+      {errorMessage && (
+        <p style={{ color: "red" }}>{errorMessage}</p>
       )}
     </form>
   );
