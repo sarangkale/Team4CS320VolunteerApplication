@@ -17,7 +17,11 @@ export default async function logIn(req: express.Request, res: express.Response)
         return res.status(401).json(error);
     }
 
-    const {data: role, error: roleError} = await supabase.from("account roles").select("role");
+    const { data: role, error: roleError } = await supabase
+        .from("account roles")
+        .select("role")
+        .eq("id", data.user!.id)
+        .limit(1);
 
     if (roleError) {
         return res.status(401).json(roleError);
@@ -25,5 +29,9 @@ export default async function logIn(req: express.Request, res: express.Response)
 
     createCookies(data.session, res);
 
-    return res.json({user: data.user, role: role[0]!.role!});
+    if (!role || role.length === 0 || !role[0]?.role) {
+        return res.status(401).json({ message: "Role not found for authenticated user" });
+    }
+
+    return res.json({ user: data.user, role: role[0].role });
 }

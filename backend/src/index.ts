@@ -4,8 +4,14 @@ import organizationRouter from "./routes/organizationRouting.ts";
 import authRouter from "./routes/authRouting.ts";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-dotenv.config();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Support both backend/.env and repo-root .env so dev works regardless of launch folder.
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
+dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 const server = express();
 
