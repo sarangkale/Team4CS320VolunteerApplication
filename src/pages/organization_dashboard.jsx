@@ -152,7 +152,7 @@ function CreateEventModal({ onClose, onCreate }) {
 
 // ── Main Component ───────────────────────────────────────────
 export default function OrganizationDashboard() {
-    const [activeTab, setActiveTab] = useState("account");
+    const [activeTab, setActiveTab] = useState("events");
     const [overlay, setOverlay] = useState(null);
     const [showCreateEvent, setShowCreateEvent] = useState(false);
     const [events, setEvents] = useState(INITIAL_EVENTS);
@@ -224,9 +224,12 @@ export default function OrganizationDashboard() {
             <nav style={s.nav}>
                 <div style={s.navLogo}>logo</div>
                 <span style={s.navSiteName}>Website name</span>
-                <button className="navBtnLogout" style={s.navBtnLogout} onClick={() => {
-                    logout();
-                    navigate("/");
+                <button className="navBtnLogout" style={s.navBtnLogout} onClick={async () => {
+                    try {
+                        await logout();
+                    } finally {
+                        navigate("/login");
+                    }
                 }}>
                     Log out
                 </button>
@@ -256,7 +259,7 @@ export default function OrganizationDashboard() {
                     </div>
 
                     {activeTab === "events" ? (
-                        <button className="createEventBtn" style={s.createEventBtn} onClick={() => setShowCreateEvent(true)}>
+                        <button className="createEventBtn" style={s.createEventBtn} onClick={() => navigate("/organization_dashboard/create_opportunity")}>
                             Create Event
                         </button>
                     ) : (

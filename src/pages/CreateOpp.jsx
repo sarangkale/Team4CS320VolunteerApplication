@@ -1,7 +1,5 @@
 import { useState } from "react";
-
-// Mock navigate — swap for: import { useNavigate } from "react-router-dom";
-const useNavigate = () => (path) => console.log("Navigate to:", path);
+import { useNavigate } from "react-router";
 
 const INITIAL_TAGS = ["Tag #1", "Tag #2", "Tag #3", "Tag #4"];
 
@@ -72,7 +70,7 @@ export default function CreateOpportunity() {
         <h1 style={styles.pageTitle}>Create a Volunteering Opportunity!</h1>
         <button
           style={styles.backBtn}
-          onClick={() => navigate(-1)}
+          onClick={() => navigate("/organization_dashboard")}
           onMouseEnter={(e) => (e.currentTarget.style.background = "#c8c8c8")}
           onMouseLeave={(e) => (e.currentTarget.style.background = "#d9d9d9")}
         >
@@ -217,7 +215,10 @@ export default function CreateOpportunity() {
 
             {/* Post Event button */}
             <button
-              onClick={handlePost}
+              onClick={() => {
+                handlePost();
+                navigate("/organization_dashboard");
+              }}
               style={styles.postBtn}
               onMouseEnter={(e) => (e.currentTarget.style.background = "#2e3a1f")}
               onMouseLeave={(e) => (e.currentTarget.style.background = "#3b4a2e")}
