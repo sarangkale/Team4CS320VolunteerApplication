@@ -58,6 +58,7 @@ const CATEGORY_FILTERS = ["All", "Community", "Environment", "Education", "Healt
 export default function VolunteerDashboardEvents() {
 	const navigate = useNavigate();
 	const [selectedCategory, setSelectedCategory] = useState("All");
+	const [expandedEvent, setExpandedEvent] = useState(null);
 
 	const visibleEvents = useMemo(() => {
 		if (selectedCategory === "All") return MOCK_EVENTS;
@@ -233,6 +234,13 @@ export default function VolunteerDashboardEvents() {
 					display: flex;
 					flex-direction: column;
 					gap: 10px;
+					cursor: pointer;
+					transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+				}
+				.event-card:hover {
+					background: #f3f3f3;
+					transform: translateY(-1px);
+					box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
 				}
 				.event-header {
 					display: flex;
@@ -295,6 +303,87 @@ export default function VolunteerDashboardEvents() {
 					text-align: center;
 					color: var(--text-muted);
 				}
+				.event-overlay {
+					position: fixed;
+					inset: 0;
+					background: rgba(0, 0, 0, 0.45);
+					z-index: 200;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					padding: 24px;
+				}
+				.event-modal {
+					width: 100%;
+					max-width: 680px;
+					background: var(--white);
+					border-radius: 20px;
+					box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
+					padding: 30px 32px;
+				}
+				.event-modal-title {
+					font-size: 26px;
+					font-weight: 700;
+					margin-bottom: 18px;
+				}
+				.event-modal-grid {
+					display: grid;
+					grid-template-columns: 1fr 1fr;
+					gap: 14px;
+					margin-bottom: 18px;
+				}
+				.event-modal-field {
+					background: #f3f3f3;
+					border-radius: 12px;
+					padding: 12px 14px;
+				}
+				.event-modal-label {
+					display: block;
+					font-size: 12px;
+					font-weight: 700;
+					letter-spacing: 0.4px;
+					text-transform: uppercase;
+					color: #666;
+					margin-bottom: 4px;
+				}
+				.event-modal-value {
+					font-size: 15px;
+					color: #1a1a1a;
+					line-height: 1.45;
+				}
+				.event-modal-actions {
+					display: flex;
+					justify-content: flex-end;
+					gap: 10px;
+					flex-wrap: wrap;
+					margin-top: 8px;
+				}
+				.event-modal-back,
+				.event-modal-apply {
+					border: none;
+					border-radius: var(--pill);
+					padding: 11px 22px;
+					font-size: 15px;
+					font-weight: 600;
+					cursor: pointer;
+					transition: background 0.2s, transform 0.15s;
+				}
+				.event-modal-back {
+					background: #d9d9d9;
+					color: var(--text);
+				}
+				.event-modal-back:hover {
+					background: #c6c6c6;
+					transform: translateY(-1px);
+				}
+				.event-modal-apply {
+					background: var(--green-dark);
+					color: var(--white);
+				}
+				.event-modal-apply:hover {
+					background: #3a4c0d;
+					transform: translateY(-1px);
+				}
 
 				@media (max-width: 920px) {
 					.nav {
@@ -314,6 +403,9 @@ export default function VolunteerDashboardEvents() {
 						font-size: 30px;
 					}
 					.events-grid {
+						grid-template-columns: 1fr;
+					}
+					.event-modal-grid {
 						grid-template-columns: 1fr;
 					}
 				}
@@ -374,7 +466,7 @@ export default function VolunteerDashboardEvents() {
 							const fillPercent = Math.min(100, Math.round((event.slotsFilled / event.slotsTotal) * 100));
 
 							return (
-								<article key={event.id} className="event-card">
+								<article key={event.id} className="event-card" onClick={() => setExpandedEvent(event)}>
 									<div className="event-header">
 										<div>
 											<h2 className="event-title">{event.title}</h2>
@@ -408,6 +500,48 @@ export default function VolunteerDashboardEvents() {
 					<div className="empty-state">No events found for this category right now.</div>
 				)}
 			</main>
+
+			{expandedEvent && (
+				<div className="event-overlay" onClick={(e) => { if (e.target === e.currentTarget) setExpandedEvent(null); }}>
+					<div className="event-modal">
+						<div className="event-modal-title">{expandedEvent.title}</div>
+						<div className="event-modal-grid">
+							<div className="event-modal-field">
+								<span className="event-modal-label">Organization</span>
+								<div className="event-modal-value">{expandedEvent.organization}</div>
+							</div>
+							<div className="event-modal-field">
+								<span className="event-modal-label">Category</span>
+								<div className="event-modal-value">{expandedEvent.category}</div>
+							</div>
+							<div className="event-modal-field">
+								<span className="event-modal-label">Date &amp; Time</span>
+								<div className="event-modal-value">{expandedEvent.date} {expandedEvent.time}</div>
+							</div>
+							<div className="event-modal-field">
+								<span className="event-modal-label">Location</span>
+								<div className="event-modal-value">{expandedEvent.location}</div>
+							</div>
+							<div className="event-modal-field" style={{ gridColumn: "1 / -1" }}>
+								<span className="event-modal-label">Description</span>
+								<div className="event-modal-value">{expandedEvent.description}</div>
+							</div>
+							<div className="event-modal-field" style={{ gridColumn: "1 / -1" }}>
+								<span className="event-modal-label">Volunteer Slots</span>
+								<div className="event-modal-value">{expandedEvent.slotsFilled}/{expandedEvent.slotsTotal} filled</div>
+							</div>
+						</div>
+						<div className="event-modal-actions">
+							<button type="button" className="event-modal-back" onClick={() => setExpandedEvent(null)}>
+								Back
+							</button>
+							<button type="button" className="event-modal-apply" onClick={() => {}}>
+								Apply
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
 		</>
 	);
 }

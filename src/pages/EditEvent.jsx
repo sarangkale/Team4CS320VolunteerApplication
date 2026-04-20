@@ -1,20 +1,48 @@
 import { useState } from "react";
+import { useNavigate, useParams } from "react-router";
 
-// Mock navigation — replace with your router (e.g. useNavigate from react-router-dom)
-const useNavigate = () => (path) => console.log("Navigate to:", path);
-//// Remove the mock and add: import { useNavigate } from "react-router-dom";
-
-export default function EditOpportunity() {
-  const navigate = useNavigate();
-
-  const [form, setForm] = useState({
-    name: "Opportunity name",
-    volunteerTotal: "25",
-    location: "Amherst, MA",
+const EVENT_BY_ID = {
+  1: {
+    name: "Event #1",
+    volunteerTotal: "15",
+    location: "Amherst Town Hall",
     date: "2026-01-01",
     time: "11:30",
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+  },
+  2: {
+    name: "Event #2",
+    volunteerTotal: "15",
+    location: "Downtown Public Library",
+    date: "2026-01-01",
+    time: "11:30",
+    description:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+  },
+  3: {
+    name: "Event #3",
+    volunteerTotal: "15",
+    location: "North Commons Park",
+    date: "2026-01-01",
+    time: "11:30",
+    description:
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+  },
+};
+
+export default function EditOpportunity() {
+  const navigate = useNavigate();
+  const { eventId } = useParams();
+  const eventData = EVENT_BY_ID[Number(eventId)] ?? EVENT_BY_ID[1];
+
+  const [form, setForm] = useState({
+    name: eventData.name,
+    volunteerTotal: eventData.volunteerTotal,
+    location: eventData.location,
+    date: eventData.date,
+    time: eventData.time,
+    description: eventData.description,
   });
 
   const [tags, setTags] = useState(["Tag #1", "Tag #2", "Tag #3", "Tag #4"]);
@@ -45,6 +73,7 @@ export default function EditOpportunity() {
   const handleSave = () => {
     console.log("Saved:", form, tags);
     alert("Changes saved!");
+    navigate("/organization_dashboard");
   };
 
   // Format date for display
@@ -124,7 +153,7 @@ export default function EditOpportunity() {
       <div style={{ maxWidth: 900, margin: "32px auto", padding: "0 24px" }}>
         {/* Title */}
         <h1 style={{ fontSize: 32, fontWeight: 800, margin: "0 0 18px" }}>
-          Volunteer Opportunity Name
+          Edit Event {eventId ? `#${eventId}` : ""}
         </h1>
 
         {/* Tab bar */}
@@ -132,7 +161,7 @@ export default function EditOpportunity() {
           {["Volunteers", "Edit Information"].map((tab) => (
             <button
               key={tab}
-              onClick={() => tab === "Volunteers" && navigate("/volunteers")}
+              onClick={() => tab === "Volunteers" && navigate("/organization_dashboard/view_applicant/1")}
               style={{
                 padding: "8px 26px",
                 fontSize: 15,
