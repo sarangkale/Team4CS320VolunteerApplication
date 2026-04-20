@@ -5,6 +5,8 @@ import App from './pages/App.tsx'
 import LoginPage from "./pages/login.tsx"
 import OrganizationDashboard from './pages/organization_dashboard.jsx'
 import CreateOpportunity from './pages/CreateOpp.jsx'
+import EditEvent from './pages/EditEvent.jsx'
+import ViewApplicant from './pages/OrgViewApplicant.jsx'
 import SignupPage from './pages/signup.tsx'
 import VolunteerDashboard from './pages/volunteer_dashboard_events.jsx'
 import VolunteerProfile from './pages/volunteer_dashboard_profile.jsx'
@@ -18,6 +20,8 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/signup" element = {<SignupPage />} />
             <Route path="/organization_dashboard" element = {<OrganizationDashboard />} />
             <Route path="/organization_dashboard/create_opportunity" element = {<CreateOpportunity />} />
+            <Route path="/organization_dashboard/edit_event/:eventId" element = {<EditEvent />} />
+            <Route path="/organization_dashboard/view_applicant/:applicantId" element = {<ViewApplicant />} />
             <Route path="/volunteer_dashboard/events" element = {<VolunteerDashboard />} />
             <Route path="/volunteer_dashboard/profile" element = {<VolunteerProfile />} />
             <Route path="/volunteer_dashboard/activity" element = {<VolunteerActivity />} />
