@@ -17,7 +17,7 @@ export default function LoginPage() {
         switch (res.type) {
             case "success": {
                 if (getCurrentUserRole() === "User") {
-                    navigate("/volunteer_dashboard");
+                    navigate("/volunteer_dashboard/events");
                 } else {
                     navigate("/organization_dashboard");
                 }

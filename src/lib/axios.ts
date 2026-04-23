@@ -42,8 +42,8 @@ export async function axios_post<S>(url: string, data?: any): Promise<Result<Axi
     .catch(handle_axios_error);
 }
 
-export async function axios_get<S>(url: string): Promise<Result<AxiosResponse<S, any, {}>, RequestError>> {
-    return await axios_instance.get<S>(url)
+export async function axios_get<S>(url: string, data?: any): Promise<Result<AxiosResponse<S, any, {}>, RequestError>> {
+    return await axios_instance.get<S>(url, data)
     .then(handle_axios_success)
     .catch(handle_axios_error);
 }

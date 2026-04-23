@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   retrieveListings,
+  updateListingApplicant,
   type ListingData,
   type ListingFilters,
 } from "../lib/listings";
