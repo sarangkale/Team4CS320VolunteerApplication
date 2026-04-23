@@ -6,7 +6,7 @@ import volunteerRouter from "./routes/volunteerRouting.ts";
 import organizationRouter from "./routes/organizationRouting.ts";
 import authRouter from "./routes/authRouting.ts";
 
-dotenv.config();
+dotenv.config({ path: [".env", "../.env"] });
 
 const server = express();
 
