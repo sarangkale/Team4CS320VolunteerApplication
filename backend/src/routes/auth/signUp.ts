@@ -38,7 +38,7 @@ export async function volunteerSignUp(req: express.Request, res: express.Respons
 
     createCookies(data.session!, res);
 
-    res.json({ user: data.user });
+    res.json(data.user);
 }
 
 export async function organizationSignUp(req: express.Request, res: express.Response) {
@@ -80,5 +80,5 @@ export async function organizationSignUp(req: express.Request, res: express.Resp
         }
     );
 
-    res.json({ user: data.user });
+    res.json(data.user);
 }

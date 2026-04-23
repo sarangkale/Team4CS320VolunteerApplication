@@ -1,5 +1,9 @@
-import { AuthError, PostgrestError, type Session, type User, type UserResponse } from "@supabase/supabase-js";
-import { supabase } from "../lib/supabase"
+import { /* AuthError, PostgrestError, type Session, */ type User/* , type UserResponse */ } from "@supabase/supabase-js";
+import { axios_get, axios_post, type RequestError } from "../lib/axios";
+// import { supabase } from "../lib/supabase"
+
+const ACCOUNT_LOCAL_STORAGE_KEY = "Account";
+const ROLE_LOCAL_STORAGE_KEY = "Role";
 
 export type AccountRole = "User" | "Organization";
 
@@ -57,25 +61,6 @@ export type OrganizationProfile = {
     website?: string | null;
 };
 
-type SignupResult = { user: User | null, session: Session | null };
-
-async function createAccount(
-    email: string,
-    password: string,
-    role: AccountRole
-): Promise<Result<SignupResult, AuthError>> {
-    const { data, error } = await supabase.auth.signUp({ email, password });
-
-    if (data.user) {
-        await supabase.from("account roles").insert({ id: data.user.id, role })
-
-        return success(data);
-    }
-    console.error(error);
-
-    return failure(error!);
-}
-
 // USER SIGN UP
 export async function userSignUp(
     email: string,
@@ -84,31 +69,23 @@ export async function userSignUp(
     lastName: string,
     school: string,
     graduationYear: number
-): Promise<Result<SignupResult, AuthError>> {
-    const accountResult = await createAccount(email, password, "User");
+): Promise<Result<User, RequestError>> {
+    const res = await axios_post<User>("/auth/signup_volunteer", {
+        email,
+        password,
+        first_name: firstName,
+        last_name: lastName,
+        school,
+        graduation_year: graduationYear
+    });
 
-    if (accountResult.type == "success") {
-        const profile: UserProfile = {
-            bio: "",
-            email,
-            first_name: firstName,
-            graduation_year: graduationYear,
-            last_name: lastName,
-            major: "",
-            phone: 0,
-            school,
-            total_hours_completed: 0,
-            user_id: accountResult.data.user!.id,
-        };
-        await supabase.from("profiles").insert(
-            profile
-        );
-
-        return success(accountResult.data);
+    if (res.type == "success") {
+        localStorage.setItem(ACCOUNT_LOCAL_STORAGE_KEY, JSON.stringify(res.data));
+        localStorage.setItem(ROLE_LOCAL_STORAGE_KEY, "User");
+        return success(res.data.data);
+    } else {
+        return failure(res.error);
     }
-
-    console.error(accountResult.error);
-    return failure(accountResult.error);
 }
 
 // ORGANIZATION SIGN UP
@@ -117,134 +94,69 @@ export async function organizationSignUp(
     password: string,
     orgName: string,
     website: string):
-Promise<Result<SignupResult, AuthError>> {
-    const accountResult = await createAccount(email, password, "Organization");
+    Promise<Result<User, RequestError>> {
+    const res = await axios_post<User>("/auth/signup_volunteer", {
+        email,
+        password,
+        org_name: orgName,
+        website,
+    });
 
-    if (accountResult.type === "success") {
-        const profile: OrganizationProfile = {
-            all_listings: "",
-            bio: "",
-            email,
-            org_id: accountResult.data.user!.id,
-            org_name: orgName,
-            website,
-        };
-        await supabase.from("organization").insert(
-            profile
-        );
-
-        return success(accountResult.data);
+    if (res.type == "success") {
+        localStorage.setItem(ACCOUNT_LOCAL_STORAGE_KEY, JSON.stringify(res.data));
+        localStorage.setItem(ROLE_LOCAL_STORAGE_KEY, "User");
+        return success(res.data.data);
+    } else {
+        return failure(res.error);
     }
-
-    console.error(accountResult.error);
-    return failure(accountResult.error);
 }
 
 // LOGIN
-export async function login(email: string, password: string): Promise<Result<{ user: User }, AuthError>> {
-    const { data, error } = await supabase.auth.signInWithPassword({
+export async function login(email: string, password: string): Promise<Result<{ user: User, role: AccountRole }, RequestError>> {
+    const res = await axios_post<{ user: User, role: AccountRole }>("/auth/login", {
         email,
         password
     });
-
-    if (error) {
-        console.error(error)
-        return failure(error);
+    if (res.type == "success") {
+        const { user, role } = res.data.data;
+        localStorage.setItem(ACCOUNT_LOCAL_STORAGE_KEY, JSON.stringify(user));
+        localStorage.setItem(ROLE_LOCAL_STORAGE_KEY, role as string);
+        return success(res.data.data);
+    } else {
+        return failure(res.error);
     }
-
-    return success(data);
 }
 
-export async function getCurrentUserRole(): Promise<AuthRes<AccountRole, AuthError | PostgrestError>> {
-    const { data: userData, error: userError } = await supabase.auth.getUser();
-
-    if (userError || !userData.user) {
-        return {
-            type: "error",
-            error: userError ?? new AuthError("No authenticated user session."),
-        };
-    }
-
-    const { data, error } = await supabase
-        .from("account roles")
-        .select("role")
-        .eq("id", userData.user.id)
-        .single();
-
-    if (error || !data?.role) {
-        return {
-            type: "error",
-            error: error ?? new AuthError("Unable to determine account role."),
-        };
-    }
-
-    if (data.role !== "User" && data.role !== "Organization") {
-        return {
-            type: "error",
-            error: new AuthError("Invalid account role."),
-        };
-    }
-
-    return {
-        type: "success",
-        data: data.role,
-    };
+export function getCurrentUserRole(): AccountRole {
+    return localStorage.getItem(ROLE_LOCAL_STORAGE_KEY) as AccountRole;
 }
 
 // LOGOUT
-export async function logout(): Promise<AuthError | null> {
-    const { error } = await supabase.auth.signOut();
+export async function logout(): Promise<Result<null, RequestError>> {
+    localStorage.clear();
+    const res = await axios_post("/auth/logout");
 
-    if (error) {
-        console.error(error);
+    if (res.type == "success") {
+        return success(null);
+    } else {
+        return failure(res.error);
     }
-
-    return error;
 }
 
 // GET USER
-export async function getCurrentUser(): Promise<UserResponse> {
-    return await supabase.auth.getUser();
+export async function getCurrentUser(): Promise<User> {
+    return JSON.parse(localStorage.getItem(ACCOUNT_LOCAL_STORAGE_KEY)!)
 }
 
-export async function getAccountProfile(): Promise<Result<Account, PostgrestError>> {
-    const { data, error } = await supabase.from("account roles").select("role");
-    if (data && data[0]) {
-        const role = data[0].role;
-        if (role == "User") {
-            const {data, error}= await supabase.from("profiles").select();
-            const account: Account = {
-                role: "User",
-                profile: data![0],
-            };
-            if (data) {
-                return success(account);
-            } else {
-                return failure(error);
-            }
-        } else {
-            const {data, error}= await supabase.from("organization").select();
-            const account: Account = {
-                role: "Organization",
-                profile: data![0],
-            };
-            if (data) {
-                return success(account);
-            } else {
-                return failure(error);
-            }
-        }
-    }
-
-    return failure(error!);
-}
-
-export async function getAccountAccessToken(): Promise<Result<String, AuthError>> {
-    const {data, error} = await supabase.auth.getSession();
-
-    if (data) {
-        return success(data.session?.access_token!);
+export async function getAccountProfile(): Promise<Result<Account, RequestError>> {
+    const role = getCurrentUserRole();
+    const res = await axios_get<UserProfile | OrganizationProfile>(role == "Organization" ? "/organization/profile" : "/volunteer/profile");
+    if (res.type == "success") {
+        return success({
+            role,
+            profile: res.data.data,
+        });
     } else {
-        return failure(error!);
+        return failure(res.error);
     }
 }

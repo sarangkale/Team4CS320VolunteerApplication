@@ -41,57 +41,57 @@ export default function VolunteerDashboard() {
   const removeSkill = (skill) => setSkills((prev) => prev.filter((s) => s !== skill));
   const openSkillInput = () => { setShowSkillInput(true); setTimeout(() => skillInputRef.current?.focus(), 50); };
 
-  const inputCls = "bg-[#D9D9D9] border-none rounded-[6px] py-[9px] px-[13px] text-[15px] text-[#1a1a1a] outline-none w-full focus:bg-[#e2e2e2] focus:ring-2 focus:ring-[#8E9B77] transition-all duration-200";
+  const inputCls = "bg-surface border-none rounded-[6px] py-[9px] px-[13px] text-[15px] text-[#1a1a1a] outline-none w-full focus:bg-surface-focus focus:ring-2 focus:ring-badge transition-all duration-200";
 
   return (
-    <div className="bg-[#ebebeb] min-h-screen text-[#1a1a1a] font-['DM_Sans',sans-serif]">
-      <nav className="bg-[#D9D9D9] flex items-center px-8 h-[88px] gap-3 sticky top-0 z-50 shadow-md">
-        <div className="bg-[#485C11] text-white rounded-full w-[82px] h-[70px] flex items-center justify-center font-bold text-[18px]">
+    <div className="bg-page min-h-screen text-[#1a1a1a] font-sans">
+      <nav className="bg-surface flex items-center px-8 h-nav gap-3 sticky top-0 z-50 shadow-md">
+        <div className="bg-primary text-white rounded-full w-[82px] h-[70px] flex items-center justify-center font-bold text-[18px]">
           logo
         </div>
         <span className="font-bold text-[21px] mr-auto">Website name</span>
         <button
-          className="bg-white text-[#485C11] rounded-full px-6 py-3 font-medium border-none cursor-pointer hover:bg-gray-50 transition-colors duration-200 font-['DM_Sans',sans-serif]"
+          className="bg-white text-primary rounded-full px-6 py-3 font-medium border-none cursor-pointer hover:bg-gray-50 transition-colors duration-200"
           onClick={() => navigate("/volunteer_dashboard/profile")}
         >My profile</button>
         <button
-          className="bg-white text-[#485C11] rounded-full px-6 py-3 font-medium border-none cursor-pointer hover:bg-gray-50 transition-colors duration-200 font-['DM_Sans',sans-serif]"
+          className="bg-white text-primary rounded-full px-6 py-3 font-medium border-none cursor-pointer hover:bg-gray-50 transition-colors duration-200"
           onClick={() => navigate("/volunteer_dashboard/events")}
         >View all events</button>
         <button
-          className="bg-[#485C11] text-white rounded-full px-6 py-3 font-medium border-none cursor-pointer hover:bg-[#3a4c0d] transition-colors duration-200 font-['DM_Sans',sans-serif]"
+          className="bg-primary text-white rounded-full px-6 py-3 font-medium border-none cursor-pointer hover:bg-primary-dark transition-colors duration-200"
           onClick={() => navigate("/login")}
         >Log out</button>
       </nav>
 
       {/* MAIN */}
-      <div className="max-w-[1140px] mr-auto px-6 pt-9 pb-[60px]">
+      <div className="max-w-content mr-auto px-6 pt-9 pb-[60px]">
         <h1 className="text-[40px] font-bold mb-6">HELLO JOHN!</h1>
 
         <div className="flex items-center justify-between mb-4">
-          <div className="bg-[#D9D9D9] rounded-full p-1 inline-flex gap-1">
+          <div className="bg-surface rounded-full p-1 inline-flex gap-1">
             <button
-              className={`px-7 py-2 rounded-full text-[16px] border-none cursor-pointer font-['DM_Sans',sans-serif] transition-all duration-200 ${
+              className={`px-7 py-2 rounded-full text-[16px] border-none cursor-pointer transition-all duration-200 ${
                 activeTab === "profile" ? "bg-white shadow-md font-medium text-[#1a1a1a]" : "bg-transparent text-[#1a1a1a]"
               }`}
               onClick={() => navigate("/volunteer_dashboard/profile")}
             >Profile</button>
             <button
-              className={`px-7 py-2 rounded-full text-[16px] border-none cursor-pointer font-['DM_Sans',sans-serif] transition-all duration-200 ${
+              className={`px-7 py-2 rounded-full text-[16px] border-none cursor-pointer transition-all duration-200 ${
                 activeTab === "activity" ? "bg-white shadow-md font-medium text-[#1a1a1a]" : "bg-transparent text-[#1a1a1a]"
               }`}
               onClick={() => navigate("/volunteer_dashboard/activity")}
             >Activity</button>
           </div>
           <button
-            className="bg-[#D9D9D9] border-none rounded-full py-[10px] px-[34px] text-[16px] cursor-pointer hover:bg-[#c2c2c2] transition-colors duration-200 font-['DM_Sans',sans-serif]"
+            className="bg-surface border-none rounded-full py-[10px] px-[34px] text-[16px] cursor-pointer hover:bg-surface-dark transition-colors duration-200"
           >Edit</button>
         </div>
 
         {/* PROFILE TAB */}
         {activeTab === "profile" && (
-          <div className="bg-[#D9D9D9] rounded-[20px] p-3">
-            <div className="bg-white rounded-[14px] px-[34px] pt-[30px] pb-[34px]">
+          <div className="bg-surface rounded-card p-3">
+            <div className="bg-white rounded-inner px-[34px] pt-[30px] pb-[34px]">
               <div className="text-[22px] font-semibold mb-1">Account Information</div>
               <div className="text-[14px] font-light text-[#666] mb-7">Manage your Account profile</div>
 
@@ -139,7 +139,7 @@ export default function VolunteerDashboard() {
                   {skills.map((skill) => (
                     <span
                       key={skill}
-                      className="bg-[#8E9B77] text-white rounded-full py-[5px] px-[13px] text-[13px] font-medium flex items-center gap-[7px]"
+                      className="bg-badge text-white rounded-full py-[5px] px-[13px] text-[13px] font-medium flex items-center gap-[7px]"
                     >
                       {skill}
                       <button
@@ -157,13 +157,13 @@ export default function VolunteerDashboard() {
                       onChange={(e) => setSkillInput(e.target.value)}
                       onKeyDown={handleSkillKeyDown}
                       placeholder="e.g. Cooking"
-                      className="w-[140px] bg-[#D9D9D9] border-none rounded-[6px] py-[5px] px-[11px] text-[13px] text-[#1a1a1a] outline-none focus:bg-[#e2e2e2] focus:ring-2 focus:ring-[#8E9B77]"
+                      className="w-[140px] bg-surface border-none rounded-[6px] py-[5px] px-[11px] text-[13px] text-[#1a1a1a] outline-none focus:bg-surface-focus focus:ring-2 focus:ring-badge"
                     />
                   )}
                   {!showSkillInput && (
                     <button
                       onClick={openSkillInput}
-                      className="bg-[#D9D9D9] border-none rounded-full py-[5px] px-4 text-[14px] cursor-pointer text-[#1a1a1a] hover:bg-[#c6c6c6] transition-colors duration-200 font-['DM_Sans',sans-serif]"
+                      className="bg-surface border-none rounded-full py-[5px] px-4 text-[14px] cursor-pointer text-[#1a1a1a] hover:bg-surface-darker transition-colors duration-200"
                     >+ Skill</button>
                   )}
                 </div>
@@ -174,8 +174,8 @@ export default function VolunteerDashboard() {
 
         {/* ACTIVITY TAB */}
         {activeTab === "activity" && (
-          <div className="bg-[#D9D9D9] rounded-[20px] p-3">
-            <div className="bg-white rounded-[14px] px-[34px] pt-[30px] pb-[34px]">
+          <div className="bg-surface rounded-card p-3">
+            <div className="bg-white rounded-inner px-[34px] pt-[30px] pb-[34px]">
               <div className="text-center py-[60px] px-6 text-[#666]">
                 <h3 className="text-[20px] font-semibold mb-2">No activity yet</h3>
                 <p>Your event history and volunteer hours will appear here.</p>
@@ -191,11 +191,11 @@ export default function VolunteerDashboard() {
           className="fixed inset-0 bg-black/[0.42] z-[200] flex items-center justify-center"
           onClick={(e) => { if (e.target === e.currentTarget) setOverlay(null); }}
         >
-          <div className="bg-white rounded-[20px] py-11 px-[52px] text-center max-w-[400px] w-[90%] shadow-[0_8px_40px_rgba(0,0,0,0.2)]">
+          <div className="bg-white rounded-card py-11 px-[52px] text-center max-w-[400px] w-[90%] shadow-[0_8px_40px_rgba(0,0,0,0.2)]">
             <h2 className="text-[24px] font-bold mb-2.5">{overlayInfo[overlay]?.title}</h2>
             <p className="text-[#666] mb-[26px] text-[15px]">{overlayInfo[overlay]?.msg}</p>
             <button
-              className="bg-[#485C11] text-white border-none rounded-full py-3 px-[30px] text-[15px] font-medium cursor-pointer hover:bg-[#3a4c0d] transition-colors duration-200 font-['DM_Sans',sans-serif]"
+              className="bg-primary text-white border-none rounded-full py-3 px-[30px] text-[15px] font-medium cursor-pointer hover:bg-primary-dark transition-colors duration-200"
               onClick={() => setOverlay(null)}
             >Go back</button>
           </div>

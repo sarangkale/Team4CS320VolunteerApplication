@@ -1,11 +1,12 @@
 import { Link, useNavigate } from "react-router";
 import { getCurrentUserRole, login } from "../auth/auth";
+import { type RequestError } from "../lib/axios.ts";
 import { useState } from "react";
 
 function LoginPage() {
-    const [loginError, setLoginError] = useState("");
+    const [loginError, setLoginError] = useState({} as RequestError);
     const [showError, setShowError] = useState(false);
-    const [selectedRole, setSelectedRole] = useState<"volunteer" | "organization" | null>(null); 
+    const [selectedRole, setSelectedRole] = useState<"volunteer" | "organization" | null>(null);
 
     let navigate = useNavigate();
     async function loginSubmit(formData: FormData) {
@@ -15,23 +16,15 @@ function LoginPage() {
 
         switch (res.type) {
             case "success": {
-                const roleResult = await getCurrentUserRole();
-
-                if (roleResult.type === "error") {
-                    setLoginError((_) => roleResult.error.message);
-                    setShowError((_) => true);
-                    break;
-                }
-
-                if (roleResult.data === "User") {
-                    navigate("/volunteer_dashboard");
+                if (getCurrentUserRole() === "User") {
+                    navigate("/volunteer_dashboard/activity");
                 } else {
                     navigate("/organization_dashboard");
                 }
                 break;
             }
             case "error": {
-                setLoginError((_) => res.error.message);
+                setLoginError((_) => res.error);
                 setShowError((_) => true);
                 break;
             }
@@ -39,10 +32,7 @@ function LoginPage() {
     }
 
     return (
-            <div
-            className="fixed inset-0 flex items-center justify-center p-4 overflow-y-auto bg-gradient-to-br from-[#e8f5e9] via-[#c8e6c9] to-[#a5d6a7]"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}
-        >
+        <div className="fixed inset-0 flex items-center justify-center p-4 overflow-y-auto bg-gradient-to-br from-[#e8f5e9] via-[#c8e6c9] to-[#a5d6a7] font-sans">
             <div className="bg-white rounded-3xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-10 w-full max-w-[480px]">
 
                 {/* Header */}
@@ -77,7 +67,7 @@ function LoginPage() {
                             onClick={() => setSelectedRole("volunteer")}
                             className={`flex flex-col items-center justify-center py-7 px-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 ${
                                 selectedRole === "volunteer"
-                                    ? "border-[#2d6a4f] bg-[#d8f3dc]"
+                                    ? "border-accent bg-accent-light"
                                     : "border-gray-200 bg-white"
                             }`}
                         >
@@ -92,7 +82,7 @@ function LoginPage() {
                                 <circle cx="10" cy="8" r="3" />
                                 <path d="M4 20c0-3.314 2.686-6 6-6s6 2.686 6 6" />
                             </svg>
-                            <span className={`text-sm font-semibold ${selectedRole === "volunteer" ? "text-[#1b4332]" : "text-gray-700"}`}>
+                            <span className={`text-sm font-semibold ${selectedRole === "volunteer" ? "text-accent-dark" : "text-gray-700"}`}>
                                 Volunteer
                             </span>
                         </button>
@@ -102,7 +92,7 @@ function LoginPage() {
                             onClick={() => setSelectedRole("organization")}
                             className={`flex flex-col items-center justify-center py-7 px-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 ${
                                 selectedRole === "organization"
-                                    ? "border-[#2d6a4f] bg-[#d8f3dc]"
+                                    ? "border-accent bg-accent-light"
                                     : "border-gray-200 bg-white"
                             }`}
                         >
@@ -122,7 +112,7 @@ function LoginPage() {
                                 <line x1="14" y1="16" x2="14" y2="16.01" strokeWidth="2" />
                                 <line x1="18" y1="16" x2="18" y2="16.01" strokeWidth="2" />
                             </svg>
-                            <span className={`text-sm font-semibold ${selectedRole === "organization" ? "text-[#1b4332]" : "text-gray-700"}`}>
+                            <span className={`text-sm font-semibold ${selectedRole === "organization" ? "text-accent-dark" : "text-gray-700"}`}>
                                 Organization
                             </span>
                         </button>
@@ -160,12 +150,12 @@ function LoginPage() {
                     </div>
 
                     {showError && loginError && (
-                        <p className="text-red-500 text-sm m-0">{loginError}</p>
+                        <p className="text-red-500 text-sm m-0">{loginError?.msg || loginError?.name}</p>
                     )}
 
                     <button
                         type="submit"
-                        className="w-full p-4 bg-[#1c832f] hover:bg-[#1b4332] text-white border-none rounded-2xl text-sm font-semibold cursor-pointer transition-colors duration-150"
+                        className="w-full p-4 bg-accent-bright hover:bg-accent-dark text-white border-none rounded-2xl text-sm font-semibold cursor-pointer transition-colors duration-150"
                     >
                         Sign In
                     </button>
@@ -173,7 +163,7 @@ function LoginPage() {
 
             </div>
         </div>
-    )
-  }
+    );
+}
 
 export default LoginPage;

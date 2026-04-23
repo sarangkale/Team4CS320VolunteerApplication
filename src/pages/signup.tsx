@@ -59,7 +59,7 @@ function OrganizationForm() {
     </>);
 }
 
-export default function SignupPage() {
+function SignupPage() {
     const [signupError, setSignupError] = useState("");
     const [currentSignupMode, setCurrentSignupMode] = useState("User" as AccountRole);
 
@@ -74,10 +74,10 @@ export default function SignupPage() {
         const password = formData.get("password") as string;
         const res = await userSignUp(email, password, firstName, lastName, school, graduationYear);
         if (res.type == "error") {
-            setSignupError((_) => res.error.message);
+            setSignupError((_) => res.error.msg);
         } else {
-            navigate("/volunteer_dashboard");
-            }
+            navigate("/volunteer_dashboard/events");
+        }
     }
 
     async function organizationSubmit(formData: FormData) {
@@ -88,7 +88,7 @@ export default function SignupPage() {
         console.log(`email: ${email} | org name: ${orgName} | website: ${website} | password: ${password}`);
         const res = await organizationSignUp(email, password, orgName, website);
         if (res.type == "error") {
-            setSignupError((_) => res.error.message);
+            setSignupError((_) => res.error.msg);
         } else {
             navigate("/organization_dashboard");
         }
@@ -99,17 +99,15 @@ export default function SignupPage() {
         if (role == "User") {
             await userSubmit(formData);
         } else {
-            await organizationSubmit(formData)
+            await organizationSubmit(formData);
         }
     }
 
     const isVolunteer = currentSignupMode === "User";
-    const isOrg = currentSignupMode === "Organization";   
+    const isOrg = currentSignupMode === "Organization";
+
     return (
-        <div
-            className="fixed inset-0 flex items-center justify-center p-4 overflow-y-auto bg-gradient-to-br from-[#e8f5e9] via-[#c8e6c9] to-[#a5d6a7]"
-            style={{ fontFamily: "'DM Sans', sans-serif" }}
-        >
+        <div className="fixed inset-0 flex items-center justify-center p-4 overflow-y-auto bg-gradient-to-br from-[#e8f5e9] via-[#c8e6c9] to-[#a5d6a7] font-sans">
             <div className="bg-white rounded-3xl shadow-[0_4px_24px_rgba(0,0,0,0.08)] p-10 w-full max-w-[480px]">
 
                 {/* Header */}
@@ -143,7 +141,7 @@ export default function SignupPage() {
                             type="button"
                             onClick={() => setCurrentSignupMode("User")}
                             className={`flex flex-col items-center justify-center py-7 px-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 ${
-                                isVolunteer ? "border-[#2d6a4f] bg-[#d8f3dc]" : "border-gray-200 bg-white"
+                                isVolunteer ? "border-accent bg-accent-light" : "border-gray-200 bg-white"
                             }`}
                         >
                             <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
@@ -155,7 +153,7 @@ export default function SignupPage() {
                                 <circle cx="10" cy="8" r="3" />
                                 <path d="M4 20c0-3.314 2.686-6 6-6s6 2.686 6 6" />
                             </svg>
-                            <span className={`text-sm font-semibold ${isVolunteer ? "text-[#1b4332]" : "text-gray-700"}`}>
+                            <span className={`text-sm font-semibold ${isVolunteer ? "text-accent-dark" : "text-gray-700"}`}>
                                 Volunteer
                             </span>
                         </button>
@@ -164,7 +162,7 @@ export default function SignupPage() {
                             type="button"
                             onClick={() => setCurrentSignupMode("Organization")}
                             className={`flex flex-col items-center justify-center py-7 px-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 ${
-                                isOrg ? "border-[#2d6a4f] bg-[#d8f3dc]" : "border-gray-200 bg-white"
+                                isOrg ? "border-accent bg-accent-light" : "border-gray-200 bg-white"
                             }`}
                         >
                             <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
@@ -181,7 +179,7 @@ export default function SignupPage() {
                                 <line x1="14" y1="16" x2="14" y2="16.01" strokeWidth="2" />
                                 <line x1="18" y1="16" x2="18" y2="16.01" strokeWidth="2" />
                             </svg>
-                            <span className={`text-sm font-semibold ${isOrg ? "text-[#1b4332]" : "text-gray-700"}`}>
+                            <span className={`text-sm font-semibold ${isOrg ? "text-accent-dark" : "text-gray-700"}`}>
                                 Organization
                             </span>
                         </button>
@@ -201,7 +199,7 @@ export default function SignupPage() {
 
                     <button
                         type="submit"
-                        className="w-full p-4 bg-[#1c832f] hover:bg-[#1b4332] text-white border-none rounded-2xl text-sm font-semibold cursor-pointer transition-colors duration-150"
+                        className="w-full p-4 bg-accent-bright hover:bg-accent-dark text-white border-none rounded-2xl text-sm font-semibold cursor-pointer transition-colors duration-150"
                     >
                         Create Account
                     </button>
@@ -210,5 +208,6 @@ export default function SignupPage() {
             </div>
         </div>
     );
-
 }
+
+export default SignupPage;

@@ -1,7 +1,7 @@
-import { failure, getAccountProfile, success, type OrganizationProfile } from "../auth/auth";
+import { failure, success } from "../auth/auth";
 import { supabase } from "./supabase";
-import {type Result} from "../auth/auth.ts";
-import { PostgrestError } from "@supabase/supabase-js";
+import { type Result } from "../auth/auth.ts";
+import { axios_post, axios_get, type RequestError } from "./axios.ts";
 
 export type ListingData = {
     capacity?: number | null;
@@ -19,46 +19,28 @@ export type ListingData = {
     applicants?: string | null;
 };
 
-export async function createListing(name: string, capacity: number, description: string, date: string, duration: string): Promise<Result<null, PostgrestError | string>> {
-    const accountResult = await getAccountProfile();
-    if (accountResult.type == "error") {
-        return failure(accountResult.error);
-    }
-
-    const { data, error } = await supabase.from("account roles").select("role");
-    if (data) {
-        if (data[0].role !== "Organization") {
-            console.error("Only organizations can create listings.");
-            return failure("Only organizations can create listings.");
-        }
-    } else {
-        return failure(error);
-    }
-
-    const profile = accountResult.data.profile as OrganizationProfile;
-
-    const listing: ListingData = {
-        org_id: profile.org_id,
-        listing_name: name,
+export async function createListing(name: string, capacity: number, description: string, date: string, duration: string): Promise<Result<{ listing: ListingData, id: string }, RequestError>> {
+    const res = await axios_post<{ listing: ListingData, id: string }>("/organization/create_listing", {
+        name,
         capacity,
         description,
         listing_date: date,
         duration,
-    };
+    });
 
-    const newListing = await supabase.from("listing").insert(listing).select("listing_id");
-
-    // TODO: Implement Supabase row-level security policy for update
-    await supabase.from("organization").update({all_listings: `${profile.all_listings},${newListing}`});
-    return success(null);
+    if (res.type == "success") {
+        return success(res.data.data)
+    } else {
+        return failure(res.error)
+    }
 }
 
-export async function retrieveListings(rangeStart: number, rangeEnd: number): Promise<Result<ListingData[], PostgrestError>> {
-    const { data, error } = await supabase.from("listing").select().range(rangeStart, rangeEnd);
-    if (data) {
-        return success(data);
+export async function retrieveListings(_rangeStart: number, _rangeEnd: number): Promise<Result<ListingData[], RequestError>> {
+    const res = await axios_get<ListingData[]>("/volunteer/listings");
+    if (res.type == "success") {
+        return success(res.data.data);
     } else {
-        return failure(error);
+        return failure(res.error)
     }
 }
 
