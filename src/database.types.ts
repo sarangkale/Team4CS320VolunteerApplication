@@ -56,24 +56,30 @@ export type Database = {
       }
       application: {
         Row: {
+          Answer: string[] | null
           app_id: string
           approved: boolean | null
-          date: string | null
+          file_paths: string[] | null
           listing_id: string | null
+          submit_time: string | null
           user_id: string
         }
         Insert: {
+          Answer?: string[] | null
           app_id?: string
           approved?: boolean | null
-          date?: string | null
+          file_paths?: string[] | null
           listing_id?: string | null
+          submit_time?: string | null
           user_id?: string
         }
         Update: {
+          Answer?: string[] | null
           app_id?: string
           approved?: boolean | null
-          date?: string | null
+          file_paths?: string[] | null
           listing_id?: string | null
+          submit_time?: string | null
           user_id?: string
         }
         Relationships: [
@@ -95,49 +101,76 @@ export type Database = {
       }
       listing: {
         Row: {
+          applicants: string | null
           capacity: number | null
           categories: string | null
+          city: string | null
           description: string | null
           distance: number | null
           duration: string | null
+          files: string[] | null
+          latitude: number | null
           listing_date: string | null
           listing_id: string
           listing_name: string | null
-          needed_skill: string | null
+          longitude: number | null
+          needed_skill: string[] | null
           org_id: string
+          org_name: string | null
+          Questions: string[] | null
+          state: string | null
+          street: string | null
           transport: string | null
           volunteer_time: string | null
-          applicants?: string | null
+          zip_code: string | null
         }
         Insert: {
+          applicants?: string | null
           capacity?: number | null
           categories?: string | null
+          city?: string | null
           description?: string | null
           distance?: number | null
           duration?: string | null
+          files?: string[] | null
+          latitude?: number | null
           listing_date?: string | null
           listing_id?: string
           listing_name?: string | null
-          needed_skill?: string | null
+          longitude?: number | null
+          needed_skill?: string[] | null
           org_id: string
+          org_name?: string | null
+          Questions?: string[] | null
+          state?: string | null
+          street?: string | null
           transport?: string | null
           volunteer_time?: string | null
-          applicants?: string | null
+          zip_code?: string | null
         }
         Update: {
+          applicants?: string | null
           capacity?: number | null
           categories?: string | null
+          city?: string | null
           description?: string | null
           distance?: number | null
           duration?: string | null
+          files?: string[] | null
+          latitude?: number | null
           listing_date?: string | null
           listing_id?: string
           listing_name?: string | null
-          needed_skill?: string | null
+          longitude?: number | null
+          needed_skill?: string[] | null
           org_id?: string
+          org_name?: string | null
+          Questions?: string[] | null
+          state?: string | null
+          street?: string | null
           transport?: string | null
           volunteer_time?: string | null
-          applicants?: string | null
+          zip_code?: string | null
         }
         Relationships: []
       }
@@ -182,7 +215,7 @@ export type Database = {
           major: string | null
           phone: number | null
           school: string | null
-          skill: string | null
+          skills: string[] | null
           total_hours_completed: number | null
           user_id: string
         }
@@ -196,7 +229,7 @@ export type Database = {
           major?: string | null
           phone?: number | null
           school?: string | null
-          skill?: string | null
+          skills?: string[] | null
           total_hours_completed?: number | null
           user_id?: string
         }
@@ -210,7 +243,7 @@ export type Database = {
           major?: string | null
           phone?: number | null
           school?: string | null
-          skill?: string | null
+          skills?: string[] | null
           total_hours_completed?: number | null
           user_id?: string
         }
