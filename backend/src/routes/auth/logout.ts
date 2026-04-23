@@ -11,5 +11,5 @@ export default async function logout(_req: express.Request, res: express.Respons
 
     clearCookies(res);
 
-    return res.json({message: "Logged out"});
+    return res.status(200).send("Logged out");
 }

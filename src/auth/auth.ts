@@ -1,5 +1,5 @@
 import { /* AuthError, PostgrestError, type Session, */ type User/* , type UserResponse */ } from "@supabase/supabase-js";
-import { axios_get, axios_post, type RequestError } from "../lib/axios";
+import { axios_get, axios_post, type RequestError } from "../lib/axios.ts";
 // import { supabase } from "../lib/supabase"
 
 const ACCOUNT_LOCAL_STORAGE_KEY = "Account";

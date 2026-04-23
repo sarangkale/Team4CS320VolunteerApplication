@@ -3,28 +3,40 @@ import { createSupabaseClient } from "../authRouting.ts";
 import { bodyHasEntries, getAccountProfile, type OrganizationProfile } from "../../utils.ts";
 
 export type ListingData = {
+    applicants?: string | null;
     capacity?: number | null;
     categories?: string | null;
+    city?: string | null;
     description?: string | null;
     distance?: number | null;
     duration?: string | null;
+    files?: string[] | null;
+    latitude?: number | null;
     listing_date?: string | null;
     listing_id?: string;
     listing_name?: string | null;
-    needed_skill?: string | null;
+    longitude?: number | null;
+    needed_skill?: string[] | null;
     org_id: string;
+    org_name?: string | null;
+    Questions?: string[] | null;
+    state?: string | null;
+    street?: string | null;
     transport?: string | null;
     volunteer_time?: string | null;
+    zip_code?: string | null;
 };
 
 export default async function createListing(req: express.Request, res: express.Response) {
-    const validation = bodyHasEntries(["name", "capacity", "description", "listing_date", "duration"], req.body, res);
+    const validation = bodyHasEntries(
+        ["name", "capacity", "description", "listing_date", "duration", "categories", "street", "city", "state", "zip_code", "needed_skill", "transport"]
+        , req.body, res);
 
     if (validation) {
         return validation;
     }
 
-    const { name, capacity, description, listing_date, duration } = req.body;
+    const { name, capacity, description, listing_date, duration, categories, street, city, state, zip_code, needed_skill, transport } = req.body;
 
     const { accessToken, refreshToken } = req;
     if (!accessToken || !refreshToken) {
@@ -48,21 +60,92 @@ export default async function createListing(req: express.Request, res: express.R
 
     const profile = accountResult.data.profile as OrganizationProfile;
 
+    const coords = await geocodeAddress(street, city, state, zip_code);
+
+    if (!coords) {
+        return res.status(500).json({ error: "Error while calculating longitude and latitude coordinates" })
+    }
+
+    const { latitude, longitude } = coords;
+
     const listing: ListingData = {
         org_id: profile.org_id,
+        org_name: profile.org_name!,
         listing_name: name,
-        capacity,
         description,
         listing_date,
-        duration
+        duration,
+        capacity,
+        categories,
+        needed_skill,
+        transport,
+        street,
+        city,
+        state,
+        zip_code,
+        latitude,
+        longitude,
     };
 
-    const { data: creationData, error: creationError } = await supabase.from("listing").insert(listing).select("listing_id");
+    const { data: creationData, error: creationError } = await supabase.from("listing").insert(listing).select("listing_id").single();
     if (creationError) {
         return res.status(500).json(creationError);
     }
 
-    // TODO: Implement Supabase row-level security policy for update
-    await supabase.from("organization").update({ all_listings: `${profile.all_listings},${creationData}` });
-    return res.json({ listing, id: creationData[0]!.listing_id });
+    if (profile.all_listings !== undefined) {
+        const updatedListings = profile.all_listings
+            ? `${profile.all_listings},${creationData.listing_id}`
+            : `${creationData.listing_id}`;
+
+        const { error: updateError } = await supabase
+            .from("organization")
+            .update({ all_listings: updatedListings })
+            .eq("org_id", profile.org_id);
+
+        if (updateError) {
+            return res.status(500).json(updateError);
+        }
+    }
+
+    return res.json({ listing, id: creationData.listing_id });
+}
+
+export async function geocodeAddress(
+    street: string,
+    city: string,
+    state: string,
+    zip_code: string
+): Promise<{ latitude: number; longitude: number } | null> {
+    try {
+        const query = encodeURIComponent(
+            `${street}, ${city}, ${state} ${zip_code}`
+        );
+
+        const response = await fetch(
+            `https://nominatim.openstreetmap.org/search?q=${query}&format=json&limit=1`,
+            {
+                headers: {
+                    Accept: "application/json",
+                },
+            }
+        );
+
+        if (!response.ok) {
+            return null;
+        }
+
+        const data = await response.json();
+
+        if (!Array.isArray(data) || data.length === 0) {
+            return null;
+        }
+
+        return {
+            latitude: Number(data[0].lat),
+            longitude: Number(data[0].lon),
+        };
+    } catch (error) {
+        console.error("Geocoding failed:", error);
+        return null;
+    }
 }
