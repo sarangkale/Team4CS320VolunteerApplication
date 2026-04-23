@@ -16,6 +16,7 @@
     "@babel/preset-typescript": "^7.28.5",
     "@types/cookie-parser": "^1.4.10",
     "@types/express": "^5.0.6",
+    "tsx": "^4.20.6",
     "@types/jest": "^30.0.0",
     "@types/supertest": "^7.2.0",
     "babel-jest": "^30.3.0",
@@ -26,6 +27,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.100.1",
     "cookie-parser": "^1.4.7",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "volunteer-app": "file:.."
   }
 }

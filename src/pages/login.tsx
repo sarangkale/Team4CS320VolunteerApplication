@@ -10,24 +10,39 @@ export default function LoginPage() {
 
     let navigate = useNavigate();
     async function loginSubmit(formData: FormData) {
-        const email = formData.get("email") as string;
-        const password = formData.get("password") as string;
-        const res = await login(email, password);
+        try {
+            const email = formData.get("email") as string;
+            const password = formData.get("password") as string;
 
-        switch (res.type) {
-            case "success": {
-                if (getCurrentUserRole() === "User") {
-                    navigate("/volunteer_dashboard/events");
-                } else {
-                    navigate("/organization_dashboard");
+            console.log("Submitting login with:", email);
+
+            const res = await login(email, password);
+            console.log("Login response:", res);
+
+            switch (res.type) {
+                case "success": {
+                    const role = getCurrentUserRole();
+                    console.log("Current role:", role);
+
+                    if (role === "User") {
+                        navigate("/volunteer_dashboard/events");
+                    } else {
+                        navigate("/organization_dashboard");
+                    }
+                    break;
                 }
-                break;
+                case "error": {
+                    setLoginError(res.error);
+                    setShowError(true);
+                    break;
+                }
+                default: {
+                    console.log("Unexpected response shape:", res);
+                }
             }
-            case "error": {
-                setLoginError((_) => res.error);
-                setShowError((_) => true);
-                break;
-            }
+        } catch (err) {
+            console.error("Login crashed:", err);
+            setShowError(true);
         }
     }
 

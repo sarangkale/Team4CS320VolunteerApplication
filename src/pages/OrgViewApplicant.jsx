@@ -1,7 +1,5 @@
 import { useState } from "react";
-
-// Mock navigation — replace with: import { useNavigate } from "react-router-dom";
-const useNavigate = () => (path) => console.log("Navigate to:", path);
+import { useNavigate } from "react-router";
 
 // these are all fillers and should be taken from whatever applicant table that exists 
 const INITIAL_PENDING = [
@@ -267,7 +265,7 @@ export default function OrganizationEventView() {
             Volunteer Opportunity Name
           </h1>
           <button
-            onClick={() => navigate("/opportunities")}
+            onClick={() => navigate("/organization_dashboard")}
             style={{
               background: "#d9d9d9",
               border: "none",
@@ -299,7 +297,7 @@ export default function OrganizationEventView() {
               key={key}
               onClick={() => {
                 setActiveTab(key);
-                if (key === "editInfo") navigate("/edit-opportunity");
+                if (key === "editInfo") navigate("/organization_dashboard/edit_event/1");
               }}
               style={{
                 background: activeTab === key ? "#fff" : "transparent",
