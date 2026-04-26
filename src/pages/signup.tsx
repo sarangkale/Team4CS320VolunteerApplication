@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router";
-import { getCurrentUserRole, organizationSignUp, userSignUp, type AccountRole } from "../auth/auth";
+import { organizationSignUp, userSignUp, type AccountRole } from "../auth/auth";
 import { useState } from "react";
 
 const inputClass = "w-full py-3.5 px-4 bg-gray-100 border-none rounded-xl text-sm text-gray-800 outline-none box-border";
@@ -74,8 +74,10 @@ function SignupPage() {
         const password = formData.get("password") as string;
         const res = await userSignUp(email, password, firstName, lastName, school, graduationYear);
         if (res.type == "error") {
+            console.error("Signup error:", res.error);
             setSignupError((_) => res.error.msg);
         } else {
+            console.log("Signup success, navigating to volunteer dashboard");
             navigate("/volunteer_dashboard/events");
         }
     }
@@ -88,13 +90,17 @@ function SignupPage() {
         console.log(`email: ${email} | org name: ${orgName} | website: ${website} | password: ${password}`);
         const res = await organizationSignUp(email, password, orgName, website);
         if (res.type == "error") {
+            console.error("Signup error:", res.error);
             setSignupError((_) => res.error.msg);
         } else {
+            console.log("Signup success, navigating to organization dashboard");
             navigate("/organization_dashboard");
         }
     }
 
-    async function signupSubmit(formData: FormData) {
+    async function signupSubmit(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
         const role = formData.get("role") as AccountRole;
         if (role == "User") {
             await userSubmit(formData);
@@ -188,7 +194,7 @@ function SignupPage() {
                 </div>
 
                 {/* Form */}
-                <form action={signupSubmit} className="flex flex-col gap-5">
+                <form onSubmit={signupSubmit} className="flex flex-col gap-5">
                     <input type="hidden" name="role" value={currentSignupMode} />
 
                     {currentSignupMode === "User" ? <UserForm /> : <OrganizationForm />}
@@ -206,7 +212,10 @@ function SignupPage() {
                 </form>
 
             </div>
+            
+
         </div>
+        
     );
 }
 

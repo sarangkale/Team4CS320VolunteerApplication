@@ -1,5 +1,5 @@
 import { /* AuthError, PostgrestError, type Session, */ type User/* , type UserResponse */ } from "@supabase/supabase-js";
-import { axios_get, axios_post, type RequestError } from "../lib/axios";
+import { axios_get, axios_post, type RequestError } from "../lib/axios.ts";
 // import { supabase } from "../lib/supabase"
 
 const ACCOUNT_LOCAL_STORAGE_KEY = "Account";
@@ -80,7 +80,7 @@ export async function userSignUp(
     });
 
     if (res.type == "success") {
-        localStorage.setItem(ACCOUNT_LOCAL_STORAGE_KEY, JSON.stringify(res.data));
+        localStorage.setItem(ACCOUNT_LOCAL_STORAGE_KEY, JSON.stringify(res.data.data));
         localStorage.setItem(ROLE_LOCAL_STORAGE_KEY, "User");
         return success(res.data.data);
     } else {
@@ -95,7 +95,7 @@ export async function organizationSignUp(
     orgName: string,
     website: string):
     Promise<Result<User, RequestError>> {
-    const res = await axios_post<User>("/auth/signup_volunteer", {
+    const res = await axios_post<User>("/auth/signup_organization", {
         email,
         password,
         org_name: orgName,
@@ -103,8 +103,8 @@ export async function organizationSignUp(
     });
 
     if (res.type == "success") {
-        localStorage.setItem(ACCOUNT_LOCAL_STORAGE_KEY, JSON.stringify(res.data));
-        localStorage.setItem(ROLE_LOCAL_STORAGE_KEY, "User");
+        localStorage.setItem(ACCOUNT_LOCAL_STORAGE_KEY, JSON.stringify(res.data.data));
+        localStorage.setItem(ROLE_LOCAL_STORAGE_KEY, "Organization");
         return success(res.data.data);
     } else {
         return failure(res.error);

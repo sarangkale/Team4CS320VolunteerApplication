@@ -1,206 +1,548 @@
-import { useState, useRef } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 
-const INITIAL_SKILLS = ["React", "Design", "Python", "Writing"];
+// GENERATED USING GITHUB COPILOT - NOT FINAL DESIGN OR IMPLEMENTATION, JUST A STARTING POINT FOR FRONTEND DEVELOPMENT.
+const MOCK_EVENTS = [
+	{
+		id: 1,
+		title: "Community Food Pantry Support",
+		organization: "Amherst Care Collective",
+		date: "Tue, Apr 28",
+		time: "4:00 PM - 7:00 PM",
+		location: "North Amherst Community Center",
+		description: "Help sort and distribute weekly food boxes for local families.",
+		slotsFilled: 9,
+		slotsTotal: 14,
+		category: "Community",
+	},
+	{
+		id: 2,
+		title: "Riverfront Cleanup Day",
+		organization: "Pioneer Green Team",
+		date: "Sat, May 2",
+		time: "9:30 AM - 12:30 PM",
+		location: "Hadley Riverwalk Entrance",
+		description: "Join a morning cleanup focused on trail and shoreline restoration.",
+		slotsFilled: 18,
+		slotsTotal: 20,
+		category: "Environment",
+	},
+	{
+		id: 3,
+		title: "Youth Coding Mentor Session",
+		organization: "Valley Tech Access",
+		date: "Thu, May 7",
+		time: "5:30 PM - 7:30 PM",
+		location: "Downtown Library Lab",
+		description: "Mentor middle school students during beginner coding activities.",
+		slotsFilled: 6,
+		slotsTotal: 8,
+		category: "Education",
+	},
+	{
+		id: 4,
+		title: "Senior Center Wellness Check-In",
+		organization: "NeighborLink",
+		date: "Mon, May 11",
+		time: "10:00 AM - 1:00 PM",
+		location: "Amherst Senior Center",
+		description: "Support staff with guest check-ins, light setup, and activity transitions.",
+		slotsFilled: 10,
+		slotsTotal: 10,
+		category: "Health",
+	},
+];
 
-export default function VolunteerDashboard() {
-  const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("profile");
-  const [overlay, setOverlay] = useState(null);
-  const [skills, setSkills] = useState(INITIAL_SKILLS);
-  const [skillInput, setSkillInput] = useState("");
-  const [showSkillInput, setShowSkillInput] = useState(false);
-  const skillInputRef = useRef(null);
+const CATEGORY_FILTERS = ["All", "Community", "Environment", "Education", "Health"];
 
-  const [form, setForm] = useState({
-    fullName: "John Smith",
-    email: "User@email.com",
-    phone: "(999)-999-999",
-    location: "Amherst, MA",
-    bio: "",
-  });
+export default function VolunteerDashboardEvents() {
+	const navigate = useNavigate();
+	const [selectedCategory, setSelectedCategory] = useState("All");
+	const [expandedEvent, setExpandedEvent] = useState(null);
 
-  const overlayInfo = {
-    logout: { title: "Log Out", navigate: () => navigate("/login") },
-    profile: { title: "My Profile", navigate: () => navigate("/volunteer_dashboard/profile") },
-    events: { title: "View All Events", navigate: () => navigate("/volunteer_dashboard/events") },
-  };
+	const visibleEvents = useMemo(() => {
+		if (selectedCategory === "All") return MOCK_EVENTS;
+		return MOCK_EVENTS.filter((event) => event.category === selectedCategory);
+	}, [selectedCategory]);
 
-  const handleFormChange = (e) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+	return (
+		<>
+			<style>{`
+				@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap');
+				*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+				:root {
+					--green-dark: #485C11;
+					--green-mid: #8E9B77;
+					--green-soft: #c5d09c;
+					--bg-gray: #ebebeb;
+					--panel-gray: #d9d9d9;
+					--text: #1a1a1a;
+					--text-muted: #686868;
+					--white: #ffffff;
+					--pill: 9999px;
+				}
+				body {
+					font-family: 'DM Sans', sans-serif;
+					background: var(--bg-gray);
+					min-height: 100vh;
+					color: var(--text);
+				}
+				button, input {
+					font-family: 'DM Sans', sans-serif;
+				}
 
-  const handleSkillKeyDown = (e) => {
-    if (e.key === "Enter") {
-      const val = skillInput.trim();
-      if (val && !skills.includes(val)) setSkills((prev) => [...prev, val]);
-      setSkillInput(""); setShowSkillInput(false);
-    } else if (e.key === "Escape") {
-      setSkillInput(""); setShowSkillInput(false);
-    }
-  };
+				.nav {
+					background: var(--panel-gray);
+					display: flex;
+					align-items: center;
+					padding: 0 32px;
+					height: 88px;
+					gap: 14px;
+					position: sticky;
+					top: 0;
+					z-index: 20;
+					box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+				}
+				.nav-logo {
+					background: var(--green-dark);
+					color: var(--white);
+					border-radius: var(--pill);
+					width: 82px;
+					height: 70px;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					font-weight: 700;
+					font-size: 18px;
+					flex-shrink: 0;
+				}
+				.nav-site-name {
+					font-weight: 700;
+					font-size: 21px;
+					margin-right: auto;
+				}
+				.nav-btn {
+					background: var(--white);
+					color: var(--green-dark);
+					border: none;
+					border-radius: var(--pill);
+					padding: 13px 26px;
+					font-size: 16px;
+					font-weight: 500;
+					cursor: pointer;
+					transition: background 0.2s, transform 0.15s;
+				}
+				.nav-btn:hover {
+					background: var(--green-soft);
+					transform: translateY(-1px);
+				}
+				.nav-btn-logout {
+					background: var(--green-dark);
+					color: var(--white);
+					border: none;
+					border-radius: var(--pill);
+					padding: 13px 26px;
+					font-size: 16px;
+					font-weight: 500;
+					cursor: pointer;
+					transition: background 0.2s, transform 0.15s;
+				}
+				.nav-btn-logout:hover {
+					background: #3a4c0d;
+					transform: translateY(-1px);
+				}
 
-  const removeSkill = (skill) => setSkills((prev) => prev.filter((s) => s !== skill));
-  const openSkillInput = () => { setShowSkillInput(true); setTimeout(() => skillInputRef.current?.focus(), 50); };
+				.main {
+					max-width: 1140px;
+					margin: 0 auto;
+					padding: 36px 24px 60px;
+				}
+				.heading {
+					font-size: 40px;
+					font-weight: 700;
+					margin-bottom: 24px;
+				}
 
-  const inputCls = "bg-surface border-none rounded-[6px] py-[9px] px-[13px] text-[15px] text-[#1a1a1a] outline-none w-full focus:bg-surface-focus focus:ring-2 focus:ring-badge transition-all duration-200";
+				.section-top {
+					display: flex;
+					align-items: center;
+					justify-content: space-between;
+					gap: 16px;
+					margin-bottom: 20px;
+				}
+				.tabs {
+					background: var(--panel-gray);
+					border-radius: var(--pill);
+					padding: 6px;
+					display: inline-flex;
+					gap: 4px;
+				}
+				.tab-btn {
+					background: transparent;
+					border: none;
+					border-radius: var(--pill);
+					padding: 10px 28px;
+					font-size: 16px;
+					font-weight: 400;
+					cursor: pointer;
+					transition: background 0.2s;
+					color: var(--text);
+				}
+				.tab-btn.active {
+					background: var(--white);
+					font-weight: 500;
+					box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+				}
+				.tab-btn:not(.active):hover {
+					background: rgba(255, 255, 255, 0.55);
+				}
 
-  return (
-    <div className="bg-page min-h-screen text-[#1a1a1a] font-sans">
-      <nav className="bg-surface flex items-center px-8 h-nav gap-3 sticky top-0 z-50 shadow-md">
-        <div className="bg-primary text-white rounded-full w-[82px] h-[70px] flex items-center justify-center font-bold text-[18px]">
-          logo
-        </div>
-        <span className="font-bold text-[21px] mr-auto">Website name</span>
-        <button
-          className="bg-white text-primary rounded-full px-6 py-3 font-medium border-none cursor-pointer hover:bg-gray-50 transition-colors duration-200"
-          onClick={() => navigate("/volunteer_dashboard/profile")}
-        >My profile</button>
-        <button
-          className="bg-white text-primary rounded-full px-6 py-3 font-medium border-none cursor-pointer hover:bg-gray-50 transition-colors duration-200"
-          onClick={() => navigate("/volunteer_dashboard/events")}
-        >View all events</button>
-        <button
-          className="bg-primary text-white rounded-full px-6 py-3 font-medium border-none cursor-pointer hover:bg-primary-dark transition-colors duration-200"
-          onClick={() => navigate("/login")}
-        >Log out</button>
-      </nav>
+				.filters {
+					display: flex;
+					flex-wrap: wrap;
+					gap: 8px;
+					margin-bottom: 20px;
+				}
+				.filter-btn {
+					border: none;
+					border-radius: var(--pill);
+					padding: 8px 16px;
+					font-size: 14px;
+					cursor: pointer;
+					background: #d4d4d4;
+					color: var(--text);
+					transition: background 0.2s;
+				}
+				.filter-btn:hover {
+					background: #c6c6c6;
+				}
+				.filter-btn.active {
+					background: var(--green-mid);
+					color: var(--white);
+				}
 
-      {/* MAIN */}
-      <div className="max-w-content mr-auto px-6 pt-9 pb-[60px]">
-        <h1 className="text-[40px] font-bold mb-6">HELLO JOHN!</h1>
+				.events-grid {
+					display: grid;
+					grid-template-columns: repeat(2, minmax(0, 1fr));
+					gap: 16px;
+				}
+				.event-card {
+					background: var(--white);
+					border-radius: 14px;
+					padding: 18px;
+					box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+					display: flex;
+					flex-direction: column;
+					gap: 10px;
+					cursor: pointer;
+					transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+				}
+				.event-card:hover {
+					background: #f3f3f3;
+					transform: translateY(-1px);
+					box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+				}
+				.event-header {
+					display: flex;
+					justify-content: space-between;
+					gap: 10px;
+					align-items: flex-start;
+				}
+				.event-title {
+					font-size: 19px;
+					font-weight: 600;
+				}
+				.event-org {
+					font-size: 14px;
+					color: var(--text-muted);
+				}
+				.event-tag {
+					background: #f1f4ea;
+					border: 1px solid #d8e0c2;
+					color: var(--green-dark);
+					font-size: 12px;
+					font-weight: 600;
+					padding: 5px 10px;
+					border-radius: var(--pill);
+					white-space: nowrap;
+				}
+				.event-meta {
+					display: flex;
+					flex-wrap: wrap;
+					gap: 7px;
+					font-size: 14px;
+					color: #404040;
+				}
+				.event-desc {
+					font-size: 14px;
+					line-height: 1.45;
+					color: #4e4e4e;
+				}
+				.progress-row {
+					display: flex;
+					justify-content: space-between;
+					align-items: center;
+					font-size: 13px;
+					color: #474747;
+				}
+				.progress-track {
+					height: 8px;
+					border-radius: 999px;
+					background: #e1e1e1;
+					overflow: hidden;
+				}
+				.progress-fill {
+					height: 100%;
+					background: var(--green-mid);
+				}
 
-        <div className="flex items-center justify-between mb-4">
-          <div className="bg-surface rounded-full p-1 inline-flex gap-1">
-            <button
-              className={`px-7 py-2 rounded-full text-[16px] border-none cursor-pointer transition-all duration-200 ${
-                activeTab === "profile" ? "bg-white shadow-md font-medium text-[#1a1a1a]" : "bg-transparent text-[#1a1a1a]"
-              }`}
-              onClick={() => navigate("/volunteer_dashboard/profile")}
-            >Profile</button>
-            <button
-              className={`px-7 py-2 rounded-full text-[16px] border-none cursor-pointer transition-all duration-200 ${
-                activeTab === "activity" ? "bg-white shadow-md font-medium text-[#1a1a1a]" : "bg-transparent text-[#1a1a1a]"
-              }`}
-              onClick={() => navigate("/volunteer_dashboard/activity")}
-            >Activity</button>
-          </div>
-          <button
-            className="bg-surface border-none rounded-full py-[10px] px-[34px] text-[16px] cursor-pointer hover:bg-surface-dark transition-colors duration-200"
-          >Edit</button>
-        </div>
+				.empty-state {
+					background: var(--white);
+					border-radius: 14px;
+					padding: 28px;
+					text-align: center;
+					color: var(--text-muted);
+				}
+				.event-overlay {
+					position: fixed;
+					inset: 0;
+					background: rgba(0, 0, 0, 0.45);
+					z-index: 200;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					padding: 24px;
+				}
+				.event-modal {
+					width: 100%;
+					max-width: 680px;
+					background: var(--white);
+					border-radius: 20px;
+					box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
+					padding: 30px 32px;
+				}
+				.event-modal-title {
+					font-size: 26px;
+					font-weight: 700;
+					margin-bottom: 18px;
+				}
+				.event-modal-grid {
+					display: grid;
+					grid-template-columns: 1fr 1fr;
+					gap: 14px;
+					margin-bottom: 18px;
+				}
+				.event-modal-field {
+					background: #f3f3f3;
+					border-radius: 12px;
+					padding: 12px 14px;
+				}
+				.event-modal-label {
+					display: block;
+					font-size: 12px;
+					font-weight: 700;
+					letter-spacing: 0.4px;
+					text-transform: uppercase;
+					color: #666;
+					margin-bottom: 4px;
+				}
+				.event-modal-value {
+					font-size: 15px;
+					color: #1a1a1a;
+					line-height: 1.45;
+				}
+				.event-modal-actions {
+					display: flex;
+					justify-content: flex-end;
+					gap: 10px;
+					flex-wrap: wrap;
+					margin-top: 8px;
+				}
+				.event-modal-back,
+				.event-modal-apply {
+					border: none;
+					border-radius: var(--pill);
+					padding: 11px 22px;
+					font-size: 15px;
+					font-weight: 600;
+					cursor: pointer;
+					transition: background 0.2s, transform 0.15s;
+				}
+				.event-modal-back {
+					background: #d9d9d9;
+					color: var(--text);
+				}
+				.event-modal-back:hover {
+					background: #c6c6c6;
+					transform: translateY(-1px);
+				}
+				.event-modal-apply {
+					background: var(--green-dark);
+					color: var(--white);
+				}
+				.event-modal-apply:hover {
+					background: #3a4c0d;
+					transform: translateY(-1px);
+				}
 
-        {/* PROFILE TAB */}
-        {activeTab === "profile" && (
-          <div className="bg-surface rounded-card p-3">
-            <div className="bg-white rounded-inner px-[34px] pt-[30px] pb-[34px]">
-              <div className="text-[22px] font-semibold mb-1">Account Information</div>
-              <div className="text-[14px] font-light text-[#666] mb-7">Manage your Account profile</div>
+				@media (max-width: 920px) {
+					.nav {
+						padding: 10px 16px;
+						height: auto;
+						flex-wrap: wrap;
+					}
+					.nav-site-name {
+						font-size: 18px;
+					}
+					.nav-btn,
+					.nav-btn-logout {
+						padding: 10px 18px;
+						font-size: 14px;
+					}
+					.heading {
+						font-size: 30px;
+					}
+					.events-grid {
+						grid-template-columns: 1fr;
+					}
+					.event-modal-grid {
+						grid-template-columns: 1fr;
+					}
+				}
 
-              <div className="grid grid-cols-2 gap-x-11 gap-y-[22px]">
-                <div className="flex flex-col gap-[7px]">
-                  <label className="text-[15px] font-normal flex items-center gap-[3px]">
-                    Full Name <span className="text-red-600">*</span>
-                  </label>
-                  <input type="text" name="fullName" value={form.fullName} onChange={handleFormChange} placeholder="John Smith" className={inputCls} />
-                </div>
-                <div className="flex flex-col gap-[7px]">
-                  <label className="text-[15px] font-normal flex items-center gap-[3px]">
-                    Email <span className="text-red-600">*</span>
-                  </label>
-                  <input type="email" name="email" value={form.email} onChange={handleFormChange} placeholder="user@email.com" className={inputCls} />
-                </div>
-                <div className="flex flex-col gap-[7px]">
-                  <label className="text-[15px] font-normal flex items-center gap-[3px]">
-                    Phone Number <span className="text-red-600">*</span>
-                  </label>
-                  <input type="tel" name="phone" value={form.phone} onChange={handleFormChange} placeholder="(999)-999-9999" className={inputCls} />
-                </div>
-                <div className="flex flex-col gap-[7px]">
-                  <label className="text-[15px] font-normal flex items-center gap-[3px]">
-                    Location <span className="text-red-600">*</span>
-                  </label>
-                  <input type="text" name="location" value={form.location} onChange={handleFormChange} placeholder="City, State" className={inputCls} />
-                </div>
-                <div className="flex flex-col gap-[7px] col-span-full">
-                  <label className="text-[15px] font-normal">Bio</label>
-                  <textarea
-                    name="bio"
-                    value={form.bio}
-                    onChange={handleFormChange}
-                    placeholder="Tell us about yourself..."
-                    className={`${inputCls} resize-y min-h-[50px] h-[50px]`}
-                  />
-                </div>
-              </div>
+				@media (max-width: 620px) {
+					.main {
+						padding: 28px 16px 40px;
+					}
+					.section-top {
+						flex-direction: column;
+						align-items: flex-start;
+					}
+					.tabs {
+						width: 100%;
+						display: grid;
+						grid-template-columns: 1fr 1fr;
+					}
+					.tab-btn {
+						padding: 10px 14px;
+					}
+				}
+			`}</style>
 
-              {/* Skills */}
-              <div className="mt-[26px]">
-                <div className="text-[15px] mb-2.5">Skills</div>
-                <div className="flex flex-wrap gap-[9px] items-center">
-                  {skills.map((skill) => (
-                    <span
-                      key={skill}
-                      className="bg-badge text-white rounded-full py-[5px] px-[13px] text-[13px] font-medium flex items-center gap-[7px]"
-                    >
-                      {skill}
-                      <button
-                        onClick={() => removeSkill(skill)}
-                        title="Remove"
-                        className="bg-transparent border-none text-white cursor-pointer text-[15px] leading-none p-0 opacity-70 hover:opacity-100 transition-opacity duration-150"
-                      >×</button>
-                    </span>
-                  ))}
-                  {showSkillInput && (
-                    <input
-                      ref={skillInputRef}
-                      type="text"
-                      value={skillInput}
-                      onChange={(e) => setSkillInput(e.target.value)}
-                      onKeyDown={handleSkillKeyDown}
-                      placeholder="e.g. Cooking"
-                      className="w-[140px] bg-surface border-none rounded-[6px] py-[5px] px-[11px] text-[13px] text-[#1a1a1a] outline-none focus:bg-surface-focus focus:ring-2 focus:ring-badge"
-                    />
-                  )}
-                  {!showSkillInput && (
-                    <button
-                      onClick={openSkillInput}
-                      className="bg-surface border-none rounded-full py-[5px] px-4 text-[14px] cursor-pointer text-[#1a1a1a] hover:bg-surface-darker transition-colors duration-200"
-                    >+ Skill</button>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+			<nav className="nav">
+				<div className="nav-logo">logo</div>
+				<span className="nav-site-name">Website name</span>
+				<button className="nav-btn" onClick={() => navigate("/volunteer_dashboard/profile")}>My profile</button>
+				<button className="nav-btn" onClick={() => navigate("/volunteer_dashboard/events")}>View all events</button>
+				<button className="nav-btn-logout" onClick={() => navigate("/login")}>Log out</button>
+			</nav>
 
-        {/* ACTIVITY TAB */}
-        {activeTab === "activity" && (
-          <div className="bg-surface rounded-card p-3">
-            <div className="bg-white rounded-inner px-[34px] pt-[30px] pb-[34px]">
-              <div className="text-center py-[60px] px-6 text-[#666]">
-                <h3 className="text-[20px] font-semibold mb-2">No activity yet</h3>
-                <p>Your event history and volunteer hours will appear here.</p>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+			<main className="main">
+				<h1 className="heading">HELLO JOHN!</h1>
 
-      {/* OVERLAY */}
-      {overlay && (
-        <div
-          className="fixed inset-0 bg-black/[0.42] z-[200] flex items-center justify-center"
-          onClick={(e) => { if (e.target === e.currentTarget) setOverlay(null); }}
-        >
-          <div className="bg-white rounded-card py-11 px-[52px] text-center max-w-[400px] w-[90%] shadow-[0_8px_40px_rgba(0,0,0,0.2)]">
-            <h2 className="text-[24px] font-bold mb-2.5">{overlayInfo[overlay]?.title}</h2>
-            <p className="text-[#666] mb-[26px] text-[15px]">{overlayInfo[overlay]?.msg}</p>
-            <button
-              className="bg-primary text-white border-none rounded-full py-3 px-[30px] text-[15px] font-medium cursor-pointer hover:bg-primary-dark transition-colors duration-200"
-              onClick={() => setOverlay(null)}
-            >Go back</button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+				<div className="section-top">
+					<div className="tabs">
+						<button className="tab-btn" onClick={() => navigate("/volunteer_dashboard/profile")}>Profile</button>
+						<button className="tab-btn active" onClick={() => navigate("/volunteer_dashboard/events")}>Events</button>
+					</div>
+				</div>
+
+				<div className="filters">
+					{CATEGORY_FILTERS.map((category) => (
+						<button
+							key={category}
+							type="button"
+							className={`filter-btn${selectedCategory === category ? " active" : ""}`}
+							onClick={() => setSelectedCategory(category)}
+						>
+							{category}
+						</button>
+					))}
+				</div>
+
+				{visibleEvents.length > 0 ? (
+					<div className="events-grid">
+						{visibleEvents.map((event) => {
+							const fillPercent = Math.min(100, Math.round((event.slotsFilled / event.slotsTotal) * 100));
+
+							return (
+								<article key={event.id} className="event-card" onClick={() => setExpandedEvent(event)}>
+									<div className="event-header">
+										<div>
+											<h2 className="event-title">{event.title}</h2>
+											<p className="event-org">{event.organization}</p>
+										</div>
+										<span className="event-tag">{event.category}</span>
+									</div>
+
+									<div className="event-meta">
+										<span>{event.date}</span>
+										<span>•</span>
+										<span>{event.time}</span>
+										<span>•</span>
+										<span>{event.location}</span>
+									</div>
+
+									<p className="event-desc">{event.description}</p>
+
+									<div className="progress-row">
+										<span>Volunteer slots</span>
+										<span>{event.slotsFilled}/{event.slotsTotal}</span>
+									</div>
+									<div className="progress-track">
+										<div className="progress-fill" style={{ width: `${fillPercent}%` }} />
+									</div>
+								</article>
+							);
+						})}
+					</div>
+				) : (
+					<div className="empty-state">No events found for this category right now.</div>
+				)}
+			</main>
+
+			{expandedEvent && (
+				<div className="event-overlay" onClick={(e) => { if (e.target === e.currentTarget) setExpandedEvent(null); }}>
+					<div className="event-modal">
+						<div className="event-modal-title">{expandedEvent.title}</div>
+						<div className="event-modal-grid">
+							<div className="event-modal-field">
+								<span className="event-modal-label">Organization</span>
+								<div className="event-modal-value">{expandedEvent.organization}</div>
+							</div>
+							<div className="event-modal-field">
+								<span className="event-modal-label">Category</span>
+								<div className="event-modal-value">{expandedEvent.category}</div>
+							</div>
+							<div className="event-modal-field">
+								<span className="event-modal-label">Date &amp; Time</span>
+								<div className="event-modal-value">{expandedEvent.date} {expandedEvent.time}</div>
+							</div>
+							<div className="event-modal-field">
+								<span className="event-modal-label">Location</span>
+								<div className="event-modal-value">{expandedEvent.location}</div>
+							</div>
+							<div className="event-modal-field" style={{ gridColumn: "1 / -1" }}>
+								<span className="event-modal-label">Description</span>
+								<div className="event-modal-value">{expandedEvent.description}</div>
+							</div>
+							<div className="event-modal-field" style={{ gridColumn: "1 / -1" }}>
+								<span className="event-modal-label">Volunteer Slots</span>
+								<div className="event-modal-value">{expandedEvent.slotsFilled}/{expandedEvent.slotsTotal} filled</div>
+							</div>
+						</div>
+						<div className="event-modal-actions">
+							<button type="button" className="event-modal-back" onClick={() => setExpandedEvent(null)}>
+								Back
+							</button>
+							<button type="button" className="event-modal-apply" onClick={() => {}}>
+								Apply
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
+		</>
+	);
 }
+

@@ -11,6 +11,8 @@ const INITIAL_EVENTS = [
         name: "Event #1",
         status: "active",
         date: "January 01, 2026   11:30 AM",
+        location: "Amherst Town Hall",
+        category: "Community",
         description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
         volunteers: 12,
         maxVolunteers: 15,
@@ -20,6 +22,8 @@ const INITIAL_EVENTS = [
         name: "Event #2",
         status: "active",
         date: "January 01, 2026   11:30 AM",
+        location: "Downtown Public Library",
+        category: "Education",
         description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
         volunteers: 12,
         maxVolunteers: 15,
@@ -29,6 +33,8 @@ const INITIAL_EVENTS = [
         name: "Event #3",
         status: "full",
         date: "January 01, 2026   11:30 AM",
+        location: "North Commons Park",
+        category: "Environment",
         description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
         volunteers: 15,
         maxVolunteers: 15,
@@ -55,9 +61,9 @@ function StatusBadge({ status }) {
 }
 
 // ── Event Card ───────────────────────────────────────────────
-function EventCard({ event }) {
+function EventCard({ event, onOpen }) {
     return (
-        <div style={s.eventCard}>
+        <div className="eventCardClickable" style={s.eventCard} onClick={() => onOpen(event)}>
             <div style={s.eventTop}>
                 <div style={s.eventLeft}>
                     <span style={s.eventName}>{event.name}</span>
@@ -93,6 +99,52 @@ function EventCard({ event }) {
     );
 }
 
+// ── Event Detail Modal ──────────────────────────────────────
+function EventDetailsModal({ event, onClose, onEditEvent, onViewApplicants }) {
+    if (!event) return null;
+
+    return (
+        <div style={s.overlayBg} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+            <div style={{ ...s.overlayCard, maxWidth: 620, textAlign: "left", padding: "32px 34px" }}>
+                <h2 style={{ ...s.overlayTitle, marginBottom: 16, textAlign: "left" }}>{event.name}</h2>
+
+                <div style={s.detailGrid}>
+                    <div style={s.detailItem}>
+                        <span style={s.detailLabel}>Status</span>
+                        <span style={s.detailValue}>{event.status === "active" ? "Active" : "Full"}</span>
+                    </div>
+                    <div style={s.detailItem}>
+                        <span style={s.detailLabel}>Date &amp; Time</span>
+                        <span style={s.detailValue}>{event.date}</span>
+                    </div>
+                    <div style={s.detailItem}>
+                        <span style={s.detailLabel}>Location</span>
+                        <span style={s.detailValue}>{event.location || "TBD"}</span>
+                    </div>
+                    <div style={s.detailItem}>
+                        <span style={s.detailLabel}>Category</span>
+                        <span style={s.detailValue}>{event.category || "General"}</span>
+                    </div>
+                    <div style={{ ...s.detailItem, gridColumn: "1 / -1" }}>
+                        <span style={s.detailLabel}>Description</span>
+                        <span style={s.detailValue}>{event.description}</span>
+                    </div>
+                    <div style={{ ...s.detailItem, gridColumn: "1 / -1" }}>
+                        <span style={s.detailLabel}>Volunteers</span>
+                        <span style={s.detailValue}>{event.volunteers}/{event.maxVolunteers}</span>
+                    </div>
+                </div>
+
+                <div style={s.detailActions}>
+                    <button style={s.cancelBtn} onClick={onClose}>Close</button>
+                    <button style={s.secondaryActionBtn} onClick={onViewApplicants}>View Applicants</button>
+                    <button style={s.overlayClose} onClick={onEditEvent}>Edit Event</button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
 // ── Create Event Modal ───────────────────────────────────────
 function CreateEventModal({ onClose, onCreate }) {
     const [form, setForm] = useState({
@@ -112,9 +164,11 @@ function CreateEventModal({ onClose, onCreate }) {
             name: form.name,
             status: "active",
             date: form.date || "TBD",
+            location: "TBD",
+            category: "General",
             description: form.description || "No description provided.",
             volunteers: 0,
-            maxVolunteers: parseInt(form.maxVolunteers) || 15,
+            maxVolunteers: parseInt(form.maxVolunteers, 10) || 15,
         });
         onClose();
     };
@@ -152,9 +206,10 @@ function CreateEventModal({ onClose, onCreate }) {
 
 // ── Main Component ───────────────────────────────────────────
 export default function OrganizationDashboard() {
-    const [activeTab, setActiveTab] = useState("account");
+    const [activeTab, setActiveTab] = useState("events");
     const [overlay, setOverlay] = useState(null);
     const [showCreateEvent, setShowCreateEvent] = useState(false);
+    const [expandedEvent, setExpandedEvent] = useState(null);
     const [events, setEvents] = useState(INITIAL_EVENTS);
 
     const [form, setForm] = useState({
@@ -218,15 +273,20 @@ export default function OrganizationDashboard() {
         .removeSkillBtn:hover { opacity: 1 !important; }
         .overlayCloseBtn:hover { background: #3a4c0d !important; }
         .createEventBtn:hover { background: #c2c2c2 !important; }
+        .eventCardClickable { cursor: pointer; transition: background 0.2s, transform 0.15s; }
+        .eventCardClickable:hover { background: #cdcdcd !important; transform: translateY(-1px); }
       `}</style>
 
             {/* ── NAV ── */}
             <nav style={s.nav}>
                 <div style={s.navLogo}>logo</div>
                 <span style={s.navSiteName}>Website name</span>
-                <button className="navBtnLogout" style={s.navBtnLogout} onClick={() => {
-                    logout();
-                    navigate("/");
+                <button className="navBtnLogout" style={s.navBtnLogout} onClick={async () => {
+                    try {
+                        await logout();
+                    } finally {
+                        navigate("/login");
+                    }
                 }}>
                     Log out
                 </button>
@@ -256,7 +316,7 @@ export default function OrganizationDashboard() {
                     </div>
 
                     {activeTab === "events" ? (
-                        <button className="createEventBtn" style={s.createEventBtn} onClick={() => setShowCreateEvent(true)}>
+                        <button className="createEventBtn" style={s.createEventBtn} onClick={() => navigate("/organization_dashboard/create_opportunity")}>
                             Create Event
                         </button>
                     ) : (
@@ -336,7 +396,7 @@ export default function OrganizationDashboard() {
                             <div style={s.cardSubtitle}>Manage your Events &amp; Volunteers</div>
                             <div style={s.eventList}>
                                 {events.map((event) => (
-                                    <EventCard key={event.id} event={event} />
+                                    <EventCard key={event.id} event={event} onOpen={setExpandedEvent} />
                                 ))}
                                 {events.length === 0 && (
                                     <div style={s.emptyState}>
@@ -355,6 +415,16 @@ export default function OrganizationDashboard() {
                 <CreateEventModal
                     onClose={() => setShowCreateEvent(false)}
                     onCreate={handleCreateEvent}
+                />
+            )}
+
+            {/* ── EVENT DETAILS MODAL ── */}
+            {expandedEvent && (
+                <EventDetailsModal
+                    event={expandedEvent}
+                    onClose={() => setExpandedEvent(null)}
+                    onEditEvent={() => navigate(`/organization_dashboard/edit_event/${expandedEvent.id}`)}
+                    onViewApplicants={() => navigate(`/organization_dashboard/view_applicant/${expandedEvent.id}`)}
                 />
             )}
 
@@ -419,6 +489,13 @@ const s = {
     volunteerCount: { display: "flex", alignItems: "center", gap: 6, flexShrink: 0 },
     volunteerText: { fontSize: 17, fontWeight: 600, whiteSpace: "nowrap" },
     emptyState: { display: "flex", flexDirection: "column", alignItems: "center", gap: 12, padding: "48px 24px" },
+
+    detailGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px 18px", marginBottom: 20 },
+    detailItem: { display: "flex", flexDirection: "column", gap: 4, background: "#f3f3f3", borderRadius: 10, padding: "10px 12px" },
+    detailLabel: { fontSize: 12, fontWeight: 600, color: "#666", textTransform: "uppercase", letterSpacing: 0.4 },
+    detailValue: { fontSize: 15, color: "#1a1a1a", lineHeight: 1.45 },
+    detailActions: { display: "flex", justifyContent: "flex-end", flexWrap: "wrap", gap: 10 },
+    secondaryActionBtn: { background: "#D9D9D9", color: "#1a1a1a", border: "none", borderRadius: 9999, padding: "12px 20px", fontSize: 15, fontWeight: 500, cursor: "pointer", transition: "background 0.2s" },
 
     cancelBtn: { background: "#D9D9D9", border: "none", borderRadius: 9999, padding: "12px 28px", fontSize: 15, fontWeight: 500, cursor: "pointer" },
     overlayBg: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.42)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center" },
