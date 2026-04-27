@@ -4,6 +4,7 @@ import authMiddleware from "../middleware/auth.ts";
 import { getAccountProfile } from "../utils.ts";
 import { createSupabaseClient } from "./authRouting.ts";
 import ownedListings from "./organizations/ownedListings.ts";
+import editListing from "./organizations/editListing.ts"
 
 const router = express.Router();
 
@@ -14,5 +15,6 @@ router.get("/profile", async (req, res) => {
     return res.json(getAccountProfile("User", supabase));
 });
 router.get("/owned_listings", ownedListings)
+router.post("/edit_listing", editListing)
 
 export default router;

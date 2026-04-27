@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { getAccountProfile, logout } from "../auth/auth.ts";
 import { useNavigate } from "react-router";
-import { getOwnedListings } from "../lib/listings.ts";
+import { editListing, getOwnedListings } from "../lib/listings.ts";
 
 // ── Sample Data ──────────────────────────────────────────────
 const INITIAL_SKILLS = ["Skill #1", "Skill #2", "Skill #3", "Skill #4"];
@@ -27,11 +27,11 @@ function StatusBadge({ status }) {
 // ── Event Card ───────────────────────────────────────────────
 function EventCard({ event, onOpen }) {
     return (
-        <div className="eventCardClickable" style={s.eventCard} onClick={() => onOpen(event)}>
+        <div className="eventCardClickable" style={s.eventCard} onClick={() => onOpen()}>
             <div style={s.eventTop}>
                 <div style={s.eventLeft}>
                     <span style={s.eventName}>{event.listing_name}</span>
-                    <StatusBadge status={event.accepted_applicants ? event.accepted_applicants.length !== event.capacity : false} />
+                    <StatusBadge status={event.accepted_applicants ? event.accepted_applicants.length !== event.capacity : true} />
                 </div>
                 <div style={s.eventRight}>
                     {/* Calendar icon */}
@@ -64,8 +64,11 @@ function EventCard({ event, onOpen }) {
 }
 
 // ── Event Detail Modal ──────────────────────────────────────
-function EventDetailsModal({ event, onClose, onEditEvent, onViewApplicants }) {
+function EventDetailsModal({ event, onClose, onViewApplicants, onSave }) {
     if (!event) return null;
+
+    const [edit, setEdit] = useState(false);
+    const [listing, setListing] = useState(event)
 
     return (
         <div style={s.overlayBg} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
@@ -74,35 +77,73 @@ function EventDetailsModal({ event, onClose, onEditEvent, onViewApplicants }) {
 
                 <div style={s.detailGrid}>
                     <div style={s.detailItem}>
-                        <span style={s.detailLabel}>Status</span>
-                        <span style={s.detailValue}>{event.accepted_applicants ? event.accepted_applicants.length !== event.capacity ? "Active" : "Full" : "Active"}</span>
+                        <span style={s.detailLabel}>Capacity</span>
+                        {edit ? 
+                            <input type="number" value={listing.capacity} onInput={e => setListing(prev => ({...prev, capacity: Math.max(Number(e.target.value), prev.accepted_applicants ? prev.accepted_applicants.length : 0)}))} />
+                            : <span style={s.detailValue}>{listing.capacity}</span>
+                        }
                     </div>
                     <div style={s.detailItem}>
                         <span style={s.detailLabel}>Date &amp; Time</span>
-                        <span style={s.detailValue}>{event.listing_date}</span>
+                        {edit ? 
+                            <input type="date" value={listing.listing_date} onInput={e => setListing(prev => ({...prev, listing_date: e.target.value}))}  />
+                            : <span style={s.detailValue}>{listing.listing_date}</span>
+                        }
                     </div>
-                    {/* <div style={s.detailItem}>
+                    <div style={s.detailItem}>
                         <span style={s.detailLabel}>Location</span>
-                        <span style={s.detailValue}>{event.location || "TBD"}</span>
-                    </div> */}
+                        {edit ? 
+                            <table>
+                                <tbody>
+                                    <tr>
+                                        {
+                                            ["street", "city", "state", "zip_code"].map(key => {
+                                                return <td key={key}><input style={{width: "4em"}} key={key} type="text" value={listing[key] || ""} onInput={e => setListing(prev => ({...prev, [key]: e.target.value}))} /></td>
+                                            })
+                                        }
+                                    </tr>
+                                </tbody>
+                            </table>
+                            :<span style={s.detailValue}>{`${listing.street}, ${listing.city}, ${listing.state}, ${listing.zip_code}`}</span>
+                        }
+                    </div>
                     <div style={s.detailItem}>
                         <span style={s.detailLabel}>Category</span>
-                        <span style={s.detailValue}>{event.categories || "General"}</span>
+                        {edit ?
+                            <input type="text" value={listing.categories || ""} onInput={e => setListing(prev => ({...prev, categories: e.target.value}))}/>
+                            : <table>
+                                <tbody>
+                                    <tr>
+                                        {
+                                            listing.categories ? listing.categories.split(", ").map(category => {
+                                                return <td key={category}>{category}</td>
+                                            }) : <></>
+                                        }
+                                    </tr>
+                                </tbody>
+                            </table>
+                        }
                     </div>
                     <div style={{ ...s.detailItem, gridColumn: "1 / -1" }}>
                         <span style={s.detailLabel}>Description</span>
-                        <span style={s.detailValue}>{event.description}</span>
+                        {edit ? 
+                            <textarea rows="3" cols="80" value={listing.description} onInput={e => setListing(prev => ({...prev, description: e.target.value}))} />
+                            : <span style={s.detailValue}>{listing.description}</span>
+                        }
                     </div>
                     <div style={{ ...s.detailItem, gridColumn: "1 / -1" }}>
                         <span style={s.detailLabel}>Volunteers</span>
-                        <span style={s.detailValue}>{event.accepted_applicants ? event.accepted_applicants.length : 0}/{event.capacity ? event.capacity : 0 }</span>
+                        <span style={s.detailValue}>{listing.accepted_applicants ? listing.accepted_applicants.length : 0}/{listing.capacity ? listing.capacity : 0 }</span>
                     </div>
                 </div>
 
                 <div style={s.detailActions}>
                     <button style={s.cancelBtn} onClick={onClose}>Close</button>
                     <button style={s.secondaryActionBtn} onClick={onViewApplicants}>View Applicants</button>
-                    <button style={s.overlayClose} onClick={onEditEvent}>Edit Event</button>
+                    { edit ?
+                        <button style={s.overlayClose} onClick={() => {setEdit(false); onSave(listing)}}>Save Event</button>
+                        : <button style={s.overlayClose} onClick={() => setEdit(true)}>Edit Event</button>
+                    }
                 </div>
             </div>
         </div>
@@ -171,9 +212,8 @@ function CreateEventModal({ onClose, onCreate }) {
 // ── Main Component ───────────────────────────────────────────
 export default function OrganizationDashboard() {
     const [activeTab, setActiveTab] = useState("events");
-    const [overlay, setOverlay] = useState(null);
     const [showCreateEvent, setShowCreateEvent] = useState(false);
-    const [expandedEvent, setExpandedEvent] = useState(null);
+    const [expandedEventIndex, setExpandedEventIndex] = useState(null);
     const [events, setEvents] = useState([]);
     const [form, setForm] = useState({});
 
@@ -219,10 +259,6 @@ export default function OrganizationDashboard() {
 
     const handleCreateEvent = (newEvent) => {
         setEvents((prev) => [...prev, newEvent]);
-    };
-
-    const overlayInfo = {
-        logout: { title: "Log Out", msg: "You would be logged out and redirected to the login page." },
     };
 
     const navigate = useNavigate();
@@ -363,8 +399,8 @@ export default function OrganizationDashboard() {
                             <div style={s.cardTitle}>Volunteer Events</div>
                             <div style={s.cardSubtitle}>Manage your Events &amp; Volunteers</div>
                             <div style={s.eventList}>
-                                {events.map((event) => (
-                                    <EventCard key={event.listing_id} event={event} onOpen={setExpandedEvent} />
+                                {events.map((event, i) => (
+                                    <EventCard key={event.listing_id} event={event} onOpen={() => setExpandedEventIndex(i)} />
                                 ))}
                                 {events.length === 0 && (
                                     <div style={s.emptyState}>
@@ -387,26 +423,17 @@ export default function OrganizationDashboard() {
             )}
 
             {/* ── EVENT DETAILS MODAL ── */}
-            {expandedEvent && (
+            {expandedEventIndex !== null && (
                 <EventDetailsModal
-                    event={expandedEvent}
-                    onClose={() => setExpandedEvent(null)}
-                    onEditEvent={() => navigate(`/organization_dashboard/edit_event/${expandedEvent.listing_id}`)}
-                    onViewApplicants={() => navigate(`/organization_dashboard/view_applicant/${expandedEvent.listing_id}`)}
+                    event={events[expandedEventIndex]}
+                    onClose={() => setExpandedEventIndex(null)}
+                    onViewApplicants={() => navigate(`/organization_dashboard/view_applicant/${events[expandedEventIndex].listing_id}`)}
+                    onSave={async (updated) => {
+                        setEvents(prev => {prev[expandedEventIndex] = updated; return prev;})
+                        console.log(updated);
+                        await editListing(updated);
+                    }}
                 />
-            )}
-
-            {/* ── LOGOUT OVERLAY ── */}
-            {overlay && (
-                <div style={s.overlayBg} onClick={(e) => { if (e.target === e.currentTarget) setOverlay(null); }}>
-                    <div style={s.overlayCard}>
-                        <h2 style={s.overlayTitle}>{overlayInfo[overlay]?.title}</h2>
-                        <p style={s.overlayMsg}>{overlayInfo[overlay]?.msg}</p>
-                        <button className="overlayCloseBtn" style={s.overlayClose} onClick={() => setOverlay(null)}>
-                            Go back
-                        </button>
-                    </div>
-                </div>
             )}
         </>
     );

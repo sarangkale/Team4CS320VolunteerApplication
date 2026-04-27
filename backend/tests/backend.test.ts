@@ -15,7 +15,7 @@ describe("Basic auth", () => {
 
         const logoutRes = await request.post("/auth/logout");
         expect(logoutRes.statusCode).toBe(200);
-        expect(logoutRes.body).toBe("Logged out");
+        expect(logoutRes.text).toBe("Logged out");
     })
 })
 
@@ -29,7 +29,7 @@ test("Organization login logout", async () => {
 
     const logoutRes = await request.post("/auth/logout");
     expect(logoutRes.statusCode).toBe(200);
-    expect(logoutRes.body).toBe("Logged out");
+    expect(logoutRes.text).toBe("Logged out");
 })
 
 test("Create opportunity", async () => {

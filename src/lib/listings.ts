@@ -80,3 +80,27 @@ export async function getOwnedListings(): Promise<Result<ListingData[], RequestE
         return failure(res.error);
     }
 }
+
+export async function editListing(listingData: ListingData): Promise<Result<null, RequestError>> {
+    const res = await axios_post<string>("/organization/edit_listing", {
+        listing_id: listingData.listing_id,
+        name: listingData.listing_name,
+        capacity: listingData.capacity,
+        description: listingData.description,
+        listing_date: listingData.listing_date,
+        duration: listingData.duration,
+        categories: listingData.categories,
+        street: listingData.street,
+        city: listingData.city,
+        state: listingData.state,
+        zip_code: listingData.zip_code,
+        needed_skill: listingData.needed_skill,
+        transport: listingData.transport,
+    });
+    
+    if (res.type === "success") {
+        return success(null);
+    } else {
+        return failure(res.error);
+    }
+}

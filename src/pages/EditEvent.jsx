@@ -1,36 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 
-const EVENT_BY_ID = {
-  1: {
-    name: "Event #1",
-    volunteerTotal: "15",
-    location: "Amherst Town Hall",
-    date: "2026-01-01",
-    time: "11:30",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-  },
-  2: {
-    name: "Event #2",
-    volunteerTotal: "15",
-    location: "Downtown Public Library",
-    date: "2026-01-01",
-    time: "11:30",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-  },
-  3: {
-    name: "Event #3",
-    volunteerTotal: "15",
-    location: "North Commons Park",
-    date: "2026-01-01",
-    time: "11:30",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-  },
-};
-
 export default function EditOpportunity() {
   const navigate = useNavigate();
   const { eventId } = useParams();
