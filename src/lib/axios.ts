@@ -3,6 +3,7 @@ import type { Failure, Success, Result } from "../auth/auth";
 
 const axios_instance = axios.create({
     baseURL: "http://localhost:3000",
+    withCredentials: true,
 });
 
 export type RequestError = {

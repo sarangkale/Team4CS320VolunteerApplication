@@ -1,65 +1,9 @@
-import { /* AuthError, PostgrestError, type Session, */ type User/* , type UserResponse */ } from "@supabase/supabase-js";
+import { type User } from "@supabase/supabase-js";
 import { axios_get, axios_post, type RequestError } from "../lib/axios.ts";
-// import { supabase } from "../lib/supabase"
+import { type UserProfile, type OrganizationProfile, failure, success, type Account, type AccountRole, type Result } from "../../shared/types.ts";
 
 const ACCOUNT_LOCAL_STORAGE_KEY = "Account";
 const ROLE_LOCAL_STORAGE_KEY = "Role";
-
-export type AccountRole = "User" | "Organization";
-
-export type Account = {
-    role: AccountRole,
-    profile: UserProfile | OrganizationProfile,
-};
-
-export type Success<S> = {
-    type: "success",
-    data: S,
-};
-
-export function success<S, F>(data: S): Result<S, F> {
-    return {
-        type: "success",
-        data,
-    }
-}
-
-export type Failure<F> = {
-    type: "error",
-    error: F,
-};
-
-export function failure<S, F>(error: F): Result<S, F> {
-    return {
-        type: "error",
-        error,
-    }
-}
-
-export type Result<S, F> = Success<S> | Failure<F>;
-
-export type UserProfile = {
-    bio: string | null;
-    email: string | null;
-    first_name: string | null;
-    graduation_year: number | null;
-    last_name: string;
-    major: string | null;
-    phone: number | null;
-    school: string | null;
-    total_hours_completed: number | null;
-    user_id: string;
-};
-
-export type OrganizationProfile = {
-    all_listings?: string | null;
-    bio?: string | null;
-    email: string;
-    org_id: string;
-    org_name?: string | null;
-    password_hash?: string | null;
-    website?: string | null;
-};
 
 // USER SIGN UP
 export async function userSignUp(
@@ -144,7 +88,7 @@ export async function logout(): Promise<Result<null, RequestError>> {
 }
 
 // GET USER
-export async function getCurrentUser(): Promise<User> {
+export function getCurrentUser(): User {
     return JSON.parse(localStorage.getItem(ACCOUNT_LOCAL_STORAGE_KEY)!)
 }
 

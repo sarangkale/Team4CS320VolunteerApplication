@@ -2,9 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import {
   retrieveListings,
   updateListingApplicant,
-  type ListingData,
   type ListingFilters,
 } from "../lib/listings";
+import type { ListingData } from "../../backend/src/routes/organizations/createListing";
 
 const CATEGORY_OPTIONS = [
   "Animals",

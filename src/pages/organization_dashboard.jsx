@@ -1,53 +1,17 @@
-import { useState, useRef } from "react";
-import { logout } from "../auth/auth.ts";
+import { useState, useRef, useEffect } from "react";
+import { getAccountProfile, logout } from "../auth/auth.ts";
 import { useNavigate } from "react-router";
+import { getOwnedListings } from "../lib/listings.ts";
 
 // ── Sample Data ──────────────────────────────────────────────
 const INITIAL_SKILLS = ["Skill #1", "Skill #2", "Skill #3", "Skill #4"];
 
-const INITIAL_EVENTS = [
-    {
-        id: 1,
-        name: "Event #1",
-        status: "active",
-        date: "January 01, 2026   11:30 AM",
-        location: "Amherst Town Hall",
-        category: "Community",
-        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-        volunteers: 12,
-        maxVolunteers: 15,
-    },
-    {
-        id: 2,
-        name: "Event #2",
-        status: "active",
-        date: "January 01, 2026   11:30 AM",
-        location: "Downtown Public Library",
-        category: "Education",
-        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-        volunteers: 12,
-        maxVolunteers: 15,
-    },
-    {
-        id: 3,
-        name: "Event #3",
-        status: "full",
-        date: "January 01, 2026   11:30 AM",
-        location: "North Commons Park",
-        category: "Environment",
-        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-        volunteers: 15,
-        maxVolunteers: 15,
-    },
-];
-
 // ── Status Badge ─────────────────────────────────────────────
 function StatusBadge({ status }) {
-    const isActive = status === "active";
     return (
         <span style={{
-            border: `3px solid ${isActive ? "#2CBD03" : "#BD0303"}`,
-            color: isActive ? "#2CBD03" : "#BD0303",
+            border: `3px solid ${status ? "#2CBD03" : "#BD0303"}`,
+            color: status ? "#2CBD03" : "#BD0303",
             borderRadius: 9999,
             padding: "3px 12px",
             fontSize: 14,
@@ -55,7 +19,7 @@ function StatusBadge({ status }) {
             background: "white",
             whiteSpace: "nowrap",
         }}>
-            {isActive ? "active" : "Full"}
+            {status ? "active" : "Full"}
         </span>
     );
 }
@@ -66,8 +30,8 @@ function EventCard({ event, onOpen }) {
         <div className="eventCardClickable" style={s.eventCard} onClick={() => onOpen(event)}>
             <div style={s.eventTop}>
                 <div style={s.eventLeft}>
-                    <span style={s.eventName}>{event.name}</span>
-                    <StatusBadge status={event.status} />
+                    <span style={s.eventName}>{event.listing_name}</span>
+                    <StatusBadge status={event.accepted_applicants ? event.accepted_applicants.length !== event.capacity : false} />
                 </div>
                 <div style={s.eventRight}>
                     {/* Calendar icon */}
@@ -77,7 +41,7 @@ function EventCard({ event, onOpen }) {
                         <line x1="8" y1="2" x2="8" y2="6" />
                         <line x1="16" y1="2" x2="16" y2="6" />
                     </svg>
-                    <span style={s.eventDate}>{event.date}</span>
+                    <span style={s.eventDate}>{event.listing_date}</span>
                 </div>
             </div>
             <div style={s.eventBottom}>
@@ -91,7 +55,7 @@ function EventCard({ event, onOpen }) {
                         <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                     </svg>
                     <span style={s.volunteerText}>
-                        {event.volunteers}/{event.maxVolunteers} Volunteers
+                        {event.accepted_applicants ? event.accepted_applicants.length : 0}/{event.capacity ? event.capacity : 0 } Volunteers
                     </span>
                 </div>
             </div>
@@ -111,19 +75,19 @@ function EventDetailsModal({ event, onClose, onEditEvent, onViewApplicants }) {
                 <div style={s.detailGrid}>
                     <div style={s.detailItem}>
                         <span style={s.detailLabel}>Status</span>
-                        <span style={s.detailValue}>{event.status === "active" ? "Active" : "Full"}</span>
+                        <span style={s.detailValue}>{event.accepted_applicants ? event.accepted_applicants.length !== event.capacity ? "Active" : "Full" : "Active"}</span>
                     </div>
                     <div style={s.detailItem}>
                         <span style={s.detailLabel}>Date &amp; Time</span>
-                        <span style={s.detailValue}>{event.date}</span>
+                        <span style={s.detailValue}>{event.listing_date}</span>
                     </div>
-                    <div style={s.detailItem}>
+                    {/* <div style={s.detailItem}>
                         <span style={s.detailLabel}>Location</span>
                         <span style={s.detailValue}>{event.location || "TBD"}</span>
-                    </div>
+                    </div> */}
                     <div style={s.detailItem}>
                         <span style={s.detailLabel}>Category</span>
-                        <span style={s.detailValue}>{event.category || "General"}</span>
+                        <span style={s.detailValue}>{event.categories || "General"}</span>
                     </div>
                     <div style={{ ...s.detailItem, gridColumn: "1 / -1" }}>
                         <span style={s.detailLabel}>Description</span>
@@ -131,7 +95,7 @@ function EventDetailsModal({ event, onClose, onEditEvent, onViewApplicants }) {
                     </div>
                     <div style={{ ...s.detailItem, gridColumn: "1 / -1" }}>
                         <span style={s.detailLabel}>Volunteers</span>
-                        <span style={s.detailValue}>{event.volunteers}/{event.maxVolunteers}</span>
+                        <span style={s.detailValue}>{event.accepted_applicants ? event.accepted_applicants.length : 0}/{event.capacity ? event.capacity : 0 }</span>
                     </div>
                 </div>
 
@@ -210,16 +174,20 @@ export default function OrganizationDashboard() {
     const [overlay, setOverlay] = useState(null);
     const [showCreateEvent, setShowCreateEvent] = useState(false);
     const [expandedEvent, setExpandedEvent] = useState(null);
-    const [events, setEvents] = useState(INITIAL_EVENTS);
+    const [events, setEvents] = useState([]);
+    const [form, setForm] = useState({});
 
-    const [form, setForm] = useState({
-        orgName: "The Organization",
-        email: "User@email.com",
-        phone: "(999)-999-999",
-        location: "Amherst, MA",
-        website: "TheOrganization.com",
-        dateEstablished: "January 1, 2026",
-    });
+    useEffect(() => {
+        getOwnedListings().then(res =>{ if (res.type == "success") {
+            setEvents(res.data);
+        }});
+
+        getAccountProfile().then(res => {
+            if (res.type == "success") {
+                setForm(res.data.profile)
+            }
+        })
+    }, [])
 
     const [skills, setSkills] = useState(INITIAL_SKILLS);
     const [skillInput, setSkillInput] = useState("");
@@ -396,7 +364,7 @@ export default function OrganizationDashboard() {
                             <div style={s.cardSubtitle}>Manage your Events &amp; Volunteers</div>
                             <div style={s.eventList}>
                                 {events.map((event) => (
-                                    <EventCard key={event.id} event={event} onOpen={setExpandedEvent} />
+                                    <EventCard key={event.listing_id} event={event} onOpen={setExpandedEvent} />
                                 ))}
                                 {events.length === 0 && (
                                     <div style={s.emptyState}>
@@ -423,8 +391,8 @@ export default function OrganizationDashboard() {
                 <EventDetailsModal
                     event={expandedEvent}
                     onClose={() => setExpandedEvent(null)}
-                    onEditEvent={() => navigate(`/organization_dashboard/edit_event/${expandedEvent.id}`)}
-                    onViewApplicants={() => navigate(`/organization_dashboard/view_applicant/${expandedEvent.id}`)}
+                    onEditEvent={() => navigate(`/organization_dashboard/edit_event/${expandedEvent.listing_id}`)}
+                    onViewApplicants={() => navigate(`/organization_dashboard/view_applicant/${expandedEvent.listing_id}`)}
                 />
             )}
 

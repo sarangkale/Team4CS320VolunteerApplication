@@ -53,7 +53,7 @@ export default function ListingCreation() {
         setErrorMessage(
           typeof result.error === "string"
             ? result.error
-            : result.error.message
+            : result.error.msg
         );
       }
     }

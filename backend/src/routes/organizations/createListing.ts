@@ -1,31 +1,7 @@
 import express from "express";
 import { createSupabaseClient } from "../authRouting.ts";
-import { bodyHasEntries, getAccountProfile, type OrganizationProfile } from "../../utils.ts";
-
-export type ListingData = {
-    applicants?: string | null;
-    capacity?: number | null;
-    categories?: string | null;
-    city?: string | null;
-    description?: string | null;
-    distance?: number | null;
-    duration?: string | null;
-    files?: string[] | null;
-    latitude?: number | null;
-    listing_date?: string | null;
-    listing_id?: string;
-    listing_name?: string | null;
-    longitude?: number | null;
-    needed_skill?: string[] | null;
-    org_id: string;
-    org_name?: string | null;
-    Questions?: string[] | null;
-    state?: string | null;
-    street?: string | null;
-    transport?: string | null;
-    volunteer_time?: string | null;
-    zip_code?: string | null;
-};
+import { bodyHasEntries, getAccountProfile } from "../../utils.ts";
+import type { ListingData, OrganizationProfile } from "../../../../shared/types.ts";
 
 export default async function createListing(req: express.Request, res: express.Response) {
     const validation = bodyHasEntries(

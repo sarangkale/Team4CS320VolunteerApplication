@@ -21,23 +21,22 @@ export default async function applyToListing(req: Express.Request, res: Express.
 
     if (fetchError) {
         console.error("Error fetching current applicants:", fetchError);
-        return { type: "error", error: fetchError };
+        return res.status(400).json({ type: "error", error: fetchError });
     }
 
-    const existingApplicants = currentData?.applicants;
-    let newApplicantsString = "";
+    const existingApplicants = currentData?.applicants
+    const updatedApplicants = [username as string];
 
     if (!existingApplicants) {
-        newApplicantsString = username;
     } else if (existingApplicants.includes(username)) {
         return res.status(400).send("User has already applied to this listing.");
     } else {
-        newApplicantsString = `${existingApplicants}, ${username}`;
+        updatedApplicants.push(...existingApplicants);
     }
 
     const { data: _updateData, error: updateError } = await supabase
         .from('listing')
-        .update({ applicants: newApplicantsString })
+        .update({ applicants: updatedApplicants })
         .eq('listing_id', listing_id)
         .select();
 
