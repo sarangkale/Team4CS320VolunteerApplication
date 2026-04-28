@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router'
 import './index.css'
 import App from './pages/App.tsx'
 import LoginPage from "./pages/login.tsx"
-import OrganizationDashboard from './pages/organization_dashboard.jsx'
+import OrganizationDashboard from './pages/organization_dashboard.tsx'
 import CreateOpportunity from './pages/CreateOpp.jsx'
 import EditEvent from './pages/EditEvent.jsx'
 import ViewApplicant from './pages/OrgViewApplicant.jsx'

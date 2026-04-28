@@ -38,8 +38,8 @@ export default async function createListing(req: express.Request, res: express.R
 
     const coords = await geocodeAddress(street, city, state, zip_code);
 
-    if (!coords) {
-        return res.status(500).json({ error: "Error while calculating longitude and latitude coordinates" })
+    if (typeof coords === "string") {
+        return res.status(500).json({ error: "Error while calculating longitude and latitude coordinates", message: coords })
     }
 
     const { latitude, longitude } = coords;
@@ -65,7 +65,7 @@ export default async function createListing(req: express.Request, res: express.R
 
     const { data: creationData, error: creationError } = await supabase.from("listing").insert(listing).select("listing_id").single();
     if (creationError) {
-        return res.status(500).json(creationError);
+        return res.status(500).json({message: "Error while creating listing.", creationError});
     }
 
     if (profile.all_listings !== undefined) {
@@ -79,7 +79,7 @@ export default async function createListing(req: express.Request, res: express.R
             .eq("org_id", profile.org_id);
 
         if (updateError) {
-            return res.status(500).json(updateError);
+            return res.status(500).json({message: "Error while updating organization information.", updateError});
         }
     }
 
@@ -91,7 +91,7 @@ export async function geocodeAddress(
     city: string,
     state: string,
     zip_code: string
-): Promise<{ latitude: number; longitude: number } | null> {
+): Promise<{ latitude: number; longitude: number } | string> {
     try {
         const query = encodeURIComponent(
             `${street}, ${city}, ${state} ${zip_code}`
@@ -101,19 +101,18 @@ export async function geocodeAddress(
             `https://nominatim.openstreetmap.org/search?q=${query}&format=json&limit=1`,
             {
                 headers: {
-                    Accept: "application/json",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:137.0) Gecko/20100101 Firefox/137.0"
                 },
             }
         );
-
         if (!response.ok) {
-            return null;
+            return response.statusText;
         }
 
         const data = await response.json();
-
         if (!Array.isArray(data) || data.length === 0) {
-            return null;
+            return "Malformed data";
         }
 
         return {
@@ -121,7 +120,6 @@ export async function geocodeAddress(
             longitude: Number(data[0].lon),
         };
     } catch (error) {
-        console.error("Geocoding failed:", error);
-        return null;
+        return "Geocoding failed:" + error;
     }
 }

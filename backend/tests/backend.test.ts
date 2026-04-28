@@ -1,8 +1,9 @@
 import { expect } from "@jest/globals";
 import server from "../src/server.ts";
 import supertest from "supertest";
+import type { ListingData } from "../../shared/types.ts";
 
-const request = supertest(server);
+const request = supertest.agent(server);
 
 describe("Basic auth", () => {
     it("Volunteer login logout", async () => {
@@ -51,7 +52,8 @@ test("Create opportunity", async () => {
         city: "Amherst",
         state: "Massachusetts",
         zip_code: "01003",
-        needed_skill: "everything"
+        needed_skill: ["everything"],
+        transport: "walking",
     });
 
     expect(listingRes.statusCode).toBe(200);
