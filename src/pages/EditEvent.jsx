@@ -70,12 +70,6 @@ export default function EditOpportunity() {
     setTags((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSave = () => {
-    console.log("Saved:", form, tags);
-    alert("Changes saved!");
-    navigate("/organization_dashboard");
-  };
-
   // Format date for display
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
@@ -97,215 +91,155 @@ export default function EditOpportunity() {
     return `${displayHour}:${min} ${ampm}`;
   };
 
+  const handleSave = () => {
+    console.log("Saved:", form, tags);
+    alert("Changes saved!");
+    navigate("/organization_dashboard");
+  };
+
   return (
-    <div
-      style={{ fontFamily: "'DM Sans', 'Inter', sans-serif", minHeight: "100vh", background: "#f0f0f0" }}
-    >
-      {/* ── Nav ── */}
-      <nav
-        style={{
-          background: "#d9d9d9",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "10px 24px",
-          borderBottom: "1px solid #bbb",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: "50%",
-              background: "#3b4a2e",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#fff",
-              fontWeight: 700,
-              fontSize: 13,
-            }}
-          >
+    <div className="font-sans min-h-screen bg-page-alt">
+
+      {/* Nav */}
+      <nav className="bg-surface flex items-center justify-between px-6 py-2.5 border-b border-[#bbb]">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-full bg-olive flex items-center justify-center text-white font-bold text-[13px] shrink-0">
             logo
           </div>
-          <span style={{ fontWeight: 600, fontSize: 18, color: "#111" }}>Website name</span>
+          <span className="font-semibold text-lg text-gray-900">Website name</span>
         </div>
-
         <button
+          className="bg-olive text-white border-none rounded-full px-7 py-2.5 text-base font-semibold cursor-pointer transition-colors hover:bg-olive-dark"
           onClick={() => navigate("/login")}
-          style={{
-            background: "#3b4a2e",
-            color: "#fff",
-            border: "none",
-            borderRadius: 24,
-            padding: "10px 28px",
-            fontSize: 16,
-            fontWeight: 600,
-            cursor: "pointer",
-          }}
         >
           Log out
         </button>
       </nav>
 
-      {/* ── Page body ── */}
-      <div style={{ maxWidth: 900, margin: "32px auto", padding: "0 24px" }}>
+      {/* Page body */}
+      <div className="max-w-[900px] mx-auto mt-8 px-6 pb-12">
+
         {/* Title */}
-        <h1 style={{ fontSize: 32, fontWeight: 800, margin: "0 0 18px" }}>
+        <h1 className="text-[32px] font-extrabold m-0 mb-[18px]">
           Edit Event {eventId ? `#${eventId}` : ""}
         </h1>
 
         {/* Tab bar */}
-        <div style={{ display: "flex", gap: 0, marginBottom: 24 }}>
-          {["Volunteers", "Edit Information"].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => tab === "Volunteers" && navigate("/organization_dashboard/view_applicant/1")}
-              style={{
-                padding: "8px 26px",
-                fontSize: 15,
-                fontWeight: tab === "Edit Information" ? 700 : 400,
-                background: tab === "Edit Information" ? "#fff" : "transparent",
-                border: "1.5px solid #bbb",
-                borderRadius: tab === "Volunteers" ? "20px 0 0 20px" : "0 20px 20px 0",
-                cursor: "pointer",
-                color: "#111",
-                marginLeft: tab === "Edit Information" ? -1 : 0,
-              }}
-            >
-              {tab}
-            </button>
-          ))}
+        <div className="flex mb-6">
+          <button
+            onClick={() => navigate("/organization_dashboard/view_applicant/1")}
+            className="px-6 py-2 text-[15px] font-normal bg-transparent border border-[#bbb] rounded-l-full cursor-pointer text-gray-900 transition-colors hover:bg-white"
+          >
+            Volunteers
+          </button>
+          <button
+            className="px-6 py-2 text-[15px] font-bold bg-white border border-[#bbb] -ml-px rounded-r-full cursor-pointer text-gray-900"
+          >
+            Edit Information
+          </button>
         </div>
 
         {/* Card */}
-        <div
-          style={{
-            background: "#e8e8e8",
-            borderRadius: 16,
-            border: "1.5px solid #c0c0c0",
-            padding: "32px 36px 28px",
-          }}
-        >
+        <div className="bg-[#e8e8e8] rounded-[16px] border border-[#c0c0c0] px-9 pt-8 pb-7">
+
           {/* Two-column grid */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              columnGap: 48,
-              rowGap: 20,
-            }}
-          >
-            {/* Left: Opportunity Name */}
+          <div className="grid grid-cols-2 gap-x-12 gap-y-5">
+
+            {/* Opportunity Name */}
             <div>
-              <label style={labelStyle}>Opportunity Name:</label>
+              <label className="block text-[15px] font-medium text-gray-900 mb-1.5">
+                Opportunity Name:
+              </label>
               <input
                 name="name"
                 value={form.name}
                 onChange={handleChange}
-                style={inputStyle}
+                className="w-full bg-surface border-none rounded-full px-4 py-2 text-[15px] text-gray-900 outline-none font-sans"
               />
             </div>
 
-            {/* Right: Date */}
+            {/* Date */}
             <div>
-              <label style={labelStyle}>Date</label>
+              <label className="block text-[15px] font-medium text-gray-900 mb-1.5">
+                Date
+              </label>
               <input
                 type="date"
                 name="date"
                 value={form.date}
                 onChange={handleChange}
-                style={inputStyle}
+                className="w-full bg-surface border-none rounded-full px-4 py-2 text-[15px] text-gray-900 outline-none font-sans"
               />
             </div>
 
-            {/* Left: Volunteer Total */}
+            {/* Volunteer Total */}
             <div>
-              <label style={labelStyle}>Volunteer Total:</label>
+              <label className="block text-[15px] font-medium text-gray-900 mb-1.5">
+                Volunteer Total:
+              </label>
               <input
                 name="volunteerTotal"
                 value={form.volunteerTotal}
                 onChange={handleChange}
-                style={inputStyle}
+                className="w-full bg-surface border-none rounded-full px-4 py-2 text-[15px] text-gray-900 outline-none font-sans"
               />
             </div>
 
-            {/* Right: Time */}
+            {/* Time */}
             <div>
-              <label style={labelStyle}>Time</label>
+              <label className="block text-[15px] font-medium text-gray-900 mb-1.5">
+                Time
+              </label>
               <input
                 type="time"
                 name="time"
                 value={form.time}
                 onChange={handleChange}
-                style={inputStyle}
+                className="w-full bg-surface border-none rounded-full px-4 py-2 text-[15px] text-gray-900 outline-none font-sans"
               />
             </div>
 
-            {/* Left: Location (spans just one col) */}
+            {/* Location */}
             <div>
-              <label style={labelStyle}>Location</label>
+              <label className="block text-[15px] font-medium text-gray-900 mb-1.5">
+                Location
+              </label>
               <input
                 name="location"
                 value={form.location}
                 onChange={handleChange}
-                style={inputStyle}
+                className="w-full bg-surface border-none rounded-full px-4 py-2 text-[15px] text-gray-900 outline-none font-sans"
               />
             </div>
           </div>
 
-          {/* Description – full width */}
-          <div style={{ marginTop: 20 }}>
-            <label style={labelStyle}>Description</label>
+          {/* Description */}
+          <div className="mt-5">
+            <label className="block text-[15px] font-medium text-gray-900 mb-1.5">
+              Description
+            </label>
             <textarea
               name="description"
               value={form.description}
               onChange={handleChange}
               rows={4}
-              style={{
-                ...inputStyle,
-                height: "auto",
-                resize: "vertical",
-                padding: "10px 16px",
-                lineHeight: 1.5,
-              }}
+              className="w-full bg-surface border-none rounded-[20px] px-4 py-2.5 text-[15px] text-gray-900 outline-none font-sans leading-[1.5] resize-y"
             />
           </div>
 
-          {/* Tags row + Save */}
-          <div
-            style={{
-              marginTop: 24,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              flexWrap: "wrap",
-              gap: 12,
-            }}
-          >
+          {/* Tags + Save */}
+          <div className="mt-6 flex items-center justify-between flex-wrap gap-3">
+
             {/* Tags */}
             <div>
-              <label style={{ ...labelStyle, marginBottom: 8 }}>Tags</label>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+              <label className="block text-[15px] font-medium text-gray-900 mb-2">Tags</label>
+              <div className="flex flex-wrap gap-2 items-center">
                 {tags.map((tag, i) => (
                   <span
                     key={i}
                     title="Click to remove"
                     onClick={() => handleRemoveTag(i)}
-                    style={{
-                      background: "#6b7a52",
-                      color: "#fff",
-                      borderRadius: 100,
-                      padding: "5px 18px",
-                      fontSize: 14,
-                      fontWeight: 500,
-                      cursor: "pointer",
-                      userSelect: "none",
-                      transition: "background 0.15s",
-                    }}
-                    onMouseEnter={(e) => (e.target.style.background = "#4f5c3a")}
-                    onMouseLeave={(e) => (e.target.style.background = "#6b7a52")}
+                    className="bg-olive-medium text-white rounded-full px-[18px] py-[5px] text-sm font-medium cursor-pointer select-none transition-colors hover:bg-olive-light"
                   >
                     {tag}
                   </span>
@@ -318,29 +252,13 @@ export default function EditOpportunity() {
                     onChange={(e) => setNewTagInput(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleAddTag()}
                     placeholder="Tag name"
-                    style={{
-                      borderRadius: 100,
-                      border: "1.5px solid #bbb",
-                      padding: "4px 14px",
-                      fontSize: 14,
-                      width: 110,
-                      outline: "none",
-                    }}
+                    className="rounded-full border border-[#bbb] px-3.5 py-1 text-sm w-[110px] outline-none font-sans"
                   />
                 )}
 
                 <button
                   onClick={handleAddTag}
-                  style={{
-                    background: "#d9d9d9",
-                    border: "none",
-                    borderRadius: 100,
-                    padding: "5px 18px",
-                    fontSize: 14,
-                    fontWeight: 500,
-                    cursor: "pointer",
-                    color: "#111",
-                  }}
+                  className="bg-surface border-none rounded-full px-[18px] py-[5px] text-sm font-medium cursor-pointer text-gray-900 transition-colors hover:bg-surface-dark font-sans"
                 >
                   {addingTag ? "✓ Add" : "+ Tag"}
                 </button>
@@ -350,46 +268,14 @@ export default function EditOpportunity() {
             {/* Save button */}
             <button
               onClick={handleSave}
-              style={{
-                background: "#3b4a2e",
-                color: "#fff",
-                border: "none",
-                borderRadius: 24,
-                padding: "12px 32px",
-                fontSize: 16,
-                fontWeight: 700,
-                cursor: "pointer",
-                whiteSpace: "nowrap",
-                alignSelf: "flex-end",
-              }}
+              className="bg-olive text-white border-none rounded-full px-8 py-3 text-base font-bold cursor-pointer transition-colors hover:bg-olive-dark whitespace-nowrap self-end"
             >
               Save changes
             </button>
           </div>
+
         </div>
       </div>
     </div>
   );
 }
-
-// Shared styles
-const labelStyle = {
-  display: "block",
-  fontSize: 15,
-  fontWeight: 500,
-  marginBottom: 6,
-  color: "#111",
-};
-
-const inputStyle = {
-  display: "block",
-  width: "100%",
-  background: "#d9d9d9",
-  border: "none",
-  borderRadius: 25,
-  padding: "8px 16px",
-  fontSize: 15,
-  color: "#111",
-  outline: "none",
-  boxSizing: "border-box",
-};

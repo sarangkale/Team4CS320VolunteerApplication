@@ -46,115 +46,128 @@ export default function CreateOpportunity() {
   };
 
   return (
-    <div style={styles.page}>
-      {/* ── NAV ── */}
-      <nav style={styles.nav}>
-        <div style={styles.navLeft}>
-          <div style={styles.logoBubble}>
-            <span style={styles.logoText}>logo</span>
+    <div className="font-sans min-h-screen bg-page-alt">
+
+      {/* Nav */}
+      <nav className="bg-surface flex items-center justify-between px-7 h-nav-sm box-border">
+        <div className="flex items-center gap-3.5">
+          <div className="w-14 h-[52px] rounded-full bg-olive flex items-center justify-center shrink-0">
+            <span className="text-white font-bold text-[13px] tracking-tight">logo</span>
           </div>
-          <span style={styles.siteName}>Website name</span>
+          <span className="font-bold text-lg text-gray-900 tracking-tight">Website name</span>
         </div>
         <button
-          style={styles.logoutBtn}
+          className="bg-olive text-white border-none rounded-full px-7 py-2.5 text-base font-semibold cursor-pointer tracking-tight transition-colors hover:bg-olive-dark"
           onClick={() => navigate("/login")}
-          onMouseEnter={(e) => (e.currentTarget.style.background = "#2e3a1f")}
-          onMouseLeave={(e) => (e.currentTarget.style.background = "#3b4a2e")}
         >
           Log out
         </button>
       </nav>
 
-      {/* ── PAGE HEADER ── */}
-      <div style={styles.pageHeader}>
-        <h1 style={styles.pageTitle}>Create a Volunteering Opportunity!</h1>
+      {/* Page header */}
+      <div className="flex items-center justify-between px-9 pt-[22px] pb-3.5 max-w-header mx-auto">
+        <h1 className="text-[30px] font-extrabold text-gray-900 tracking-[-1px] m-0">
+          Create a Volunteering Opportunity!
+        </h1>
         <button
-          style={styles.backBtn}
+          className="bg-surface border-none rounded-full px-7 py-2 text-base font-medium cursor-pointer text-gray-900 transition-colors hover:bg-surface-dark"
           onClick={() => navigate("/organization_dashboard")}
-          onMouseEnter={(e) => (e.currentTarget.style.background = "#c8c8c8")}
-          onMouseLeave={(e) => (e.currentTarget.style.background = "#d9d9d9")}
         >
           Back
         </button>
       </div>
 
-      {/* ── CARD ── */}
-      <div style={styles.cardWrap}>
-        {/* shadow layer */}
-        <div style={styles.cardShadow} />
-        <div style={styles.card}>
+      {/* Card wrap */}
+      <div className="relative max-w-card mx-auto mb-12 px-9">
+        {/* Shadow layer */}
+        <div className="absolute rounded-card bg-surface-shadow z-0" style={{ inset: "6px -6px -6px 6px" }} />
 
-          {/* ── ROW 1: Opportunity Name | Date ── */}
-          <div style={styles.row}>
-            <div style={styles.col}>
-              <label style={styles.label} htmlFor="name">Opportunity Name:</label>
+        {/* Card */}
+        <div className="relative z-10 bg-white rounded-card px-10 pt-8 pb-7 border border-[#e0e0e0]">
+
+          {/* Row 1: Name | Date */}
+          <div className="grid grid-cols-2 gap-x-[60px] mb-[18px]">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[15px] font-medium text-gray-900 tracking-tight mb-1" htmlFor="name">
+                Opportunity Name:
+              </label>
               <input
                 id="name"
                 name="name"
                 value={form.name}
                 onChange={handleChange}
                 placeholder="Opportunity name"
-                style={styles.input}
+                className="w-full bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none font-sans tracking-tight"
               />
             </div>
-            <div style={styles.col}>
-              <label style={styles.label} htmlFor="date">Date</label>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[15px] font-medium text-gray-900 tracking-tight mb-1" htmlFor="date">
+                Date
+              </label>
               <input
                 id="date"
                 name="date"
                 type="date"
                 value={form.date}
                 onChange={handleChange}
-                style={styles.input}
+                className="w-full bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none font-sans tracking-tight"
               />
             </div>
           </div>
 
-          {/* ── ROW 2: Volunteer Total | Time ── */}
-          <div style={styles.row}>
-            <div style={styles.col}>
-              <label style={styles.label} htmlFor="volunteerTotal">Volunteer Total:</label>
+          {/* Row 2: Volunteer Total | Time */}
+          <div className="grid grid-cols-2 gap-x-[60px] mb-[18px]">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[15px] font-medium text-gray-900 tracking-tight mb-1" htmlFor="volunteerTotal">
+                Volunteer Total:
+              </label>
               <input
                 id="volunteerTotal"
                 name="volunteerTotal"
                 value={form.volunteerTotal}
                 onChange={handleChange}
                 placeholder="25"
-                style={styles.input}
+                className="w-full bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none font-sans tracking-tight"
               />
             </div>
-            <div style={styles.col}>
-              <label style={styles.label} htmlFor="time">Time</label>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[15px] font-medium text-gray-900 tracking-tight mb-1" htmlFor="time">
+                Time
+              </label>
               <input
                 id="time"
                 name="time"
                 type="time"
                 value={form.time}
                 onChange={handleChange}
-                style={styles.input}
+                className="w-full bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none font-sans tracking-tight"
               />
             </div>
           </div>
 
-          {/* ── ROW 3: Location (left only) ── */}
-          <div style={styles.row}>
-            <div style={styles.col}>
-              <label style={styles.label} htmlFor="location">Location</label>
+          {/* Row 3: Location (left only) */}
+          <div className="grid grid-cols-2 gap-x-[60px] mb-[18px]">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[15px] font-medium text-gray-900 tracking-tight mb-1" htmlFor="location">
+                Location
+              </label>
               <input
                 id="location"
                 name="location"
                 value={form.location}
                 onChange={handleChange}
                 placeholder="Amherst, MA"
-                style={styles.input}
+                className="w-full bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none font-sans tracking-tight"
               />
             </div>
-            <div style={styles.col} /> {/* spacer */}
+            <div /> {/* spacer */}
           </div>
 
-          {/* ── DESCRIPTION ── */}
-          <div style={{ marginTop: 8 }}>
-            <label style={styles.label} htmlFor="description">Description</label>
+          {/* Description */}
+          <div className="mt-2">
+            <label className="text-[15px] font-medium text-gray-900 tracking-tight mb-1 block" htmlFor="description">
+              Description
+            </label>
             <textarea
               id="description"
               name="description"
@@ -162,24 +175,22 @@ export default function CreateOpportunity() {
               onChange={handleChange}
               rows={5}
               placeholder="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-              style={{ ...styles.input, height: "auto", resize: "vertical", padding: "12px 18px", lineHeight: 1.55 }}
+              className="w-full bg-surface border-none rounded-[20px] px-[18px] py-3 text-[15px] text-gray-900 outline-none font-sans tracking-tight leading-[1.55] resize-y"
             />
           </div>
 
-          {/* ── TAGS + POST BUTTON ── */}
-          <div style={styles.tagsRow}>
-            {/* Tags section */}
+          {/* Tags + Post button */}
+          <div className="mt-6 flex items-end justify-between flex-wrap gap-4">
+            {/* Tags */}
             <div>
-              <label style={styles.label}>Tags</label>
-              <div style={styles.tagList}>
+              <label className="text-[15px] font-medium text-gray-900 tracking-tight mb-1 block">Tags</label>
+              <div className="flex flex-wrap gap-2 items-center mt-1.5">
                 {tags.map((tag, i) => (
                   <span
                     key={i}
                     onClick={() => handleRemoveTag(i)}
                     title="Click to remove"
-                    style={styles.tag}
-                    onMouseEnter={(e) => (e.currentTarget.style.background = "#4f5c3a")}
-                    onMouseLeave={(e) => (e.currentTarget.style.background = "#6b7a52")}
+                    className="bg-olive-medium text-white rounded-full px-[18px] py-[5px] text-sm font-medium cursor-pointer select-none transition-colors hover:bg-olive-light"
                   >
                     {tag}
                   </span>
@@ -198,30 +209,26 @@ export default function CreateOpportunity() {
                       }
                     }}
                     placeholder="Tag name"
-                    style={styles.tagInput}
+                    className="rounded-full border border-[#bbb] px-3.5 py-1 text-sm w-[110px] outline-none font-sans"
                   />
                 )}
 
                 <button
                   onClick={handleAddTag}
-                  style={styles.addTagBtn}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "#c8c8c8")}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = "#d9d9d9")}
+                  className="bg-surface border-none rounded-full px-[18px] py-[5px] text-sm font-medium cursor-pointer text-gray-900 transition-colors hover:bg-surface-dark font-sans"
                 >
                   {addingTag ? "✓ Add" : "+ Tag"}
                 </button>
               </div>
             </div>
 
-            {/* Post Event button */}
+            {/* Post Event */}
             <button
               onClick={() => {
                 handlePost();
                 navigate("/organization_dashboard");
               }}
-              style={styles.postBtn}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "#2e3a1f")}
-              onMouseLeave={(e) => (e.currentTarget.style.background = "#3b4a2e")}
+              className="bg-olive text-white border-none rounded-full px-8 py-3 text-base font-bold cursor-pointer tracking-tight transition-colors hover:bg-olive-dark whitespace-nowrap shrink-0"
             >
               Post Event
             </button>
@@ -232,213 +239,3 @@ export default function CreateOpportunity() {
     </div>
   );
 }
-
-// ── Styles ──────────────────────────────────────────────────────────────────
-
-const styles = {
-  page: {
-    fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif",
-    minHeight: "100vh",
-    background: "#f0f0f0",
-  },
-
-  // Nav
-  nav: {
-    background: "#d9d9d9",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: "10px 28px",
-    height: 76,
-    boxSizing: "border-box",
-  },
-  navLeft: {
-    display: "flex",
-    alignItems: "center",
-    gap: 14,
-  },
-  logoBubble: {
-    width: 56,
-    height: 52,
-    borderRadius: "50%",
-    background: "#3b4a2e",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    flexShrink: 0,
-  },
-  logoText: {
-    color: "#fff",
-    fontWeight: 700,
-    fontSize: 13,
-    letterSpacing: "-0.5px",
-  },
-  siteName: {
-    fontWeight: 700,
-    fontSize: 18,
-    color: "#111",
-    letterSpacing: "-0.3px",
-  },
-  logoutBtn: {
-    background: "#3b4a2e",
-    color: "#fff",
-    border: "none",
-    borderRadius: 100,
-    padding: "10px 30px",
-    fontSize: 16,
-    fontWeight: 600,
-    cursor: "pointer",
-    letterSpacing: "-0.3px",
-    transition: "background 0.15s",
-  },
-
-  // Page header
-  pageHeader: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: "22px 36px 14px",
-    maxWidth: 1100,
-    margin: "0 auto",
-  },
-  pageTitle: {
-    fontSize: 30,
-    fontWeight: 800,
-    color: "#111",
-    letterSpacing: "-1px",
-    margin: 0,
-  },
-  backBtn: {
-    background: "#d9d9d9",
-    border: "none",
-    borderRadius: 100,
-    padding: "8px 28px",
-    fontSize: 16,
-    fontWeight: 500,
-    cursor: "pointer",
-    color: "#111",
-    transition: "background 0.15s",
-  },
-
-  // Card
-  cardWrap: {
-    position: "relative",
-    maxWidth: 1060,
-    margin: "0 auto 48px",
-    padding: "0 36px",
-  },
-  cardShadow: {
-    position: "absolute",
-    inset: "6px -6px -6px 6px",
-    background: "#d0d0d0",
-    borderRadius: 20,
-    zIndex: 0,
-  },
-  card: {
-    position: "relative",
-    zIndex: 1,
-    background: "#fff",
-    borderRadius: 20,
-    padding: "32px 40px 28px",
-    border: "1px solid #e0e0e0",
-  },
-
-  // Form layout
-  row: {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: "0 60px",
-    marginBottom: 18,
-  },
-  col: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 6,
-  },
-
-  label: {
-    fontSize: 15,
-    fontWeight: 500,
-    color: "#111",
-    marginBottom: 4,
-    letterSpacing: "-0.2px",
-  },
-  input: {
-    display: "block",
-    width: "100%",
-    background: "#d9d9d9",
-    border: "none",
-    borderRadius: 25,
-    padding: "9px 18px",
-    fontSize: 15,
-    color: "#111",
-    outline: "none",
-    boxSizing: "border-box",
-    fontFamily: "inherit",
-    letterSpacing: "-0.2px",
-  },
-
-  // Tags
-  tagsRow: {
-    marginTop: 24,
-    display: "flex",
-    alignItems: "flex-end",
-    justifyContent: "space-between",
-    flexWrap: "wrap",
-    gap: 16,
-  },
-  tagList: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: 8,
-    alignItems: "center",
-    marginTop: 6,
-  },
-  tag: {
-    background: "#6b7a52",
-    color: "#fff",
-    borderRadius: 100,
-    padding: "5px 18px",
-    fontSize: 14,
-    fontWeight: 500,
-    cursor: "pointer",
-    userSelect: "none",
-    transition: "background 0.15s",
-  },
-  tagInput: {
-    borderRadius: 100,
-    border: "1.5px solid #bbb",
-    padding: "4px 14px",
-    fontSize: 14,
-    width: 110,
-    outline: "none",
-    fontFamily: "inherit",
-  },
-  addTagBtn: {
-    background: "#d9d9d9",
-    border: "none",
-    borderRadius: 100,
-    padding: "5px 18px",
-    fontSize: 14,
-    fontWeight: 500,
-    cursor: "pointer",
-    color: "#111",
-    transition: "background 0.15s",
-    fontFamily: "inherit",
-  },
-
-  postBtn: {
-    background: "#3b4a2e",
-    color: "#fff",
-    border: "none",
-    borderRadius: 100,
-    padding: "12px 34px",
-    fontSize: 16,
-    fontWeight: 700,
-    cursor: "pointer",
-    letterSpacing: "-0.3px",
-    transition: "background 0.15s",
-    whiteSpace: "nowrap",
-    flexShrink: 0,
-  },
-};

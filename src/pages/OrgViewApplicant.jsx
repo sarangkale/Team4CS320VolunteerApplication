@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 
-// these are all fillers and should be taken from whatever applicant table that exists 
+// these are all fillers and should be taken from whatever applicant table that exists
 const INITIAL_PENDING = [
   {
     id: 1,
@@ -37,20 +37,11 @@ const INITIAL_ACCEPTED = [];
 // Read-only info field with pill shape
 const InfoField = ({ label, value, required }) => (
   <div>
-    <label style={{ fontSize: 13, fontWeight: 500, color: "#111", display: "block", marginBottom: 5 }}>
-      {label}{required && <span style={{ color: "#bd0303", marginLeft: 2 }}>*</span>}
+    <label className="text-[13px] font-medium text-gray-900 block mb-[5px]">
+      {label}{required && <span className="text-[#bd0303] ml-0.5">*</span>}
     </label>
-    <div style={{
-      background: "#d9d9d9",
-      borderRadius: 100,
-      padding: "7px 16px",
-      fontSize: 14,
-      color: "#333",
-      minHeight: 34,
-      display: "flex",
-      alignItems: "center",
-    }}>
-      {value || <span style={{ color: "#999" }}>—</span>}
+    <div className="bg-surface rounded-full px-4 py-[7px] text-sm text-[#333] min-h-[34px] flex items-center">
+      {value || <span className="text-[#999]">—</span>}
     </div>
   </div>
 );
@@ -61,88 +52,42 @@ function ApplicantModal({ volunteer, onClose }) {
 
   return (
     <div
+      className="fixed inset-0 bg-black/45 z-[100] flex items-center justify-center p-6"
       onClick={onClose}
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(0,0,0,0.45)",
-        zIndex: 100,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 24,
-      }}
     >
       <div
+        className="bg-white rounded-card px-9 pt-8 pb-7 w-full max-w-[580px] shadow-2xl"
         onClick={(e) => e.stopPropagation()}
-        style={{
-          background: "#fff",
-          borderRadius: 20,
-          padding: "32px 36px 28px",
-          width: "100%",
-          maxWidth: 580,
-          boxShadow: "0 8px 40px rgba(0,0,0,0.18)",
-        }}
       >
         {/* Title */}
-        <h2 style={{
-          fontSize: 22,
-          fontWeight: 800,
-          margin: "0 0 24px",
-          letterSpacing: "-0.5px",
-          color: "#111",
-        }}>
+        <h2 className="text-[22px] font-extrabold m-0 mb-6 tracking-[-0.5px] text-gray-900">
           {volunteer.name}
         </h2>
 
-        {/* 2-column grid of fields */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: "16px 28px",
-          marginBottom: 16,
-        }}>
+        {/* 2-column grid */}
+        <div className="grid grid-cols-2 gap-x-7 gap-y-4 mb-4">
           <InfoField label="Full Name" value={volunteer.name} required />
           <InfoField label="Email" value={volunteer.email} required />
           <InfoField label="Phone Number" value={volunteer.phone} required />
           <InfoField label="Location" value={volunteer.location} required />
         </div>
 
-        {/* Bio — full width, rounded rectangle */}
-        <div style={{ marginBottom: 18 }}>
-          <label style={{ fontSize: 13, fontWeight: 500, color: "#111", display: "block", marginBottom: 5 }}>
-            Bio
-          </label>
-          <div style={{
-            background: "#d9d9d9",
-            borderRadius: 14,
-            padding: "10px 16px",
-            fontSize: 14,
-            color: "#333",
-            minHeight: 46,
-            lineHeight: 1.6,
-          }}>
-            {volunteer.bio || <span style={{ color: "#999" }}>No bio provided.</span>}
+        {/* Bio */}
+        <div className="mb-[18px]">
+          <label className="text-[13px] font-medium text-gray-900 block mb-[5px]">Bio</label>
+          <div className="bg-surface rounded-inner px-4 py-2.5 text-sm text-[#333] min-h-[46px] leading-[1.6]">
+            {volunteer.bio || <span className="text-[#999]">No bio provided.</span>}
           </div>
         </div>
 
         {/* Skills */}
-        <div style={{ marginBottom: 28 }}>
-          <label style={{ fontSize: 13, fontWeight: 500, color: "#111", display: "block", marginBottom: 8 }}>
-            Skills
-          </label>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+        <div className="mb-7">
+          <label className="text-[13px] font-medium text-gray-900 block mb-2">Skills</label>
+          <div className="flex flex-wrap gap-2 items-center">
             {volunteer.skills && volunteer.skills.map((skill, i) => (
               <span
                 key={i}
-                style={{
-                  background: "#6b7a52",
-                  color: "#fff",
-                  borderRadius: 100,
-                  padding: "5px 18px",
-                  fontSize: 13,
-                  fontWeight: 500,
-                }}
+                className="bg-olive-medium text-white rounded-full px-[18px] py-[5px] text-[13px] font-medium"
               >
                 {skill}
               </span>
@@ -150,23 +95,11 @@ function ApplicantModal({ volunteer, onClose }) {
           </div>
         </div>
 
-        {/* Back button bottom-right */}
-        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+        {/* Back button */}
+        <div className="flex justify-end">
           <button
             onClick={onClose}
-            style={{
-              background: "#d9d9d9",
-              border: "none",
-              borderRadius: 100,
-              padding: "10px 30px",
-              fontSize: 15,
-              fontWeight: 500,
-              cursor: "pointer",
-              color: "#111",
-              transition: "background 0.15s",
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = "#c8c8c8"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = "#d9d9d9"; }}
+            className="bg-surface border-none rounded-full px-7 py-2.5 text-[15px] font-medium cursor-pointer text-gray-900 transition-colors hover:bg-surface-darker"
           >
             Back
           </button>
@@ -204,7 +137,7 @@ export default function OrganizationEventView() {
   const currentList = activeSubTab === "pending" ? pendingList : acceptedList;
 
   return (
-    <div style={{ fontFamily: "'DM Sans', 'Inter', sans-serif", minHeight: "100vh", background: "#f0f0f0" }}>
+    <div className="font-sans min-h-screen bg-page-alt">
 
       {/* Applicant detail modal */}
       <ApplicantModal
@@ -212,83 +145,40 @@ export default function OrganizationEventView() {
         onClose={() => setSelectedVolunteer(null)}
       />
 
-      {/* ── Nav ── */}
-      <nav style={{
-        background: "#d9d9d9",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "12px 32px",
-        borderBottom: "1px solid #bbb",
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{
-            width: 52,
-            height: 52,
-            borderRadius: "50%",
-            background: "#485c10",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#fff",
-            fontWeight: 700,
-            fontSize: 13,
-          }}>
+      {/* Nav */}
+      <nav className="bg-surface flex items-center justify-between px-8 py-3 border-b border-[#bbb]">
+        <div className="flex items-center gap-3">
+          <div className="w-[52px] h-[52px] rounded-full bg-primary flex items-center justify-center text-white font-bold text-[13px] shrink-0">
             logo
           </div>
-          <span style={{ fontWeight: 700, fontSize: 18, color: "#111" }}>Website name</span>
+          <span className="font-bold text-lg text-gray-900">Website name</span>
         </div>
         <button
+          className="bg-primary text-white border-none rounded-full px-8 py-[11px] text-base font-semibold cursor-pointer tracking-[-0.5px] transition-colors hover:bg-primary-dark"
           onClick={() => navigate("/login")}
-          style={{
-            background: "#485c10",
-            color: "#fff",
-            border: "none",
-            borderRadius: 100,
-            padding: "11px 32px",
-            fontSize: 16,
-            fontWeight: 600,
-            cursor: "pointer",
-            letterSpacing: "-0.5px",
-          }}
         >
           Log out
         </button>
       </nav>
 
-      {/* ── Page body ── */}
-      <div style={{ maxWidth: 960, margin: "28px auto", padding: "0 28px" }}>
+      {/* Page body */}
+      <div className="max-w-[960px] mx-auto mt-7 px-7 pb-12">
 
         {/* Title row */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-          <h1 style={{ fontSize: 34, fontWeight: 800, margin: 0, letterSpacing: "-1px" }}>
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-[34px] font-extrabold m-0 tracking-[-1px]">
             Volunteer Opportunity Name
           </h1>
           <button
+            className="bg-surface border-none rounded-full px-7 py-2.5 text-[15px] font-medium cursor-pointer text-gray-900 transition-colors hover:bg-surface-darker"
             onClick={() => navigate("/organization_dashboard")}
-            style={{
-              background: "#d9d9d9",
-              border: "none",
-              borderRadius: 100,
-              padding: "10px 28px",
-              fontSize: 15,
-              fontWeight: 500,
-              cursor: "pointer",
-              color: "#111",
-            }}
           >
             Back
           </button>
         </div>
 
         {/* Top tab bar: Volunteers / Edit Information */}
-        <div style={{
-          display: "inline-flex",
-          background: "#d9d9d9",
-          borderRadius: 100,
-          padding: 4,
-          marginBottom: 20,
-        }}>
+        <div className="inline-flex bg-surface rounded-full p-1 mb-5">
           {[
             { key: "volunteers", label: "Volunteers" },
             { key: "editInfo", label: "Edit Information" },
@@ -299,17 +189,8 @@ export default function OrganizationEventView() {
                 setActiveTab(key);
                 if (key === "editInfo") navigate("/organization_dashboard/edit_event/1");
               }}
-              style={{
-                background: activeTab === key ? "#fff" : "transparent",
-                border: "none",
-                borderRadius: 100,
-                padding: "8px 24px",
-                fontSize: 15,
-                fontWeight: activeTab === key ? 600 : 400,
-                cursor: "pointer",
-                color: "#111",
-                transition: "background 0.15s",
-              }}
+              className={`border-none rounded-full px-6 py-2 text-[15px] cursor-pointer text-gray-900 transition-colors
+                ${activeTab === key ? "bg-white font-semibold shadow-sm" : "bg-transparent font-normal hover:bg-white/55"}`}
             >
               {label}
             </button>
@@ -317,26 +198,11 @@ export default function OrganizationEventView() {
         </div>
 
         {/* Main card */}
-        <div style={{
-          background: "#d9d9d9",
-          borderRadius: 20,
-          padding: "14px 14px 20px",
-        }}>
-          <div style={{
-            background: "#fff",
-            borderRadius: 14,
-            padding: "20px 16px 28px",
-            minHeight: 460,
-          }}>
+        <div className="bg-surface rounded-card px-3.5 pt-3.5 pb-5">
+          <div className="bg-white rounded-inner px-4 pt-5 pb-7 min-h-[460px]">
 
             {/* Sub tab bar: Accepted / Pending */}
-            <div style={{
-              display: "inline-flex",
-              background: "#d9d9d9",
-              borderRadius: 100,
-              padding: 4,
-              marginBottom: 20,
-            }}>
+            <div className="inline-flex bg-surface rounded-full p-1 mb-5">
               {[
                 { key: "accepted", label: "Accepted" },
                 { key: "pending", label: "Pending" },
@@ -344,17 +210,8 @@ export default function OrganizationEventView() {
                 <button
                   key={key}
                   onClick={() => setActiveSubTab(key)}
-                  style={{
-                    background: activeSubTab === key ? "#fff" : "transparent",
-                    border: "none",
-                    borderRadius: 100,
-                    padding: "7px 28px",
-                    fontSize: 15,
-                    fontWeight: activeSubTab === key ? 600 : 400,
-                    cursor: "pointer",
-                    color: "#111",
-                    transition: "background 0.15s",
-                  }}
+                  className={`border-none rounded-full px-7 py-[7px] text-[15px] cursor-pointer text-gray-900 transition-colors
+                    ${activeSubTab === key ? "bg-white font-semibold shadow-sm" : "bg-transparent font-normal hover:bg-white/55"}`}
                 >
                   {label}
                 </button>
@@ -362,9 +219,9 @@ export default function OrganizationEventView() {
             </div>
 
             {/* Volunteer rows */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <div className="flex flex-col gap-3">
               {currentList.length === 0 && (
-                <p style={{ color: "#888", fontSize: 15, padding: "12px 8px" }}>
+                <p className="text-[#888] text-[15px] px-2 py-3">
                   No {activeSubTab} volunteers.
                 </p>
               )}
@@ -372,62 +229,22 @@ export default function OrganizationEventView() {
               {currentList.map((volunteer) => (
                 <div
                   key={volunteer.id}
-                  style={{
-                    background: "#d9d9d9",
-                    borderRadius: 16,
-                    height: 58,
-                    display: "flex",
-                    alignItems: "center",
-                    padding: "0 10px",
-                  }}
+                  className="bg-surface rounded-[16px] h-[58px] flex items-center px-2.5"
                 >
-                  {/* Clickable name opens modal */}
+                  {/* Clickable name */}
                   <button
                     onClick={() => setSelectedVolunteer(volunteer)}
-                    style={{
-                      background: "none",
-                      border: "none",
-                      padding: "4px 6px",
-                      cursor: "pointer",
-                      fontWeight: 600,
-                      fontSize: 15,
-                      color: "#111",
-                      minWidth: 160,
-                      textAlign: "left",
-                      textDecoration: "underline",
-                      textDecorationColor: "transparent",
-                      textUnderlineOffset: 2,
-                      transition: "color 0.15s, text-decoration-color 0.15s",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.color = "#485c10";
-                      e.currentTarget.style.textDecorationColor = "#485c10";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.color = "#111";
-                      e.currentTarget.style.textDecorationColor = "transparent";
-                    }}
+                    className="bg-none border-none px-1.5 py-1 cursor-pointer font-semibold text-[15px] text-gray-900 min-w-[160px] text-left underline decoration-transparent underline-offset-2 transition-colors hover:text-primary hover:decoration-primary"
                   >
                     {volunteer.name}
                   </button>
 
                   {/* Action buttons */}
-                  <div style={{ marginLeft: "auto", display: "flex", gap: 10 }}>
+                  <div className="ml-auto flex gap-2.5">
                     {activeSubTab === "pending" && (
                       <button
                         onClick={() => handleAccept(volunteer.id)}
-                        style={{
-                          background: "#fff",
-                          border: "2.5px solid #2bbd03",
-                          borderRadius: 100,
-                          padding: "5px 22px",
-                          fontSize: 14,
-                          fontWeight: 600,
-                          color: "#2bbd03",
-                          cursor: "pointer",
-                        }}
-                        onMouseEnter={(e) => { e.currentTarget.style.background = "#f0fde8"; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.background = "#fff"; }}
+                        className="bg-white border-[2.5px] border-[#2bbd03] rounded-full px-[22px] py-[5px] text-sm font-semibold text-[#2bbd03] cursor-pointer transition-colors hover:bg-[#f0fde8]"
                       >
                         Accept
                       </button>
@@ -438,18 +255,7 @@ export default function OrganizationEventView() {
                           ? handleRemovePending(volunteer.id)
                           : handleRemoveAccepted(volunteer.id)
                       }
-                      style={{
-                        background: "#fff",
-                        border: "2.5px solid #bd0303",
-                        borderRadius: 100,
-                        padding: "5px 20px",
-                        fontSize: 14,
-                        fontWeight: 600,
-                        color: "#bd0303",
-                        cursor: "pointer",
-                      }}
-                      onMouseEnter={(e) => { e.currentTarget.style.background = "#fdf0f0"; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.background = "#fff"; }}
+                      className="bg-white border-[2.5px] border-[#bd0303] rounded-full px-5 py-[5px] text-sm font-semibold text-[#bd0303] cursor-pointer transition-colors hover:bg-[#fdf0f0]"
                     >
                       Remove
                     </button>
