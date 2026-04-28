@@ -40,7 +40,7 @@ export default function CreateOpportunity() {
     setTags((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handlePost = () => {
+  const handlePost = () => {  // right now just prints to console, doesn't interact with backend.
     console.log("Posted:", form, tags);
     alert("Opportunity posted!");
   };
