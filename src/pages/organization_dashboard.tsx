@@ -1,13 +1,14 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, /* useRef, */ useEffect } from "react";
 import { getAccountProfile, logout } from "../auth/auth.ts";
 import { useNavigate } from "react-router";
 import { editListing, getOwnedListings } from "../lib/listings.ts";
+import type { ListingData, OrganizationProfile } from "../../shared/types.ts";
 
 // ── Sample Data ──────────────────────────────────────────────
-const INITIAL_SKILLS = ["Skill #1", "Skill #2", "Skill #3", "Skill #4"];
+// const INITIAL_SKILLS = ["Skill #1", "Skill #2", "Skill #3", "Skill #4"];
 
 // ── Status Badge ─────────────────────────────────────────────
-function StatusBadge({ status }) {
+function StatusBadge({ status }: { status: boolean }) {
     return (
         <span style={{
             border: `3px solid ${status ? "#2CBD03" : "#BD0303"}`,
@@ -25,9 +26,9 @@ function StatusBadge({ status }) {
 }
 
 // ── Event Card ───────────────────────────────────────────────
-function EventCard({ event, onOpen }) {
+function EventCard({ event, onOpen }: { event: ListingData, onOpen: () => void }) {
     return (
-        <div className="eventCardClickable" style={s.eventCard} onClick={() => onOpen()}>
+        <div className="eventCardClickable" style={s.eventCard} onClick={onOpen}>
             <div style={s.eventTop}>
                 <div style={s.eventLeft}>
                     <span style={s.eventName}>{event.listing_name}</span>
@@ -55,7 +56,7 @@ function EventCard({ event, onOpen }) {
                         <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                     </svg>
                     <span style={s.volunteerText}>
-                        {event.accepted_applicants ? event.accepted_applicants.length : 0}/{event.capacity ? event.capacity : 0 } Volunteers
+                        {event.accepted_applicants ? event.accepted_applicants.length : 0}/{event.capacity ? event.capacity : 0} Volunteers
                     </span>
                 </div>
             </div>
@@ -64,7 +65,12 @@ function EventCard({ event, onOpen }) {
 }
 
 // ── Event Detail Modal ──────────────────────────────────────
-function EventDetailsModal({ event, onClose, onViewApplicants, onSave }) {
+function EventDetailsModal({ event, onClose, onViewApplicants, onSave }: {
+    event: ListingData,
+    onClose: () => void,
+    onViewApplicants: () => void,
+    onSave: (listing: ListingData) => void
+}) {
     if (!event) return null;
 
     const [edit, setEdit] = useState(false);
@@ -73,44 +79,44 @@ function EventDetailsModal({ event, onClose, onViewApplicants, onSave }) {
     return (
         <div style={s.overlayBg} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
             <div style={{ ...s.overlayCard, maxWidth: 620, textAlign: "left", padding: "32px 34px" }}>
-                <h2 style={{ ...s.overlayTitle, marginBottom: 16, textAlign: "left" }}>{event.name}</h2>
+                <h2 style={{ ...s.overlayTitle, marginBottom: 16, textAlign: "left" }}>{event.listing_name}</h2>
 
                 <div style={s.detailGrid}>
                     <div style={s.detailItem}>
                         <span style={s.detailLabel}>Capacity</span>
-                        {edit ? 
-                            <input type="number" value={listing.capacity} onInput={e => setListing(prev => ({...prev, capacity: Math.max(Number(e.target.value), prev.accepted_applicants ? prev.accepted_applicants.length : 0)}))} />
+                        {edit ?
+                            <input type="number" value={listing.capacity || 0} onChange={e => setListing(prev => ({ ...prev, capacity: Math.max(Number(e.target.value), prev.accepted_applicants ? prev.accepted_applicants.length : 0) }))} />
                             : <span style={s.detailValue}>{listing.capacity}</span>
                         }
                     </div>
                     <div style={s.detailItem}>
                         <span style={s.detailLabel}>Date &amp; Time</span>
-                        {edit ? 
-                            <input type="date" value={listing.listing_date} onInput={e => setListing(prev => ({...prev, listing_date: e.target.value}))}  />
+                        {edit ?
+                            <input type="date" value={listing.listing_date || ""} onChange={e => setListing(prev => ({ ...prev, listing_date: e.target.value }))} />
                             : <span style={s.detailValue}>{listing.listing_date}</span>
                         }
                     </div>
                     <div style={s.detailItem}>
                         <span style={s.detailLabel}>Location</span>
-                        {edit ? 
+                        {edit ?
                             <table>
                                 <tbody>
                                     <tr>
                                         {
                                             ["street", "city", "state", "zip_code"].map(key => {
-                                                return <td key={key}><input style={{width: "4em"}} key={key} type="text" value={listing[key] || ""} onInput={e => setListing(prev => ({...prev, [key]: e.target.value}))} /></td>
+                                                return <td key={key}><input style={{ width: "4em" }} key={key} type="text" value={(listing as any)[key] || ""} onChange={e => setListing(prev => ({ ...prev, [key]: e.target.value }))} /></td>
                                             })
                                         }
                                     </tr>
                                 </tbody>
                             </table>
-                            :<span style={s.detailValue}>{`${listing.street}, ${listing.city}, ${listing.state}, ${listing.zip_code}`}</span>
+                            : <span style={s.detailValue}>{`${listing.street}, ${listing.city}, ${listing.state}, ${listing.zip_code}`}</span>
                         }
                     </div>
                     <div style={s.detailItem}>
                         <span style={s.detailLabel}>Category</span>
                         {edit ?
-                            <input type="text" value={listing.categories || ""} onInput={e => setListing(prev => ({...prev, categories: e.target.value}))}/>
+                            <input type="text" value={listing.categories || ""} onChange={e => setListing(prev => ({ ...prev, categories: e.target.value }))} />
                             : <table>
                                 <tbody>
                                     <tr>
@@ -126,22 +132,22 @@ function EventDetailsModal({ event, onClose, onViewApplicants, onSave }) {
                     </div>
                     <div style={{ ...s.detailItem, gridColumn: "1 / -1" }}>
                         <span style={s.detailLabel}>Description</span>
-                        {edit ? 
-                            <textarea rows="3" cols="80" value={listing.description} onInput={e => setListing(prev => ({...prev, description: e.target.value}))} />
+                        {edit ?
+                            <textarea value={listing.description || ""} onChange={e => setListing(prev => ({ ...prev, description: e.target.value }))} />
                             : <span style={s.detailValue}>{listing.description}</span>
                         }
                     </div>
                     <div style={{ ...s.detailItem, gridColumn: "1 / -1" }}>
                         <span style={s.detailLabel}>Volunteers</span>
-                        <span style={s.detailValue}>{listing.accepted_applicants ? listing.accepted_applicants.length : 0}/{listing.capacity ? listing.capacity : 0 }</span>
+                        <span style={s.detailValue}>{listing.accepted_applicants ? listing.accepted_applicants.length : 0}/{listing.capacity ? listing.capacity : 0}</span>
                     </div>
                 </div>
 
                 <div style={s.detailActions}>
                     <button style={s.cancelBtn} onClick={onClose}>Close</button>
                     <button style={s.secondaryActionBtn} onClick={onViewApplicants}>View Applicants</button>
-                    { edit ?
-                        <button style={s.overlayClose} onClick={() => {setEdit(false); onSave(listing)}}>Save Event</button>
+                    {edit ?
+                        <button style={s.overlayClose} onClick={() => { setEdit(false); onSave(listing) }}>Save Event</button>
                         : <button style={s.overlayClose} onClick={() => setEdit(true)}>Edit Event</button>
                     }
                 </div>
@@ -151,30 +157,24 @@ function EventDetailsModal({ event, onClose, onViewApplicants, onSave }) {
 }
 
 // ── Create Event Modal ───────────────────────────────────────
-function CreateEventModal({ onClose, onCreate }) {
-    const [form, setForm] = useState({
-        name: "",
-        date: "",
+function CreateEventModal({ onClose, onCreate }: {
+    onClose: () => void,
+    onCreate: (listing: ListingData) => void
+}) {
+    const [form, setForm] = useState<ListingData>({
+        org_id: "",
+        listing_name: "",
+        listing_date: "",
         description: "",
-        maxVolunteers: "",
+        capacity: 0,
     });
 
-    const handleChange = (e) =>
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement, HTMLInputElement | HTMLTextAreaElement>) =>
         setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
     const handleSubmit = () => {
-        if (!form.name.trim()) return;
-        onCreate({
-            id: Date.now(),
-            name: form.name,
-            status: "active",
-            date: form.date || "TBD",
-            location: "TBD",
-            category: "General",
-            description: form.description || "No description provided.",
-            volunteers: 0,
-            maxVolunteers: parseInt(form.maxVolunteers, 10) || 15,
-        });
+        if (!form.listing_name!.trim()) return;
+        onCreate(form);
         onClose();
     };
 
@@ -185,19 +185,19 @@ function CreateEventModal({ onClose, onCreate }) {
                 <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                     <div style={s.field}>
                         <label style={s.label}>Event Name</label>
-                        <input style={s.input} name="name" value={form.name} onChange={handleChange} placeholder="e.g. Community Cleanup" />
+                        <input style={s.input} name="name" value={form.listing_name || ""} onChange={handleChange} placeholder="e.g. Community Cleanup" />
                     </div>
                     <div style={s.field}>
                         <label style={s.label}>Date &amp; Time</label>
-                        <input style={s.input} name="date" value={form.date} onChange={handleChange} placeholder="e.g. January 01, 2026  11:30 AM" />
+                        <input style={s.input} name="date" value={form.listing_date || ""} onChange={handleChange} placeholder="e.g. January 01, 2026  11:30 AM" />
                     </div>
                     <div style={s.field}>
                         <label style={s.label}>Description</label>
-                        <textarea style={{ ...s.input, minHeight: 80, resize: "vertical" }} name="description" value={form.description} onChange={handleChange} placeholder="Describe the event..." />
+                        <textarea style={{ ...s.input, minHeight: 80, resize: "vertical" }} name="description" value={form.description || ""} onChange={handleChange} placeholder="Describe the event..." />
                     </div>
                     <div style={s.field}>
                         <label style={s.label}>Max Volunteers</label>
-                        <input style={s.input} type="number" name="maxVolunteers" value={form.maxVolunteers} onChange={handleChange} placeholder="e.g. 15" min="1" />
+                        <input style={s.input} type="number" name="maxVolunteers" value={form.capacity || 0} onChange={handleChange} placeholder="e.g. 15" min="1" />
                     </div>
                 </div>
                 <div style={{ display: "flex", gap: 12, marginTop: 24, justifyContent: "flex-end" }}>
@@ -213,31 +213,33 @@ function CreateEventModal({ onClose, onCreate }) {
 export default function OrganizationDashboard() {
     const [activeTab, setActiveTab] = useState("events");
     const [showCreateEvent, setShowCreateEvent] = useState(false);
-    const [expandedEventIndex, setExpandedEventIndex] = useState(null);
-    const [events, setEvents] = useState([]);
-    const [form, setForm] = useState({});
+    const [expandedEventIndex, setExpandedEventIndex] = useState<number | null>(null);
+    const [events, setEvents] = useState<ListingData[]>([]);
+    const [form, setForm] = useState<OrganizationProfile | null>();
 
     useEffect(() => {
-        getOwnedListings().then(res =>{ if (res.type == "success") {
-            setEvents(res.data);
-        }});
+        getOwnedListings().then(res => {
+            if (res.type == "success") {
+                setEvents(res.data);
+            }
+        });
 
         getAccountProfile().then(res => {
             if (res.type == "success") {
-                setForm(res.data.profile)
+                setForm(res.data.profile as OrganizationProfile)
             }
         })
     }, [])
 
-    const [skills, setSkills] = useState(INITIAL_SKILLS);
+    /* const [skills, setSkills] = useState(INITIAL_SKILLS);
     const [skillInput, setSkillInput] = useState("");
     const [showSkillInput, setShowSkillInput] = useState(false);
-    const skillInputRef = useRef(null);
+    const skillInputRef = useRef(null); */
 
-    const handleFormChange = (e) =>
-        setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const handleFormChange = (e: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) =>
+        setForm((prev) => ({ ...prev!, [e.target.name]: e.target.value }));
 
-    const openSkillInput = () => {
+    /* const openSkillInput = () => {
         setShowSkillInput(true);
         setTimeout(() => skillInputRef.current?.focus(), 50);
     };
@@ -255,9 +257,9 @@ export default function OrganizationDashboard() {
     };
 
     const removeSkill = (skill) =>
-        setSkills((prev) => prev.filter((sk) => sk !== skill));
+        setSkills((prev) => prev.filter((sk) => sk !== skill)); */
 
-    const handleCreateEvent = (newEvent) => {
+    const handleCreateEvent = (newEvent: ListingData) => {
         setEvents((prev) => [...prev, newEvent]);
     };
 
@@ -338,32 +340,32 @@ export default function OrganizationDashboard() {
                             <div style={s.formGrid}>
                                 <div style={s.field}>
                                     <label style={s.label}>Organization Name:</label>
-                                    <input style={s.input} type="text" name="orgName" value={form.orgName} onChange={handleFormChange} placeholder="The Organization" />
+                                    <input style={s.input} type="text" name="orgName" value={form!.org_name!} onChange={handleFormChange} placeholder="The Organization" />
                                 </div>
                                 <div style={s.field}>
                                     <label style={s.label}>Email</label>
-                                    <input style={s.input} type="email" name="email" value={form.email} onChange={handleFormChange} placeholder="user@email.com" />
+                                    <input style={s.input} type="email" name="email" value={form!.email} onChange={handleFormChange} placeholder="user@email.com" />
                                 </div>
-                                <div style={s.field}>
+                                {/* <div style={s.field}>
                                     <label style={s.label}>Phone Number</label>
                                     <input style={s.input} type="tel" name="phone" value={form.phone} onChange={handleFormChange} placeholder="(999)-999-9999" />
-                                </div>
-                                <div style={s.field}>
+                                </div> */}
+                                {/* <div style={s.field}>
                                     <label style={s.label}>Location</label>
                                     <input style={s.input} type="text" name="location" value={form.location} onChange={handleFormChange} placeholder="City, State" />
-                                </div>
+                                </div> */}
                                 <div style={s.field}>
                                     <label style={s.label}>Website</label>
-                                    <input style={s.input} type="text" name="website" value={form.website} onChange={handleFormChange} placeholder="yourorg.com" />
+                                    <input style={s.input} type="text" name="website" value={form!.website!} onChange={handleFormChange} placeholder="yourorg.com" />
                                 </div>
-                                <div style={s.field}>
+                                {/* <div style={s.field}>
                                     <label style={s.label}>Date of established</label>
                                     <input style={s.input} type="text" name="dateEstablished" value={form.dateEstablished} onChange={handleFormChange} placeholder="January 1, 2026" />
-                                </div>
+                                </div> */}
                             </div>
 
                             {/* Desired Skills */}
-                            <div style={s.skillsSection}>
+                            {/* <div style={s.skillsSection}>
                                 <div style={s.skillsLabel}>Desired Skills</div>
                                 <div style={s.skillsContainer}>
                                     {skills.map((skill) => (
@@ -387,7 +389,7 @@ export default function OrganizationDashboard() {
                                         <button className="skillAddBtn" style={s.skillAddBtn} onClick={openSkillInput}>+ Skill</button>
                                     )}
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 )}
@@ -429,7 +431,7 @@ export default function OrganizationDashboard() {
                     onClose={() => setExpandedEventIndex(null)}
                     onViewApplicants={() => navigate(`/organization_dashboard/view_applicant/${events[expandedEventIndex].listing_id}`)}
                     onSave={async (updated) => {
-                        setEvents(prev => {prev[expandedEventIndex] = updated; return prev;})
+                        setEvents(prev => { prev[expandedEventIndex] = updated; return prev; })
                         console.log(updated);
                         await editListing(updated);
                     }}
@@ -440,7 +442,7 @@ export default function OrganizationDashboard() {
 }
 
 // ── Styles ───────────────────────────────────────────────────
-const s = {
+const s: Record<string, React.CSSProperties> = {
     nav: { background: "#D9D9D9", display: "flex", alignItems: "center", padding: "0 32px", height: 88, gap: 14, position: "sticky", top: 0, zIndex: 100, boxShadow: "0 2px 8px rgba(0,0,0,0.07)" },
     navLogo: { background: "#485C11", color: "white", borderRadius: 9999, width: 82, height: 70, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 18, flexShrink: 0 },
     navSiteName: { fontWeight: 700, fontSize: 21, marginRight: "auto" },
