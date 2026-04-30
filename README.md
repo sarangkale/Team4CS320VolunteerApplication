@@ -20,7 +20,18 @@ This application was created by Lior Carmeli, Luke Santos, Euba Tafese, Han Dang
 
 
 ## Getting Started 
-Here is where we can explain how to start up the application. 
+To start up the application:
+1. You will need two terminal instances, one in the root directory and one in the backend directory.
+2. Run the following command on both terminals
+```sh
+npm install
+```
+3. Then run the following command on both terminals
+```sh
+npm run dev
+```
+
+
 
 [React.js]: https://img.shields.io/badge/React-black?style=for-the-badge&logo=react
 [React-url]: https://reactjs.org/
