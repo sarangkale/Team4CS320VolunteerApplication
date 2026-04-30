@@ -4,6 +4,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
+        //** note: idk if this is true but we may have to actually import DM sans with a formal statement */
         sans: ["DM Sans", "Helvetica Neue", "sans-serif"],
       },
       colors: {
