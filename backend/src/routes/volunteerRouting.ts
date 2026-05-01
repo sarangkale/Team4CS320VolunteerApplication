@@ -3,6 +3,7 @@ import getListings from "./volunteers/getListings.ts";
 import {getAccountProfile} from "../utils.ts"
 import { createSupabaseClient } from "./authRouting.ts";
 import applyToListing from "./volunteers/applyToListing.ts";
+import removeApplicant from "./organizations/removeApplicant.ts";
 
 const router = express.Router();
 
@@ -11,6 +12,6 @@ router.get("/profile", async (req, res) => {
     const supabase = await createSupabaseClient(req.accessToken!, req.refreshToken!);
     return res.json(getAccountProfile("User", supabase));
 });
-router.post("/apply_to_listing", applyToListing)
+router.post("/apply_to_listing", applyToListing);
 
 export default router;

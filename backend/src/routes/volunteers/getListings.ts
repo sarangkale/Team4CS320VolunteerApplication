@@ -4,18 +4,18 @@ import { bodyHasEntries } from "../../utils.ts";
 import { type ListingFilters } from "../../../../src/lib/listings.ts"
 
 export default async function getListings(req: express.Request, res: express.Response) {
-    const validation = bodyHasEntries(["range_start", "range_end", "filters"], req.body, res);
+    const validation = bodyHasEntries(["range_start", "range_end", "filters"], req.query as Record<string, string>, res);
 
     if (validation) {
         return validation;
     }
 
-    const { range_start, range_end, filters: raw_filters } = req.body;
+    const { range_start, range_end, filters: raw_filters } = req.query as { range_start: string, range_end: string, filters: ListingFilters };
 
     const filters = raw_filters as ListingFilters;
 
     const client = createSupabaseClientNoAuth();
-    let query = client.from("listing").select("*").range(range_start, range_end);
+    let query = client.from("listing").select("*").range(Number(range_start), Number(range_end));
 
     if (filters?.searchTerm?.trim()) {
         const term = filters.searchTerm.trim();

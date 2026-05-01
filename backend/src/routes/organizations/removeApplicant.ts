@@ -1,16 +1,15 @@
 import Express from "express";
-import { bodyHasEntries, getAccountProfile } from "../../utils.ts";
+import { bodyHasEntries } from "../../utils.ts";
 import { createSupabaseClient } from "../authRouting.ts";
-import type { UserProfile } from "../../../../shared/types.ts";
 
-export default async function applyToListing(req: Express.Request, res: Express.Response) {
-    const validation = bodyHasEntries(["listing_id"], req.query as Record<string, string>, res);
+export default async function removeApplicant(req: Express.Request, res: Express.Response) {
+    const validation = bodyHasEntries(["listing_id", "applicant_id"], req.body, res);
 
     if (validation) {
         return validation;
     }
 
-    const listing_id = req.query.listing_id as string;
+    const { listing_id, applicant_id } = req.body;
 
     const { accessToken, refreshToken } = req;
     if (!accessToken || !refreshToken) {
@@ -20,7 +19,7 @@ export default async function applyToListing(req: Express.Request, res: Express.
 
     const { data, error } = await supabase.from("account roles").select("role").single();
     if (data) {
-        if (data!.role !== "User") {
+        if (data!.role !== "Organization") {
             return res.status(401).json({ error: "Only users can apply to listings" });
         }
     } else {
@@ -37,25 +36,9 @@ export default async function applyToListing(req: Express.Request, res: Express.
         return res.status(500).json({ type: "error", error: fetchError });
     }
 
-    const userRes = await getAccountProfile("User", supabase);
+    const updatedApplicants = (currentData!.applicants || []).filter(applicant => applicant !== applicant_id);
 
-    if (userRes.type === "error") {
-        return res.status(500).json({error: "Error fetching the user's profile"});
-    }
-
-    const profile = userRes.data.profile as UserProfile;
-
-    const existingApplicants = currentData?.applicants
-    const updatedApplicants = [profile.user_id];
-
-    if (!existingApplicants) {
-    } else if (existingApplicants.includes(profile.user_id)) {
-        return res.status(500).send("User has already applied to this listing.");
-    } else {
-        updatedApplicants.push(...existingApplicants);
-    }
-
-    const { data: _updateData, error: updateError } = await supabase
+    const { error: updateError } = await supabase
         .from('listing')
         .update({ applicants: updatedApplicants })
         .eq('listing_id', listing_id)
@@ -65,5 +48,5 @@ export default async function applyToListing(req: Express.Request, res: Express.
         return res.status(501).json({error: updateError})
     }
 
-    return res.status(400);
+    return res.status(200);
 }

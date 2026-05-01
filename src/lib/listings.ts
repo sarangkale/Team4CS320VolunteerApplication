@@ -1,4 +1,4 @@
-import { failure, success, type Result, } from "../../shared/types.ts";
+import { failure, success, type Result, type UserProfile, } from "../../shared/types.ts";
 import { axios_get, axios_post, type RequestError } from "./axios.ts";
 import { type ListingData } from "../../shared/types.ts";
 
@@ -98,6 +98,44 @@ export async function editListing(listingData: ListingData): Promise<Result<null
         transport: listingData.transport,
     });
     
+    if (res.type === "success") {
+        return success(null);
+    } else {
+        return failure(res.error);
+    }
+}
+
+export async function getListingApplicants(listingId: string): Promise<Result<UserProfile[], RequestError>> {
+    const res = await axios_get<UserProfile[]>("/organization/listing_applicants", {listing_id: listingId});
+
+    if (res.type === "success") {
+        return success(res.data.data);
+    } else {
+        return failure(res.error);
+    }
+}
+
+
+export async function removeApplicant(listingId: string, applicantId: string): Promise<Result<null, RequestError>> {
+    const res = await axios_post<null>("/organization/remove_applicant", {
+        listing_id: listingId,
+        applicant_id: applicantId
+    });
+
+    if (res.type === "success") {
+        return success(null);
+    } else {
+        return failure(res.error);
+    }
+}
+
+export async function awardHours(applicantId: string, hours: number): Promise<Result<null, RequestError>> {
+
+    const res = await axios_post<null>("/organization/award_hours", {
+        applicant_id: applicantId,
+        hours,
+    });
+
     if (res.type === "success") {
         return success(null);
     } else {

@@ -1,5 +1,5 @@
 import axios, { AxiosError, type AxiosResponse } from "axios";
-import type { Failure, Success, Result } from "../auth/auth";
+import type { Failure, Success, Result } from "../../shared/types";
 
 const axios_instance = axios.create({
     baseURL: "http://localhost:3000",
@@ -43,8 +43,8 @@ export async function axios_post<S>(url: string, data?: any): Promise<Result<Axi
     .catch(handle_axios_error);
 }
 
-export async function axios_get<S>(url: string, data?: any): Promise<Result<AxiosResponse<S, any, {}>, RequestError>> {
-    return await axios_instance.get<S>(url, data)
+export async function axios_get<S>(url: string, params?: any): Promise<Result<AxiosResponse<S, any, {}>, RequestError>> {
+    return await axios_instance.get<S>(url, { params })
     .then(handle_axios_success)
     .catch(handle_axios_error);
 }

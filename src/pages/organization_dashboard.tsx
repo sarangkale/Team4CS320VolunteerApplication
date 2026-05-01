@@ -1,11 +1,8 @@
-import { useState, /* useRef, */ useEffect } from "react";
+import { useState, useEffect } from "react";
 import { getAccountProfile, logout } from "../auth/auth.ts";
 import { useNavigate } from "react-router";
-import { editListing, getOwnedListings } from "../lib/listings.ts";
-import type { ListingData, OrganizationProfile } from "../../shared/types.ts";
-
-// ── Sample Data ──────────────────────────────────────────────
-// const INITIAL_SKILLS = ["Skill #1", "Skill #2", "Skill #3", "Skill #4"];
+import { awardHours, editListing, getListingApplicants, getOwnedListings, removeApplicant } from "../lib/listings.ts";
+import type { ListingData, OrganizationProfile, UserProfile } from "../../shared/types.ts";
 
 // ── Status Badge ─────────────────────────────────────────────
 function StatusBadge({ status }: { status: boolean }) {
@@ -64,91 +61,148 @@ function EventCard({ event, onOpen }: { event: ListingData, onOpen: () => void }
     );
 }
 
+function EventInfo({ edit, listing, setListing }: { edit: boolean, listing: ListingData, setListing: React.Dispatch<React.SetStateAction<ListingData>> }) {
+    return (<div style={s.detailGrid}>
+        <div style={s.detailItem}>
+            <span style={s.detailLabel}>Capacity</span>
+            {edit ?
+                <input type="number" value={listing.capacity || 0} onChange={e => setListing(prev => ({ ...prev, capacity: Math.max(Number(e.target.value), prev.accepted_applicants ? prev.accepted_applicants.length : 0) }))} />
+                : <span style={s.detailValue}>{listing.capacity}</span>
+            }
+        </div>
+        <div style={s.detailItem}>
+            <span style={s.detailLabel}>Date &amp; Time</span>
+            {edit ?
+                <input type="date" value={listing.listing_date || ""} onChange={e => setListing(prev => ({ ...prev, listing_date: e.target.value }))} />
+                : <span style={s.detailValue}>{listing.listing_date}</span>
+            }
+        </div>
+        <div style={s.detailItem}>
+            <span style={s.detailLabel}>Location</span>
+            {edit ?
+                <table>
+                    <tbody>
+                        <tr>
+                            {
+                                ["street", "city", "state", "zip_code"].map(key => {
+                                    return <td key={key}><input style={{ width: "4em" }} key={key} type="text" value={(listing as any)[key] || ""} onChange={e => setListing(prev => ({ ...prev, [key]: e.target.value }))} /></td>
+                                })
+                            }
+                        </tr>
+                    </tbody>
+                </table>
+                : <span style={s.detailValue}>{`${listing.street}, ${listing.city}, ${listing.state}, ${listing.zip_code}`}</span>
+            }
+        </div>
+        <div style={s.detailItem}>
+            <span style={s.detailLabel}>Category</span>
+            {edit ?
+                <input type="text" value={listing.categories || ""} onChange={e => setListing(prev => ({ ...prev, categories: e.target.value }))} />
+                : <table>
+                    <tbody>
+                        <tr>
+                            {
+                                listing.categories ? listing.categories.split(", ").map(category => {
+                                    return <td key={category}>{category}</td>
+                                }) : <></>
+                            }
+                        </tr>
+                    </tbody>
+                </table>
+            }
+        </div>
+        <div style={{ ...s.detailItem, gridColumn: "1 / -1" }}>
+            <span style={s.detailLabel}>Description</span>
+            {edit ?
+                <textarea value={listing.description || ""} onChange={e => setListing(prev => ({ ...prev, description: e.target.value }))} />
+                : <span style={s.detailValue}>{listing.description}</span>
+            }
+        </div>
+        <div style={{ ...s.detailItem, gridColumn: "1 / -1" }}>
+            <span style={s.detailLabel}>Volunteers</span>
+            <span style={s.detailValue}>{listing.accepted_applicants ? listing.accepted_applicants.length : 0}/{listing.capacity ? listing.capacity : 0}</span>
+        </div>
+    </div>);
+}
+
 // ── Event Detail Modal ──────────────────────────────────────
-function EventDetailsModal({ event, onClose, onViewApplicants, onSave }: {
+function EventDetailsModal({ event, onClose, onSave }: {
     event: ListingData,
     onClose: () => void,
-    onViewApplicants: () => void,
     onSave: (listing: ListingData) => void
 }) {
     if (!event) return null;
 
     const [edit, setEdit] = useState(false);
     const [listing, setListing] = useState(event)
+    const [showApplicants, setShowApplicants] = useState(false);
+
+    const [applicants, setApplicants] = useState<UserProfile[]>([]);
+
+    useEffect(() => {
+        getListingApplicants(event.listing_id!).then(listingApplicants => {
+            if (listingApplicants.type == "success") {
+                setApplicants(listingApplicants.data);
+            }
+        })
+    }, []);
 
     return (
         <div style={s.overlayBg} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
             <div style={{ ...s.overlayCard, maxWidth: 620, textAlign: "left", padding: "32px 34px" }}>
                 <h2 style={{ ...s.overlayTitle, marginBottom: 16, textAlign: "left" }}>{event.listing_name}</h2>
 
-                <div style={s.detailGrid}>
-                    <div style={s.detailItem}>
-                        <span style={s.detailLabel}>Capacity</span>
-                        {edit ?
-                            <input type="number" value={listing.capacity || 0} onChange={e => setListing(prev => ({ ...prev, capacity: Math.max(Number(e.target.value), prev.accepted_applicants ? prev.accepted_applicants.length : 0) }))} />
-                            : <span style={s.detailValue}>{listing.capacity}</span>
-                        }
-                    </div>
-                    <div style={s.detailItem}>
-                        <span style={s.detailLabel}>Date &amp; Time</span>
-                        {edit ?
-                            <input type="date" value={listing.listing_date || ""} onChange={e => setListing(prev => ({ ...prev, listing_date: e.target.value }))} />
-                            : <span style={s.detailValue}>{listing.listing_date}</span>
-                        }
-                    </div>
-                    <div style={s.detailItem}>
-                        <span style={s.detailLabel}>Location</span>
-                        {edit ?
-                            <table>
-                                <tbody>
-                                    <tr>
-                                        {
-                                            ["street", "city", "state", "zip_code"].map(key => {
-                                                return <td key={key}><input style={{ width: "4em" }} key={key} type="text" value={(listing as any)[key] || ""} onChange={e => setListing(prev => ({ ...prev, [key]: e.target.value }))} /></td>
-                                            })
-                                        }
-                                    </tr>
-                                </tbody>
-                            </table>
-                            : <span style={s.detailValue}>{`${listing.street}, ${listing.city}, ${listing.state}, ${listing.zip_code}`}</span>
-                        }
-                    </div>
-                    <div style={s.detailItem}>
-                        <span style={s.detailLabel}>Category</span>
-                        {edit ?
-                            <input type="text" value={listing.categories || ""} onChange={e => setListing(prev => ({ ...prev, categories: e.target.value }))} />
-                            : <table>
-                                <tbody>
-                                    <tr>
-                                        {
-                                            listing.categories ? listing.categories.split(", ").map(category => {
-                                                return <td key={category}>{category}</td>
-                                            }) : <></>
-                                        }
-                                    </tr>
-                                </tbody>
-                            </table>
-                        }
-                    </div>
-                    <div style={{ ...s.detailItem, gridColumn: "1 / -1" }}>
-                        <span style={s.detailLabel}>Description</span>
-                        {edit ?
-                            <textarea value={listing.description || ""} onChange={e => setListing(prev => ({ ...prev, description: e.target.value }))} />
-                            : <span style={s.detailValue}>{listing.description}</span>
-                        }
-                    </div>
-                    <div style={{ ...s.detailItem, gridColumn: "1 / -1" }}>
-                        <span style={s.detailLabel}>Volunteers</span>
-                        <span style={s.detailValue}>{listing.accepted_applicants ? listing.accepted_applicants.length : 0}/{listing.capacity ? listing.capacity : 0}</span>
-                    </div>
-                </div>
+                {showApplicants ? <>
+                    {
+                        applicants.map(applicant => {
+                            return <div style={s.detailItem} key={applicant.user_id}>
+                                <table>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <p key={applicant.user_id}>{applicant.first_name} {applicant.last_name} | {applicant.email}</p>
+                                            </td>
+                                            <td>
+                                                <button
+                                                    style={s.secondaryActionBtn}
+                                                    onClick={
+                                                        async () => await removeApplicant(listing.listing_id!, applicant.user_id)
+                                                    }>
+                                                Remove
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <button
+                                                    style={s.overlayClose}
+                                                    onClick={
+                                                        async () => {
+                                                            await awardHours(applicant.user_id, Number(listing.duration || 0));
+                                                            await removeApplicant(listing.listing_id!, applicant.user_id);
+                                                        }
+                                                    }>
+                                                Award hours
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        })
+                    }
+                </> : <EventInfo edit={edit} listing={listing} setListing={setListing} />
+                }
 
                 <div style={s.detailActions}>
                     <button style={s.cancelBtn} onClick={onClose}>Close</button>
-                    <button style={s.secondaryActionBtn} onClick={onViewApplicants}>View Applicants</button>
-                    {edit ?
-                        <button style={s.overlayClose} onClick={() => { setEdit(false); onSave(listing) }}>Save Event</button>
-                        : <button style={s.overlayClose} onClick={() => setEdit(true)}>Edit Event</button>
+                    {!showApplicants && (edit ?
+                        <button style={s.secondaryActionBtn} onClick={() => { setEdit(false); onSave(listing) }}>Save Event</button>
+                        : <button style={s.secondaryActionBtn} onClick={() => setEdit(true)}>Edit Event</button>)
+                    }
+                    {
+                        showApplicants ?
+                            <button style={s.overlayClose} onClick={() => setShowApplicants(false)}>View Listing</button>
+                            : <button style={s.overlayClose} onClick={() => setShowApplicants(true)}>View Applicants</button>
+
                     }
                 </div>
             </div>
@@ -231,33 +285,8 @@ export default function OrganizationDashboard() {
         })
     }, [])
 
-    /* const [skills, setSkills] = useState(INITIAL_SKILLS);
-    const [skillInput, setSkillInput] = useState("");
-    const [showSkillInput, setShowSkillInput] = useState(false);
-    const skillInputRef = useRef(null); */
-
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) =>
         setForm((prev) => ({ ...prev!, [e.target.name]: e.target.value }));
-
-    /* const openSkillInput = () => {
-        setShowSkillInput(true);
-        setTimeout(() => skillInputRef.current?.focus(), 50);
-    };
-
-    const handleSkillKeyDown = (e) => {
-        if (e.key === "Enter") {
-            const val = skillInput.trim();
-            if (val && !skills.includes(val)) setSkills((prev) => [...prev, val]);
-            setSkillInput("");
-            setShowSkillInput(false);
-        } else if (e.key === "Escape") {
-            setSkillInput("");
-            setShowSkillInput(false);
-        }
-    };
-
-    const removeSkill = (skill) =>
-        setSkills((prev) => prev.filter((sk) => sk !== skill)); */
 
     const handleCreateEvent = (newEvent: ListingData) => {
         setEvents((prev) => [...prev, newEvent]);
@@ -429,7 +458,6 @@ export default function OrganizationDashboard() {
                 <EventDetailsModal
                     event={events[expandedEventIndex]}
                     onClose={() => setExpandedEventIndex(null)}
-                    onViewApplicants={() => navigate(`/organization_dashboard/view_applicant/${events[expandedEventIndex].listing_id}`)}
                     onSave={async (updated) => {
                         setEvents(prev => { prev[expandedEventIndex] = updated; return prev; })
                         console.log(updated);
