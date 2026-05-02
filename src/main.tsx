@@ -5,9 +5,9 @@ import App from './pages/App.tsx'
 import LoginPage from "./pages/login.tsx"
 import OrganizationDashboard from './pages/organization_dashboard.tsx'
 import SignupPage from './pages/signup.tsx'
-import VolunteerDashboard from './pages/volunteer_dashboard_events.jsx'
-import VolunteerProfile from './pages/volunteer_dashboard_profile.jsx'
-import VolunteerActivity from './pages/volunteer_dashboard_activity.jsx'
+import VolunteerDashboard from './pages/volunteer_dashboard_events.tsx'
+import VolunteerProfile from './pages/volunteer_dashboard_profile.tsx'
+import VolunteerActivity from './pages/volunteer_dashboard_activity.tsx'
 
 createRoot(document.getElementById('root')!).render(
     <BrowserRouter>

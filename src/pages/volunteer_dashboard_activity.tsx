@@ -57,7 +57,12 @@ const HISTORY_EVENTS = [
 
 const TOTAL_HOURS = "XX";
 
-function EventCard({ org, date, description, hours }) {
+function EventCard({ org, date, description, hours }: {
+    org: string,
+    date: string,
+    description: string,
+    hours: string
+}) {
   return (
     <div style={styles.eventCard}>
       <div style={styles.eventTop}>
@@ -74,7 +79,7 @@ function EventCard({ org, date, description, hours }) {
 
 export default function ActivityDashboard() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("activity");
+  const [activeTab, _setActiveTab] = useState("activity");
   const [overlay, setOverlay] = useState(null);
 
   const overlayInfo = {
@@ -161,8 +166,8 @@ export default function ActivityDashboard() {
           onClick={(e) => { if (e.target === e.currentTarget) setOverlay(null); }}
         >
           <div style={styles.overlayCard}>
-            <h2 style={styles.overlayTitle}>{overlayInfo[overlay]?.title}</h2>
-            <p style={styles.overlayMsg}>{overlayInfo[overlay]?.msg}</p>
+            <h2 style={styles.overlayTitle}>{(overlayInfo[overlay]! as any).title}</h2>
+            <p style={styles.overlayMsg}>{(overlayInfo[overlay]! as any).msg}</p>
             <button style={styles.overlayClose} onClick={() => setOverlay(null)}>Go back</button>
           </div>
         </div>
@@ -171,7 +176,7 @@ export default function ActivityDashboard() {
   );
 }
 
-const styles = {
+const styles: Record<string, React.CSSProperties> = {
   nav: {
     background: "#D9D9D9",
     display: "flex",

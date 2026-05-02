@@ -1,16 +1,16 @@
 import { useState, useRef } from "react";
-import { logout } from "../auth/auth.ts";
 import { useNavigate } from "react-router";
 
 const INITIAL_SKILLS = ["React", "Design", "Python", "Writing"];
 
 export default function VolunteerDashboard() {
-    const [activeTab, setActiveTab] = useState("profile");
+    const navigate = useNavigate();
+    const [activeTab, _setActiveTab] = useState("profile");
     const [overlay, setOverlay] = useState(null);
     const [skills, setSkills] = useState(INITIAL_SKILLS);
     const [skillInput, setSkillInput] = useState("");
     const [showSkillInput, setShowSkillInput] = useState(false);
-    const skillInputRef = useRef(null);
+    const skillInputRef = useRef<HTMLInputElement>(null);
 
     const [form, setForm] = useState({
         fullName: "John Smith",
@@ -21,16 +21,16 @@ export default function VolunteerDashboard() {
     });
 
     const overlayInfo = {
-        logout: { title: "Log Out", msg: "You would be logged out and redirected to the login page." },
-        profile: { title: "My Profile", msg: "This would navigate to your public profile page." },
-        events: { title: "View All Events", msg: "This would navigate to the events listing page." },
+        logout: { title: "Log Out", navigate: () => navigate("/login") },
+        profile: { title: "My Profile", navigate: () => navigate("/volunteer_dashboard/profile") },
+        events: { title: "View All Events", navigate: () => navigate("/volunteer_dashboard/events") },
     };
 
-    const handleFormChange = (e) => {
+    const handleFormChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLTextAreaElement | HTMLInputElement, HTMLTextAreaElement | HTMLTextAreaElement | HTMLInputElement>) => {
         setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     };
 
-    const handleSkillKeyDown = (e) => {
+    const handleSkillKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter") {
             const val = skillInput.trim();
             if (val && !skills.includes(val)) setSkills((prev) => [...prev, val]);
@@ -42,14 +42,12 @@ export default function VolunteerDashboard() {
         }
     };
 
-    const removeSkill = (skill) => setSkills((prev) => prev.filter((s) => s !== skill));
+    const removeSkill = (skill: string) => setSkills((prev) => prev.filter((s) => s !== skill));
 
     const openSkillInput = () => {
         setShowSkillInput(true);
         setTimeout(() => skillInputRef.current?.focus(), 50);
     };
-
-    const navigate = useNavigate();
 
     return (
         <>
@@ -265,12 +263,9 @@ export default function VolunteerDashboard() {
             <nav className="nav">
                 <div className="nav-logo">logo</div>
                 <span className="nav-site-name">Website name</span>
-                <button className="nav-btn" onClick={() => setOverlay("profile")}>My profile</button>
-                <button className="nav-btn" onClick={() => setOverlay("events")}>View all events</button>
-                <button className="nav-btn-logout" onClick={() => {
-                    logout();
-                    navigate("/");
-                }}>Log out</button>
+                <button className="nav-btn" onClick={() => navigate("/volunteer_dashboard/profile")}>My profile</button>
+                <button className="nav-btn" onClick={() => navigate("/volunteer_dashboard/events")}>View all events</button>
+                <button className="nav-btn-logout" onClick={() => navigate("/login")}>Log out</button>
             </nav>
 
             <div className="main">
@@ -280,11 +275,11 @@ export default function VolunteerDashboard() {
                     <div className="tabs">
                         <button
                             className={`tab-btn${activeTab === "profile" ? " active" : ""}`}
-                            onClick={() => setActiveTab("profile")}
+                            onClick={() => navigate("/volunteer_dashboard/profile")}
                         >Profile</button>
                         <button
                             className={`tab-btn${activeTab === "activity" ? " active" : ""}`}
-                            onClick={() => setActiveTab("activity")}
+                            onClick={() => navigate("/volunteer_dashboard/activity")}
                         >Activity</button>
                     </div>
                     <button className="edit-btn">Edit</button>
@@ -363,8 +358,8 @@ export default function VolunteerDashboard() {
             {overlay && (
                 <div className="overlay-bg" onClick={(e) => { if (e.target === e.currentTarget) setOverlay(null); }}>
                     <div className="overlay-card">
-                        <h2>{overlayInfo[overlay]?.title}</h2>
-                        <p>{overlayInfo[overlay]?.msg}</p>
+                        <h2>{(overlayInfo[overlay]! as any).title}</h2>
+                        <p>{(overlayInfo[overlay]! as any).msg}</p>
                         <button className="overlay-close" onClick={() => setOverlay(null)}>Go back</button>
                     </div>
                 </div>
