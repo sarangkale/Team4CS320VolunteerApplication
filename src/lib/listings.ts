@@ -16,13 +16,13 @@ export async function createListing(
     listing_date: string,
     duration: string,
     capacity: number,
-    categories?: string,
-    needed_skill?: string[],
-    transport?: string,
-    street?: string,
-    city?: string,
-    state?: string,
-    zip_code?: string
+    categories: string,
+    needed_skill: string[],
+    transport: string,
+    street: string,
+    city: string,
+    state: string,
+    zip_code: string
 ): Promise<Result<{ listing: ListingData, id: string }, RequestError>> {
     const res = await axios_post<{ listing: ListingData, id: string }>("/organization/create_listing", {
         name: listing_name,
