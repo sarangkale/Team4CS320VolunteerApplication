@@ -59,15 +59,15 @@ export async function getAccountProfile(role: AccountRole, supabase: SupabaseCli
             return failure(error);
         }
     } else {
-        const { data, error } = await supabase.from("organization").select();
+        const { data, error } = await supabase.from("organization").select().single();
         if (data) {
             const account: Account = {
                 role: "Organization",
-                profile: data![0],
+                profile: data,
             };
             return success(account);
         } else {
-            return failure(error);
+            return failure(error!);
         }
     }
 }

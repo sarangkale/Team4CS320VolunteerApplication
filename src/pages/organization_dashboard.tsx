@@ -3,6 +3,7 @@ import { getAccountProfile, logout } from "../auth/auth.ts";
 import { useNavigate } from "react-router";
 import { awardHours, createListing, editListing, getListingApplicants, getOwnedListings, removeApplicant } from "../lib/listings.ts";
 import type { ListingData, OrganizationProfile, UserProfile } from "../../shared/types.ts";
+import { updateOrganizationProfile } from "../lib/profiles.ts";
 
 // ── Status Badge ─────────────────────────────────────────────
 function StatusBadge({ status }: { status: boolean }) {
@@ -313,7 +314,7 @@ export default function OrganizationDashboard() {
         })
     }, [])
 
-    const handleFormChange = (e: React.ChangeEvent<HTMLInputElement, HTMLInputElement>) =>
+    const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement, HTMLInputElement | HTMLTextAreaElement>) =>
         setForm((prev) => ({ ...prev!, [e.target.name]: e.target.value }));
 
     const navigate = useNavigate();
@@ -379,7 +380,13 @@ export default function OrganizationDashboard() {
                             Create Event
                         </button>
                     ) : (
-                        <button className="createEventBtn" style={s.createEventBtn}>Edit</button>
+                        <button
+                            className="createEventBtn"
+                            style={s.createEventBtn}
+                            onClick={async () => updateOrganizationProfile(form?.bio || "", form?.org_name || "", form?.website || "", form?.org_id || "")}
+                        >
+                            Update Profile
+                        </button>
                     )}
                 </div>
 
@@ -393,15 +400,15 @@ export default function OrganizationDashboard() {
                             <div style={s.formGrid}>
                                 <div style={s.field}>
                                     <label style={s.label}>Organization Name:</label>
-                                    <input style={s.input} type="text" name="orgName" value={form!.org_name!} onChange={handleFormChange} placeholder="The Organization" />
-                                </div>
-                                <div style={s.field}>
-                                    <label style={s.label}>Email</label>
-                                    <input style={s.input} type="email" name="email" value={form!.email} onChange={handleFormChange} placeholder="user@email.com" />
+                                    <input style={s.input} type="text" name="org_name" value={form!.org_name!} onChange={handleFormChange} />
                                 </div>
                                 <div style={s.field}>
                                     <label style={s.label}>Website</label>
-                                    <input style={s.input} type="text" name="website" value={form!.website!} onChange={handleFormChange} placeholder="yourorg.com" />
+                                    <input style={s.input} type="text" name="website" value={form!.website!} onChange={handleFormChange} />
+                                </div>
+                                <div style={{ ...s.field, gridColumn: "1 / -1" }}>
+                                    <label style={s.label}>Bio</label>
+                                    <textarea style={s.input} name="bio" value={form!.bio!} onChange={handleFormChange} />
                                 </div>
                             </div>
                         </div>
@@ -432,7 +439,7 @@ export default function OrganizationDashboard() {
 
             {/* ── CREATE EVENT MODAL ── */}
             {showCreateEvent && (
-                <Modal onClose = {() => setShowCreateEvent(false)}>
+                <Modal onClose={() => setShowCreateEvent(false)}>
                     <CreateEvent onCreate={async (listing) => {
                         setEvents(prev => [...prev, listing])
                         await createListing(
@@ -450,7 +457,7 @@ export default function OrganizationDashboard() {
                             listing.zip_code!
                         )
                     }}
-                    onClose = {() => setShowCreateEvent(false)}
+                        onClose={() => setShowCreateEvent(false)}
                     />
                 </Modal>
             )}

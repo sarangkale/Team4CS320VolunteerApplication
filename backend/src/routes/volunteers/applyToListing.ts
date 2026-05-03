@@ -62,7 +62,7 @@ export default async function applyToListing(req: Express.Request, res: Express.
         .select();
 
     if (updateError) {
-        return res.status(501).json({error: updateError})
+        return res.status(500).json({error: updateError})
     }
 
     return res.status(400);

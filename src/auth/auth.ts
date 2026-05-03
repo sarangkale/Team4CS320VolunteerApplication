@@ -94,12 +94,10 @@ export function getCurrentUser(): User {
 
 export async function getAccountProfile(): Promise<Result<Account, RequestError>> {
     const role = getCurrentUserRole();
-    const res = await axios_get<UserProfile | OrganizationProfile>(role == "Organization" ? "/organization/profile" : "/volunteer/profile");
+    const res = await axios_get<Account>(role == "Organization" ? "/organization/profile" : "/volunteer/profile");
     if (res.type == "success") {
-        return success({
-            role,
-            profile: res.data.data,
-        });
+        console.log(res.data.data);
+        return success(res.data.data);
     } else {
         return failure(res.error);
     }

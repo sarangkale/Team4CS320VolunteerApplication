@@ -1,6 +1,7 @@
 import express from "express";
 import { createSupabaseClientNoAuth } from "../authRouting.ts";
-import { bodyHasEntries, createCookies, type UserProfile, type OrganizationProfile } from "../../utils.ts";
+import { bodyHasEntries, createCookies, type UserProfile } from "../../utils.ts";
+import type { OrganizationProfile } from "../../../../shared/types.ts";
 
 export async function volunteerSignUp(req: express.Request, res: express.Response) {
     const validation = bodyHasEntries(["email", "password", "first_name", "last_name", "school", "graduation_year"], req.body, res);
