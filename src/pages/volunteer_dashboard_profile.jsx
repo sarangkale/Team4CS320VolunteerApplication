@@ -65,8 +65,9 @@ export default function VolunteerDashboard() {
       </nav>
 
       {/* MAIN */}
-      <div className="max-w-[1140px] mr-auto px-6 pt-9 pb-[60px]">
-        <h1 className="text-[40px] font-bold mb-6">HELLO JOHN!</h1>
+      <div className="max-w-[1140px] mx-auto px-6 pt-9 pb-[60px]">
+        <h1 className="text-[40px] font-bold mb-1">Hello John</h1>
+          <p className="text-gray-600 mb-6">Manage your account information below</p>
 
         <div className="flex items-center justify-between mb-4">
           <div className="bg-[#D9D9D9] rounded-full p-1 inline-flex gap-1">
@@ -92,8 +93,7 @@ export default function VolunteerDashboard() {
         {activeTab === "profile" && (
           <div className="bg-[#D9D9D9] rounded-[20px] p-3">
             <div className="bg-white rounded-[14px] px-[34px] pt-[30px] pb-[34px]">
-              <div className="text-[22px] font-semibold mb-1">Account Information</div>
-              <div className="text-[14px] font-light text-[#666] mb-7">Manage your Account profile</div>
+              
 
               <div className="grid grid-cols-2 gap-x-11 gap-y-[22px]">
                 <div className="flex flex-col gap-[7px]">

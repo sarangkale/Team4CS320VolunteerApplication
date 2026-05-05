@@ -10,16 +10,114 @@ const UPCOMING_EVENTS = [
 const HISTORY_EVENTS = [...UPCOMING_EVENTS];
 const TOTAL_HOURS = "XX";
 
-function EventCard({ org, date, description, hours }) {
+function EventCard({ event, onOpen }) {
   return (
-    <div className="bg-surface rounded-[15px] px-5 py-4 flex flex-col gap-2.5">
+    <div
+      className="bg-surface rounded-[15px] px-5 py-4 flex flex-col gap-2.5 cursor-pointer transition-all hover:bg-surface-dark hover:-translate-y-px"
+      onClick={() => onOpen(event)}
+    >
       <div className="flex items-center justify-between">
-        <span className="text-[18px] font-semibold">{org}</span>
-        <span className="text-[17px] font-medium text-[#222]">{date}</span>
+        <span className="text-[18px] font-semibold">{event.org}</span>
+        <span className="text-[17px] font-medium text-[#222]">{event.date}</span>
       </div>
       <div className="flex items-center justify-between gap-4">
-        <span className="text-[15px] text-[#333] flex-1 leading-[1.5]">{description}</span>
-        <span className="text-[18px] font-semibold whitespace-nowrap shrink-0">{hours}</span>
+        <span className="text-[15px] text-[#333] flex-1 leading-[1.5]">
+          {event.description}
+        </span>
+        <span className="text-[18px] font-semibold whitespace-nowrap shrink-0">
+          {event.hours}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function EventDetailsModal({ event, onClose }) {
+  if (!event) return null;
+
+  // OPTIONAL: split date/time if your string includes both
+  const [datePart, timePart] = event.date?.split("   ") || [event.date, ""];
+
+  return (
+    <div
+      className="fixed inset-0 bg-black/[0.42] z-[200] flex items-center justify-center"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div className="bg-white rounded-card w-[90%] max-w-[620px] px-[34px] py-8 shadow-2xl">
+        <h2 className="text-2xl font-bold mb-4">{event.org}</h2>
+
+        <div className="grid grid-cols-2 gap-x-[18px] gap-y-3.5 mb-5">
+          
+          {/* Date */}
+          <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5">
+            <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">
+              Date
+            </span>
+            <span className="text-[15px] text-gray-900 leading-[1.45]">
+              {datePart}
+            </span>
+          </div>
+
+          {/* Time */}
+          <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5">
+            <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">
+              Time
+            </span>
+            <span className="text-[15px] text-gray-900 leading-[1.45]">
+              {timePart || "TBD"}
+            </span>
+          </div>
+
+          {/* Location (add this to your data if missing) */}
+          <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5">
+            <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">
+              Location
+            </span>
+            <span className="text-[15px] text-gray-900 leading-[1.45]">
+              {event.location || "TBD"}
+            </span>
+          </div>
+
+          {/* Category (optional if you add it later) */}
+          <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5">
+            <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">
+              Category
+            </span>
+            <span className="text-[15px] text-gray-900 leading-[1.45]">
+              {event.category || "General"}
+            </span>
+          </div>
+
+          {/* Description */}
+          <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5 col-span-2">
+            <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">
+              Description
+            </span>
+            <span className="text-[15px] text-gray-900 leading-[1.45]">
+              {event.description}
+            </span>
+          </div>
+
+          {/* Hours (volunteer-specific) */}
+          <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5 col-span-2">
+            <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">
+              Hours
+            </span>
+            <span className="text-[15px] text-gray-900 leading-[1.45]">
+              {event.hours}
+            </span>
+          </div>
+
+        </div>
+
+        <div className="flex justify-end">
+          <button
+            className="bg-surface border-none rounded-full px-7 py-3 text-[15px] font-medium cursor-pointer hover:bg-surface-dark"
+            onClick={onClose}
+          >
+            Close
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -27,13 +125,14 @@ function EventCard({ org, date, description, hours }) {
 
 export default function ActivityDashboard() {
   const navigate = useNavigate();
+  const [expandedEvent, setExpandedEvent] = useState(null);
   const [activeTab, setActiveTab] = useState("activity");
   const [overlay, setOverlay] = useState(null);
 
   const overlayInfo = {
-    logout: { title: "Log Out", msg: "You would be logged out and redirected to the login page." },
-    profile: { title: "My Profile", msg: "This would navigate to your profile page." },
-    events: { title: "View All Events", msg: "This would navigate to the events listing page." },
+    logout: { title: "Log Out", navigate: () => navigate("/login") },
+    profile: { title: "My Profile", navigate: () => navigate("/volunteer_dashboard/profile") },
+    events: { title: "View All Events", navigate: () => navigate("/volunteer_dashboard/events") },
   };
 
   return (
@@ -48,22 +147,24 @@ export default function ActivityDashboard() {
           Website name
         </span>
 
-        <button className="bg-white text-primary rounded-full px-6 py-3 font-medium">
-          My profile
-        </button>
-
-        <button className="bg-white text-primary rounded-full px-6 py-3 font-medium">
-          View all events
-        </button>
-
-        <button className="bg-primary text-white rounded-full px-6 py-3 font-medium">
-          Log out
-        </button>
+         <button
+          className="bg-white text-[#485C11] rounded-full px-6 py-3 font-medium border-none cursor-pointer hover:bg-gray-50 transition-colors duration-200 font-['DM_Sans',sans-serif]"
+          onClick={() => navigate("/volunteer_dashboard/profile")}
+        >My profile</button>
+        <button
+          className="bg-white text-[#485C11] rounded-full px-6 py-3 font-medium border-none cursor-pointer hover:bg-gray-50 transition-colors duration-200 font-['DM_Sans',sans-serif]"
+          onClick={() => navigate("/volunteer_dashboard/events")}
+        >View all events</button>
+        <button
+          className="bg-[#485C11] text-white rounded-full px-6 py-3 font-medium border-none cursor-pointer hover:bg-[#3a4c0d] transition-colors duration-200 font-['DM_Sans',sans-serif]"
+          onClick={() => navigate("/login")}
+        >Log out</button>
       </nav>
 
       {/* MAIN */}
       <div className="max-w-content mx-auto px-6 pt-8 pb-[60px]">
-        <h1 className="text-[40px] font-bold mb-[22px]">HELLO JOHN!</h1>
+        <h1 className="text-[40px] font-bold mb-1">Hello John</h1>
+          <p className="text-gray-600 mb-6">Manage your events below</p>
 
         {/* TABS */}
         <div className="flex items-center justify-between mb-4">
@@ -105,7 +206,9 @@ export default function ActivityDashboard() {
                 <span className="text-[28px] font-normal">Upcoming</span>
               </div>
               <div className="flex flex-col gap-[14px]">
-                {UPCOMING_EVENTS.map((e) => <EventCard key={e.id} {...e} />)}
+                {UPCOMING_EVENTS.map((e) => (
+                  <EventCard key={e.id} event={e} onOpen={setExpandedEvent} />
+                ))}
               </div>
             </div>
           </div>
@@ -120,7 +223,9 @@ export default function ActivityDashboard() {
                 <span className="text-[18px] font-normal text-[#333]">Total number of hours: {TOTAL_HOURS}</span>
               </div>
               <div className="flex flex-col gap-[14px]">
-                {HISTORY_EVENTS.map((e) => <EventCard key={e.id} {...e} />)}
+                {HISTORY_EVENTS.map((e) => (
+                  <EventCard key={e.id} event={e} onOpen={setExpandedEvent} />
+                ))}
               </div>
             </div>
           </div>
@@ -143,6 +248,13 @@ export default function ActivityDashboard() {
           </div>
         </div>
       )}
+
+          {expandedEvent && (
+      <EventDetailsModal
+        event={expandedEvent}
+        onClose={() => setExpandedEvent(null)}
+      />
+    )}
     </div>
   );
 }
