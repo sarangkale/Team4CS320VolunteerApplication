@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getAccountProfile } from "../auth/auth"; // Adjust path as needed
+import { getAccountProfile } from "../auth/auth";
 import { supabase } from "../lib/supabase";
 import "./application.css";
 
@@ -24,43 +24,60 @@ interface ListingInfo {
   capacity: number;
 }
 
-// --- Dummy accepted volunteers (replace with Supabase data once column exists) ---
-const DUMMY_ACCEPTED: Volunteer[] = [
-  {
-    id: "dummy-1",
-    name: "Alice Johnson",
-    email: "alice.johnson@umass.edu",
-    phone: "413-555-0101",
-    location: "Amherst, MA",
-    bio: "Passionate about community service and sustainability initiatives.",
-    skills: ["Communication", "Event Planning"],
-  },
-  {
-    id: "dummy-2",
-    name: "Marcus Lee",
-    email: "marcus.lee@umass.edu",
-    phone: "413-555-0182",
-    location: "Northampton, MA",
-    bio: "Pre-med student with experience in health outreach programs.",
-    skills: ["First Aid", "Public Health"],
-  },
-];
+// Helper: given a UUID[], fetch and map profiles into Volunteer[]
+async function fetchVolunteersByUUIDs(uuids: string[]): Promise<Volunteer[]> {
+  if (uuids.length === 0) return [];
+
+  const { data: profilesData, error: profilesError } = await supabase
+    .from("profiles")
+    .select("*")
+    .in("user_id", uuids);
+
+  if (profilesError || !profilesData) {
+    console.error("Error fetching profiles:", profilesError);
+    return [];
+  }
+
+  return profilesData.map((p) => {
+    const firstName = p.first_name || "";
+    const lastName = p.last_name || "";
+    const fullName = `${firstName} ${lastName}`.trim() || "Unknown Applicant";
+
+    return {
+      id: String(p.user_id),
+      name: fullName,
+      email: String(p.email || ""),
+      phone: String(p.phone || "N/A"),
+      location: String(p.location || "N/A"),
+      bio: String(p.bio || "No bio provided."),
+      skills: Array.isArray(p.skills) ? p.skills : [],
+    };
+  });
+}
 
 export default function VolunteerUI() {
   const [activeTab, setActiveTab] = useState<"volunteers" | "edit">("volunteers");
   const [subTab, setSubTab] = useState<Tab>("pending");
   const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);
+
   const [pendingList, setPendingList] = useState<Volunteer[]>([]);
+  const [acceptedList, setAcceptedList] = useState<Volunteer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Edit Information state
+  // We store orgId and listingId at component scope so Save Changes and
+  // Accept/Remove can use them without re-fetching.
+  const [orgId, setOrgId] = useState<string | null>(null);
+  const [listingId, setListingId] = useState<string | null>(null);
+
+  // Edit tab state
   const [listingInfo, setListingInfo] = useState<ListingInfo | null>(null);
   const [listingLoading, setListingLoading] = useState(false);
   const [listingSaved, setListingSaved] = useState(false);
+  const [listingSaveError, setListingSaveError] = useState<string | null>(null);
 
-  // --- Fetch pending applicants ---
+  // --- Fetch pending + accepted applicants on mount ---
   useEffect(() => {
-    async function fetchOrgListingsAndApplicants() {
+    async function fetchAll() {
       setIsLoading(true);
 
       const accountResult = await getAccountProfile();
@@ -71,105 +88,97 @@ export default function VolunteerUI() {
       }
 
       const profileData = accountResult.data.profile as any;
-      const orgId = profileData.org_id;
+      const resolvedOrgId = profileData.org_id as string | undefined;
 
-      if (!orgId) {
+      if (!resolvedOrgId) {
         console.error("No org_id found on the current user profile.");
         setIsLoading(false);
         return;
       }
 
-      const { data: listingsData, error: listingsError } = await supabase
+      setOrgId(resolvedOrgId);
+
+      // Fetch the first listing for this org.
+      // FIX: select both applicants and accepted_applicants (both UUID[]),
+      //      and grab the listing id so we can update it later.
+      const { data: listingRow, error: listingsError } = await supabase
         .from("listing")
-        .select("applicants")
-        .eq("org_id", orgId);
+        .select("id, applicants, accepted_applicants")
+        .eq("org_id", resolvedOrgId)
+        .limit(1)
+        .single();
 
-      if (listingsError || !listingsData) {
-        console.error("Error fetching org listings:", listingsError);
+      if (listingsError || !listingRow) {
+        console.error("Error fetching listing:", listingsError);
         setIsLoading(false);
         return;
       }
 
-      const allEmails = new Set<string>();
-      listingsData.forEach((listing) => {
-        if (listing.applicants) {
-          listing.applicants.split(",").forEach((email: string) => {
-            const trimmed = email.trim();
-            if (trimmed) allEmails.add(trimmed);
-          });
-        }
-      });
+      setListingId(listingRow.id);
 
-      const emailArray = Array.from(allEmails);
+      const pendingUUIDs: string[] = Array.isArray(listingRow.applicants)
+        ? listingRow.applicants
+        : [];
+      const acceptedUUIDs: string[] = Array.isArray(listingRow.accepted_applicants)
+        ? listingRow.accepted_applicants
+        : [];
 
-      if (emailArray.length === 0) {
-        setPendingList([]);
-        setIsLoading(false);
-        return;
-      }
+      // Exclude anyone already accepted from the pending list so there's
+      // no overlap if the DB still has them in both arrays.
+      const acceptedSet = new Set(acceptedUUIDs);
+      const trulyPendingUUIDs = pendingUUIDs.filter((id) => !acceptedSet.has(id));
 
-      const { data: profilesData, error: profilesError } = await supabase
-        .from("profiles")
-        .select("*")
-        .in("email", emailArray);
+      const [pending, accepted] = await Promise.all([
+        fetchVolunteersByUUIDs(trulyPendingUUIDs),
+        fetchVolunteersByUUIDs(acceptedUUIDs),
+      ]);
 
-      if (profilesError || !profilesData) {
-        console.error("Error fetching profiles:", profilesError);
-        setIsLoading(false);
-        return;
-      }
-
-      const loadedVolunteers: Volunteer[] = profilesData.map((p) => {
-        const firstName = p.first_name || "";
-        const lastName = p.last_name || "";
-        const fullName = `${firstName} ${lastName}`.trim() || "Unknown Applicant";
-        const skillsArray = Array.isArray(p.skills) ? p.skills : [];
-
-        return {
-          id: String(p.user_id || p.email || Math.random()),
-          name: fullName,
-          email: String(p.email || ""),
-          phone: String(p.phone || "N/A"),
-          location: String(p.location || "N/A"),
-          bio: String(p.bio || "No bio provided."),
-          skills: skillsArray,
-        };
-      });
-
-      setPendingList(loadedVolunteers);
+      setPendingList(pending);
+      setAcceptedList(accepted);
       setIsLoading(false);
     }
 
-    fetchOrgListingsAndApplicants();
+    fetchAll();
   }, []);
 
-  // --- Fetch listing info for Edit tab ---
+  // --- Fetch listing info for Edit tab (lazy, only when tab is first opened) ---
   useEffect(() => {
     if (activeTab !== "edit") return;
-    if (listingInfo) return; // already loaded
+    if (listingInfo) return;
 
     async function fetchListingInfo() {
       setListingLoading(true);
 
-      const accountResult = await getAccountProfile();
-      if (accountResult.type === "error" || !accountResult.data?.profile) {
-        setListingLoading(false);
-        return;
-      }
+      // If we already have the listingId from the mount fetch, use it.
+      // Otherwise fall back to re-fetching via orgId.
+      let targetListingId = listingId;
 
-      const profileData = accountResult.data.profile as any;
-      const orgId = profileData.org_id;
+      if (!targetListingId) {
+        const accountResult = await getAccountProfile();
+        if (accountResult.type === "error" || !accountResult.data?.profile) {
+          setListingLoading(false);
+          return;
+        }
+        const profileData = accountResult.data.profile as any;
+        const resolvedOrgId = profileData.org_id;
+        if (!resolvedOrgId) { setListingLoading(false); return; }
 
-      if (!orgId) {
-        setListingLoading(false);
-        return;
+        const { data: row } = await supabase
+          .from("listing")
+          .select("id")
+          .eq("org_id", resolvedOrgId)
+          .limit(1)
+          .single();
+
+        if (!row) { setListingLoading(false); return; }
+        targetListingId = row.id;
+        setListingId(row.id);
       }
 
       const { data, error } = await supabase
         .from("listing")
         .select("listing_name, description, transport, duration, needed_skill, capacity")
-        .eq("org_id", orgId)
-        .limit(1)
+        .eq("id", targetListingId)
         .single();
 
       if (error || !data) {
@@ -193,8 +202,97 @@ export default function VolunteerUI() {
     fetchListingInfo();
   }, [activeTab]);
 
-  const handleRemove = (id: string) => {
+  // FIX: Accept — moves volunteer from pendingList to acceptedList and
+  //      writes the change to both columns in Supabase.
+  const handleAccept = async (volunteer: Volunteer) => {
+    if (!listingId) return;
+
+    const newAcceptedUUIDs = [...acceptedList.map((v) => v.id), volunteer.id];
+    const newPendingUUIDs = pendingList
+      .filter((v) => v.id !== volunteer.id)
+      .map((v) => v.id);
+
+    const { error } = await supabase
+      .from("listing")
+      .update({
+        accepted_applicants: newAcceptedUUIDs,
+        applicants: newPendingUUIDs,
+      })
+      .eq("id", listingId);
+
+    if (error) {
+      console.error("Failed to accept volunteer:", error);
+      return;
+    }
+
+    setPendingList((prev) => prev.filter((v) => v.id !== volunteer.id));
+    setAcceptedList((prev) => [...prev, volunteer]);
+    setSelectedVolunteer(null);
+  };
+
+  // FIX: Remove from pending — removes from applicants[] in Supabase.
+  const handleRemovePending = async (id: string) => {
+    if (!listingId) return;
+
+    const newPendingUUIDs = pendingList.filter((v) => v.id !== id).map((v) => v.id);
+
+    const { error } = await supabase
+      .from("listing")
+      .update({ applicants: newPendingUUIDs })
+      .eq("id", listingId);
+
+    if (error) {
+      console.error("Failed to remove pending volunteer:", error);
+      return;
+    }
+
     setPendingList((prev) => prev.filter((v) => v.id !== id));
+  };
+
+  // FIX: Remove from accepted — removes from accepted_applicants[] in Supabase.
+  const handleRemoveAccepted = async (id: string) => {
+    if (!listingId) return;
+
+    const newAcceptedUUIDs = acceptedList.filter((v) => v.id !== id).map((v) => v.id);
+
+    const { error } = await supabase
+      .from("listing")
+      .update({ accepted_applicants: newAcceptedUUIDs })
+      .eq("id", listingId);
+
+    if (error) {
+      console.error("Failed to remove accepted volunteer:", error);
+      return;
+    }
+
+    setAcceptedList((prev) => prev.filter((v) => v.id !== id));
+  };
+
+  // FIX: Save Changes — actually writes to Supabase now.
+  const handleSaveChanges = async () => {
+    if (!listingInfo || !listingId) return;
+    setListingSaveError(null);
+
+    const { error } = await supabase
+      .from("listing")
+      .update({
+        listing_name: listingInfo.listing_name,
+        description: listingInfo.description,
+        transport: listingInfo.transport,
+        duration: listingInfo.duration,
+        needed_skill: listingInfo.needed_skill,
+        capacity: listingInfo.capacity,
+      })
+      .eq("id", listingId);
+
+    if (error) {
+      console.error("Failed to save listing:", error);
+      setListingSaveError("Save failed. Please try again.");
+      return;
+    }
+
+    setListingSaved(true);
+    setTimeout(() => setListingSaved(false), 3000);
   };
 
   const handleLogout = async () => {
@@ -202,7 +300,10 @@ export default function VolunteerUI() {
     window.location.href = "/";
   };
 
-  const displayedList = subTab === "pending" ? pendingList : DUMMY_ACCEPTED;
+  const displayedList = subTab === "pending" ? pendingList : acceptedList;
+
+  // FIX: Event title pulled from real listing data once loaded.
+  const eventTitle = listingInfo?.listing_name || "Volunteer Opportunity";
 
   return (
     <div className="page-wrap">
@@ -221,9 +322,9 @@ export default function VolunteerUI() {
 
       {/* Main card */}
       <div className="main-card">
-        {/* Header */}
+        {/* Header — FIX: title comes from listingInfo */}
         <div className="card-header">
-          <h1 className="event-title">Volunteer Opportunity Placeholder</h1>
+          <h1 className="event-title">{eventTitle}</h1>
           <button className="back-btn" onClick={() => window.history.back()}>Back</button>
         </div>
 
@@ -246,7 +347,6 @@ export default function VolunteerUI() {
         {/* ── Volunteers tab ── */}
         {activeTab === "volunteers" && (
           <>
-            {/* Sub-tab bar — Pending first, Accepted second */}
             <div className="sub-tab-bar">
               <button
                 className={`sub-tab ${subTab === "pending" ? "sub-tab-active" : ""}`}
@@ -264,7 +364,7 @@ export default function VolunteerUI() {
 
             {/* Volunteer list */}
             <div className="list-area">
-              {isLoading && subTab === "pending" ? (
+              {isLoading ? (
                 <div style={{ padding: "12px 18px" }}>Loading applicants...</div>
               ) : displayedList.length === 0 ? (
                 <div style={{ padding: "12px 18px" }}>
@@ -282,16 +382,28 @@ export default function VolunteerUI() {
                     <div className="row-actions">
                       {subTab === "pending" && (
                         <>
-                          <button className="accept-btn" onClick={() => setSelectedVolunteer(v)}>
-                            Accept
+                          {/* FIX: Accept now opens the modal where the real
+                               accept action lives, keeping the row clean. */}
+                          <button
+                            className="accept-btn"
+                            onClick={() => setSelectedVolunteer(v)}
+                          >
+                            Review
                           </button>
-                          <button className="remove-btn" onClick={() => handleRemove(v.id)}>
+                          <button
+                            className="remove-btn"
+                            onClick={() => handleRemovePending(v.id)}
+                          >
                             Remove
                           </button>
                         </>
                       )}
                       {subTab === "accepted" && (
-                        <button className="remove-btn" onClick={() => {/* wire up later */}}>
+                        // FIX: Remove from accepted is now wired up.
+                        <button
+                          className="remove-btn"
+                          onClick={() => handleRemoveAccepted(v.id)}
+                        >
                           Remove
                         </button>
                       )}
@@ -391,6 +503,8 @@ export default function VolunteerUI() {
                           </button>
                         </span>
                       ))}
+                      {/* NOTE: prompt() left in place — replace with an inline
+                           input field when you want a polished UX here. */}
                       <button
                         className="add-skill-btn"
                         onClick={() => {
@@ -415,15 +529,13 @@ export default function VolunteerUI() {
                       ✓ Saved successfully
                     </span>
                   )}
-                  <button
-                    className="logout-btn"
-                    onClick={async () => {
-                      // TODO: wire up to Supabase update once ready
-                      // await supabase.from("listing").update({ ...listingInfo }).eq("org_id", orgId);
-                      setListingSaved(true);
-                      setTimeout(() => setListingSaved(false), 3000);
-                    }}
-                  >
+                  {listingSaveError && (
+                    <span style={{ color: "#c0392b", marginRight: 12, fontSize: 14 }}>
+                      {listingSaveError}
+                    </span>
+                  )}
+                  {}
+                  <button className="logout-btn" onClick={handleSaveChanges}>
                     Save Changes
                   </button>
                 </div>
@@ -472,8 +584,32 @@ export default function VolunteerUI() {
               </div>
             </div>
 
+            {}
             <div className="modal-footer">
-              <button className="back-btn" onClick={() => setSelectedVolunteer(null)}>Back</button>
+              {pendingList.some((v) => v.id === selectedVolunteer.id) && (
+                <>
+                  <button
+                    className="accept-btn"
+                    style={{ marginRight: 8 }}
+                    onClick={() => handleAccept(selectedVolunteer)}
+                  >
+                    Accept
+                  </button>
+                  <button
+                    className="remove-btn"
+                    style={{ marginRight: 8 }}
+                    onClick={() => {
+                      handleRemovePending(selectedVolunteer.id);
+                      setSelectedVolunteer(null);
+                    }}
+                  >
+                    Remove
+                  </button>
+                </>
+              )}
+              <button className="back-btn" onClick={() => setSelectedVolunteer(null)}>
+                Back
+              </button>
             </div>
           </div>
         </div>
