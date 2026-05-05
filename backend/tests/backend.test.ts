@@ -2,6 +2,7 @@ import { expect } from "@jest/globals";
 import server from "../src/server.ts";
 import supertest from "supertest";
 import type { ListingData } from "../../shared/types.ts";
+import type { ListingFilters } from "../../src/lib/listings.ts";
 
 const request = supertest.agent(server);
 
@@ -57,4 +58,20 @@ test("Create opportunity", async () => {
     });
 
     expect(listingRes.statusCode).toBe(200);
+})
+
+describe("POST /volunteer/listings", () => {
+    it("Fetch listings no filter", async () => {
+        return request.post("/auth/login").send({
+            email: "some@email.com",
+            password: "123456",
+        }).then(() => request
+            .post("/volunteer/listings")
+            .send({ range_start: 0, range_end: 4, filters: {} as ListingFilters })
+            .expect(200)
+            .then(res => {
+                expect(res.body.length).toEqual(5);
+            })
+        )
+    });
 })
