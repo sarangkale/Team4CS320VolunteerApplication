@@ -101,7 +101,8 @@ export type Database = {
       }
       listing: {
         Row: {
-          applicants: string | null
+          accepted_applicants: string[] | null
+          applicants: string[] | null
           capacity: number | null
           categories: string | null
           city: string | null
@@ -125,7 +126,8 @@ export type Database = {
           zip_code: string | null
         }
         Insert: {
-          applicants?: string | null
+          accepted_applicants?: string[] | null
+          applicants?: string[] | null
           capacity?: number | null
           categories?: string | null
           city?: string | null
@@ -149,7 +151,8 @@ export type Database = {
           zip_code?: string | null
         }
         Update: {
-          applicants?: string | null
+          accepted_applicants?: string[] | null
+          applicants?: string[] | null
           capacity?: number | null
           categories?: string | null
           city?: string | null
