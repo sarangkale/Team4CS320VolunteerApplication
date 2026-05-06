@@ -8,16 +8,7 @@ import { updateOrganizationProfile } from "../lib/profiles.ts";
 // ── Status Badge ─────────────────────────────────────────────
 function StatusBadge({ status }: { status: boolean }) {
     return (
-        <span style={{
-            border: `3px solid ${status ? "#2CBD03" : "#BD0303"}`,
-            color: status ? "#2CBD03" : "#BD0303",
-            borderRadius: 9999,
-            padding: "3px 12px",
-            fontSize: 14,
-            fontWeight: 600,
-            background: "white",
-            whiteSpace: "nowrap",
-        }}>
+        <span className={`rounded-full px-3 py-[3px] text-sm font-semibold bg-white whitespace-nowrap border-[3px] ${status ? "border-[#2CBD03] text-[#2CBD03]" : "border-[#BD0303] text-[#BD0303]"}`}>
             {status ? "active" : "Full"}
         </span>
     );
@@ -26,26 +17,25 @@ function StatusBadge({ status }: { status: boolean }) {
 // ── Event Card ───────────────────────────────────────────────
 function EventCard({ event, onOpen }: { event: ListingData, onOpen: () => void }) {
     return (
-        <div className="eventCardClickable" style={s.eventCard} onClick={onOpen}>
-            <div style={s.eventTop}>
-                <div style={s.eventLeft}>
-                    <span style={s.eventName}>{event.listing_name}</span>
+        <div className="bg-surface rounded-[15px] px-5 py-4 flex flex-col gap-3 cursor-pointer transition-all hover:bg-surface-dark hover:-translate-y-px" onClick={onOpen}>
+            <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                    <span className="text-lg font-semibold">{event.listing_name}</span>
                     <StatusBadge status={event.accepted_applicants ? event.accepted_applicants.length !== event.capacity : true} />
                 </div>
-                <div style={s.eventRight}>
-                    {/* Calendar icon */}
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                <div className="flex items-center gap-2 shrink-0">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
                         <rect x="3" y="4" width="18" height="18" rx="2" />
                         <line x1="3" y1="9" x2="21" y2="9" />
                         <line x1="8" y1="2" x2="8" y2="6" />
                         <line x1="16" y1="2" x2="16" y2="6" />
                     </svg>
-                    <span style={s.eventDate}>{event.listing_date}</span>
+                    <span className="text-base font-medium text-[#222]">{event.listing_date}</span>
                 </div>
             </div>
-            <div style={s.eventBottom}>
-                <span style={s.eventDesc}>{event.description}</span>
-                <div style={s.volunteerCount}>
+            <div className="flex items-start justify-between gap-4">
+                <span className="text-sm text-[#333] flex-1 leading-[1.55]">{event.description}</span>
+                <div className="flex items-center gap-1.5 shrink-0">
                     {/* Person icon */}
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#333" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
                         <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
@@ -53,7 +43,7 @@ function EventCard({ event, onOpen }: { event: ListingData, onOpen: () => void }
                         <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
                         <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                     </svg>
-                    <span style={s.volunteerText}>
+                    <span className="text-[17px] font-semibold whitespace-nowrap">
                         {event.accepted_applicants ? event.accepted_applicants.length : 0}/{event.capacity ? event.capacity : 0} Volunteers
                     </span>
                 </div>
@@ -65,26 +55,26 @@ function EventCard({ event, onOpen }: { event: ListingData, onOpen: () => void }
 function EventInfo({ edit, listing, setListing }: { edit: boolean, listing: ListingData, setListing: React.Dispatch<React.SetStateAction<ListingData>> }) {
     return (<>
         {edit ?
-            <input type="text" style={{ ...s.overlayTitle, marginBottom: 16, textAlign: "left" }} value={listing.listing_name || ""} onChange={e => setListing(prev => ({ ...prev, listing_name: e.target.value }))} />
-            : <h2 style={{ ...s.overlayTitle, marginBottom: 16, textAlign: "left" }}>{listing.listing_name}</h2>
+            <input type="text" className="text-2xl font-bold mb-4" value={listing.listing_name || ""} onChange={e => setListing(prev => ({ ...prev, listing_name: e.target.value }))} />
+            : <h2 className="text-2xl font-bold mb-4">{listing.listing_name}</h2>
         }
-        <div style={s.detailGrid}>
-            <div style={s.detailItem}>
-                <span style={s.detailLabel}>Capacity</span>
+        <div className="grid grid-cols-2 gap-x-[18px] gap-y-[14px] mb-5">
+            <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5">
+                <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">Capacity</span>
                 {edit ?
                     <input type="number" value={listing.capacity || 0} onChange={e => setListing(prev => ({ ...prev, capacity: Math.max(Number(e.target.value), prev.accepted_applicants ? prev.accepted_applicants.length : 0) }))} />
-                    : <span style={s.detailValue}>{listing.capacity}</span>
+                    : <span className="text-[15px] text-gray-900 leading-[1.45]">{listing.capacity}</span>
                 }
             </div>
-            <div style={s.detailItem}>
-                <span style={s.detailLabel}>Date &amp; Time</span>
+            <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5">
+                <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">Date &amp; Time</span>
                 {edit ?
                     <input type="date" value={listing.listing_date || ""} onChange={e => setListing(prev => ({ ...prev, listing_date: e.target.value }))} />
-                    : <span style={s.detailValue}>{listing.listing_date}</span>
+                    : <span className="text-[15px] text-gray-900 leading-[1.45]">{listing.listing_date}</span>
                 }
             </div>
-            <div style={s.detailItem}>
-                <span style={s.detailLabel}>Location</span>
+            <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5">
+                <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">Location</span>
                 {edit ?
                     <table>
                         <tbody>
@@ -97,11 +87,11 @@ function EventInfo({ edit, listing, setListing }: { edit: boolean, listing: List
                             </tr>
                         </tbody>
                     </table>
-                    : <span style={s.detailValue}>{`${listing.street}, ${listing.city}, ${listing.state}, ${listing.zip_code}`}</span>
+                    : <span className="text-[15px] text-gray-900 leading-[1.45]">{`${listing.street}, ${listing.city}, ${listing.state}, ${listing.zip_code}`}</span>
                 }
             </div>
-            <div style={s.detailItem}>
-                <span style={s.detailLabel}>Category</span>
+            <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5">
+                <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">Category</span>
                 {edit ?
                     <input type="text" value={listing.categories || ""} onChange={e => setListing(prev => ({ ...prev, categories: e.target.value }))} />
                     : <table>
@@ -117,22 +107,22 @@ function EventInfo({ edit, listing, setListing }: { edit: boolean, listing: List
                     </table>
                 }
             </div>
-            <div style={{ ...s.detailItem }}>
-                <span style={s.detailLabel}>Volunteers</span>
-                <span style={s.detailValue}>{listing.accepted_applicants ? listing.accepted_applicants.length : 0}/{listing.capacity ? listing.capacity : 0}</span>
+            <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5">
+                <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">Volunteers</span>
+                <span className="text-[15px] text-gray-900 leading-[1.45]">{listing.accepted_applicants ? listing.accepted_applicants.length : 0}/{listing.capacity ? listing.capacity : 0}</span>
             </div>
-            <div style={{ ...s.detailItem }}>
-                <span style={s.detailLabel}>Transport</span>
+            <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5">
+                <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">Transport</span>
                 {edit ?
                     <textarea value={listing.transport || ""} onChange={e => setListing(prev => ({ ...prev, transport: e.target.value }))} />
-                    : <span style={s.detailValue}>{listing.transport}</span>
+                    : <span className="text-[15px] text-gray-900 leading-[1.45]">{listing.transport}</span>
                 }
             </div>
-            <div style={{ ...s.detailItem, gridColumn: "1 / -1" }}>
-                <span style={s.detailLabel}>Description</span>
+            <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5">
+                <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">Description</span>
                 {edit ?
                     <textarea value={listing.description || ""} onChange={e => setListing(prev => ({ ...prev, description: e.target.value }))} />
-                    : <span style={s.detailValue}>{listing.description}</span>
+                    : <span className="text-[15px] text-gray-900 leading-[1.45]">{listing.description}</span>
                 }
             </div>
         </div>
@@ -147,8 +137,8 @@ function Modal({
     onClose: () => void,
 }) {
     return (
-        <div style={s.overlayBg} onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-            <div style={{ ...s.overlayCard, maxWidth: 620, textAlign: "left", padding: "32px 34px" }}>
+        <div className="fixed inset-0 bg-black/45 flex items-center justify-center z-[300] p-4" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+            <div className="bg-white rounded-card w-[90%] max-w-[620px] px-[34px] py-8 shadow-2xl">
                 {children}
             </div>
         </div>
@@ -180,10 +170,10 @@ function EventDetails({ event, onClose, onSave }: {
     return (
         <>
             {showApplicants ? <>
-                <h2 style={{ ...s.overlayTitle, marginBottom: 16, textAlign: "left" }}>{event.listing_name}</h2>
+                <h2 className="text-2xl font-bold mb-4">{event.listing_name}</h2>
                 {
                     applicants.map(applicant => {
-                        return <div style={s.detailItem} key={applicant.user_id}>
+                        return <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5" key={applicant.user_id}>
                             <table>
                                 <tbody>
                                     <tr>
@@ -192,7 +182,7 @@ function EventDetails({ event, onClose, onSave }: {
                                         </td>
                                         <td>
                                             <button
-                                                style={s.secondaryActionBtn}
+                                                className="bg-surface text-gray-900 border-none rounded-full px-5 py-3 text-[15px] font-medium cursor-pointer transition-colors hover:bg-surface-dark"
                                                 onClick={
                                                     async () => await removeApplicant(listing.listing_id!, applicant.user_id)
                                                 }>
@@ -201,7 +191,7 @@ function EventDetails({ event, onClose, onSave }: {
                                         </td>
                                         <td>
                                             <button
-                                                style={s.overlayClose}
+                                                className="bg-primary text-white border-none rounded-full px-5 py-3 text-[15px] font-medium cursor-pointer transition-colors hover:brightness-110"
                                                 onClick={
                                                     async () => {
                                                         await awardHours(applicant.user_id, Number(listing.duration || 0));
@@ -220,16 +210,16 @@ function EventDetails({ event, onClose, onSave }: {
             </> : <EventInfo edit={edit} listing={listing} setListing={setListing} />
             }
 
-            <div style={s.detailActions}>
-                <button style={s.cancelBtn} onClick={onClose}>Close</button>
+            <div className="flex justify-end flex-wrap gap-2.5">
+                <button className="bg-surface text-gray-900 border-none rounded-full px-5 py-3 text-[15px] font-medium cursor-pointer transition-colors hover:bg-surface-dark" onClick={onClose}>Close</button>
                 {!showApplicants && (edit ?
-                    <button style={s.secondaryActionBtn} onClick={() => { setEdit(false); onSave(listing) }}>Save Event</button>
-                    : <button style={s.secondaryActionBtn} onClick={() => setEdit(true)}>Edit Event</button>)
+                    <button className="bg-surface text-gray-900 border-none rounded-full px-5 py-3 text-[15px] font-medium cursor-pointer transition-colors hover:bg-surface-dark" onClick={() => { setEdit(false); onSave(listing) }}>Save Event</button>
+                    : <button className="bg-surface text-gray-900 border-none rounded-full px-5 py-3 text-[15px] font-medium cursor-pointer transition-colors hover:bg-surface-dark" onClick={() => setEdit(true)}>Edit Event</button>)
                 }
                 {
                     showApplicants ?
-                        <button style={s.overlayClose} onClick={() => setShowApplicants(false)}>View Listing</button>
-                        : <button style={s.overlayClose} onClick={() => setShowApplicants(true)}>View Applicants</button>
+                        <button className="bg-primary text-white border-none rounded-full px-5 py-3 text-[15px] font-medium cursor-pointer transition-colors hover:brightness-110" onClick={() => setShowApplicants(false)}>View Listing</button>
+                        : <button className="bg-primary text-white border-none rounded-full px-5 py-3 text-[15px] font-medium cursor-pointer transition-colors hover:brightness-110" onClick={() => setShowApplicants(true)}>View Applicants</button>
 
                 }
             </div>
@@ -243,51 +233,51 @@ function CreateEvent({ onClose, onCreate }: {
 }) {
     const [listing, setListing] = useState<ListingData>({} as ListingData);
     return (<>
-        <input type="text" style={{ ...s.overlayTitle, marginBottom: 16, textAlign: "left" }} value={listing.listing_name || ""} onChange={e => setListing(prev => ({ ...prev, listing_name: e.target.value }))} />
-        <div style={s.detailGrid}>
-            <div style={s.detailItem}>
-                <span style={s.detailLabel}>Capacity</span>
-                <input type="number" style={s.detailValue} value={listing.capacity || 0} onChange={e => setListing(prev => ({ ...prev, capacity: Math.max(Number(e.target.value), prev.accepted_applicants ? prev.accepted_applicants.length : 0) }))} />
+        <input type="text" className="text-2xl font-bold mb-4" value={listing.listing_name || ""} onChange={e => setListing(prev => ({ ...prev, listing_name: e.target.value }))} />
+        <div className="grid grid-cols-2 gap-x-[18px] gap-y-[14px] mb-5">
+            <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5">
+                <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">Capacity</span>
+                <input type="number" className="text-[15px] text-gray-900 leading-[1.45]" value={listing.capacity || 0} onChange={e => setListing(prev => ({ ...prev, capacity: Math.max(Number(e.target.value), prev.accepted_applicants ? prev.accepted_applicants.length : 0) }))} />
             </div>
-            <div style={s.detailItem}>
-                <span style={s.detailLabel}>Date &amp; Time</span>
-                <input type="date" style={s.detailValue} value={listing.listing_date || ""} onChange={e => setListing(prev => ({ ...prev, listing_date: e.target.value }))} />
+            <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5">
+                <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">Date &amp; Time</span>
+                <input type="date" className="text-[15px] text-gray-900 leading-[1.45]" value={listing.listing_date || ""} onChange={e => setListing(prev => ({ ...prev, listing_date: e.target.value }))} />
             </div>
-            <div style={s.detailItem}>
-                <span style={s.detailLabel}>Location</span>
+            <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5">
+                <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">Location</span>
                 <table>
                     <tbody>
                         <tr>
                             {
                                 ["street", "city", "state", "zip_code"].map(key => {
-                                    return <td key={key}><input style={{ ...s.detailValue, width: "4em" }} key={key} type="text" value={(listing as any)[key] || ""} onChange={e => setListing(prev => ({ ...prev, [key]: e.target.value }))} /></td>
+                                    return <td key={key}><input className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]" key={key} type="text" value={(listing as any)[key] || ""} onChange={e => setListing(prev => ({ ...prev, [key]: e.target.value }))} /></td>
                                 })
                             }
                         </tr>
                     </tbody>
                 </table>
             </div>
-            <div style={s.detailItem}>
-                <span style={s.detailLabel}>Category</span>
-                <input type="text" style={s.detailValue} value={listing.categories || ""} onChange={e => setListing(prev => ({ ...prev, categories: e.target.value }))} />
+            <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5">
+                <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">Category</span>
+                <input type="text" className="text-[15px] text-gray-900 leading-[1.45]" value={listing.categories || ""} onChange={e => setListing(prev => ({ ...prev, categories: e.target.value }))} />
             </div>
-            <div style={{ ...s.detailItem }}>
-                <span style={s.detailLabel}>Transport</span>
-                <textarea value={listing.transport || ""} style={s.detailValue} onChange={e => setListing(prev => ({ ...prev, transport: e.target.value }))} />
+            <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5">
+                <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">Transport</span>
+                <textarea value={listing.transport || ""} className="text-[15px] text-gray-900 leading-[1.45]" onChange={e => setListing(prev => ({ ...prev, transport: e.target.value }))} />
             </div>
-            <div style={{ ...s.detailItem }}>
-                <span style={s.detailLabel}>Duration</span>
-                <input type="number" value={listing.duration || ""} style={s.detailValue} onChange={e => setListing(prev => ({ ...prev, duration: e.target.value }))} />
+            <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5">
+                <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">Duration</span>
+                <input type="number" value={listing.duration || ""} className="text-[15px] text-gray-900 leading-[1.45]" onChange={e => setListing(prev => ({ ...prev, duration: e.target.value }))} />
             </div>
-            <div style={{ ...s.detailItem, gridColumn: "1 / -1" }}>
-                <span style={s.detailLabel}>Description</span>
-                <textarea value={listing.description || ""} style={s.detailValue} onChange={e => setListing(prev => ({ ...prev, description: e.target.value }))} />
+            <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5" style={{ gridColumn: "1 / -1" }}>
+                <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">Description</span>
+                <textarea value={listing.description || ""} className="text-[15px] text-gray-900 leading-[1.45]" onChange={e => setListing(prev => ({ ...prev, description: e.target.value }))} />
             </div>
         </div>
 
-        <div style={s.detailActions}>
-            <button style={s.cancelBtn} onClick={onClose}>Close</button>
-            <button style={s.secondaryActionBtn} onClick={() => { onCreate(listing) }}>Create Event</button>
+        <div className="flex justify-end flex-wrap gap-2.5">
+            <button className="bg-surface text-gray-900 border-none rounded-full px-5 py-3 text-[15px] font-medium cursor-pointer transition-colors hover:bg-surface-dark" onClick={onClose}>Close</button>
+            <button className="bg-surface text-gray-900 border-none rounded-full px-5 py-3 text-[15px] font-medium cursor-pointer transition-colors hover:bg-surface-dark" onClick={() => { onCreate(listing) }}>Create Event</button>
         </div>
     </>);
 }
@@ -338,10 +328,10 @@ export default function OrganizationDashboard() {
       `}</style>
 
             {/* ── NAV ── */}
-            <nav style={s.nav}>
-                <div style={s.navLogo}>logo</div>
-                <span style={s.navSiteName}>Website name</span>
-                <button className="navBtnLogout" style={s.navBtnLogout} onClick={async () => {
+            <nav className="bg-surface flex items-center px-8 h-[88px] gap-3.5 sticky top-0 z-[100] shadow-[0_2px_8px_rgba(0,0,0,0.07)]">
+                <div className="bg-primary text-white rounded-full w-[82px] h-[70px] flex items-center justify-center font-bold text-lg shrink-0">logo</div>
+                <span className="font-bold text-[21px] mr-auto">Website name</span>
+                <button className="bg-primary text-white border-none rounded-full px-[26px] py-[13px] text-base font-medium cursor-pointer transition-colors hover:brightness-110" onClick={async () => {
                     try {
                         await logout();
                     } finally {
@@ -353,22 +343,22 @@ export default function OrganizationDashboard() {
             </nav>
 
             {/* ── MAIN ── */}
-            <div style={s.main}>
-                <h1 style={s.greeting}>Hello Organization!</h1>
+            <div className="max-w-[1140px] mx-auto px-6 pt-8 pb-[60px]">
+                <h1 className="text-[40px] font-bold mb-[22px]">Hello Organization!</h1>
 
                 {/* ── TABS ROW ── */}
-                <div style={s.tabRow}>
-                    <div style={s.tabs}>
+                <div className="flex items-center justify-between mb-[26px]">
+                    <div className="bg-surface rounded-full p-1.5 inline-flex gap-1">
                         <button
-                            className={activeTab !== "account" ? "tabInactive" : ""}
-                            style={activeTab === "account" ? s.tabActive : s.tabInactive}
+                            className={`border-none rounded-full px-6 py-2.5 text-base cursor-pointer transition-colors whitespace-nowrap
+                                ${activeTab === "account" ? "bg-white font-medium shadow-sm text-gray-900" : "bg-transparent font-normal text-gray-900 hover:bg-white/55"}`}
                             onClick={() => setActiveTab("account")}
                         >
                             Account info
                         </button>
                         <button
-                            className={activeTab !== "events" ? "tabInactive" : ""}
-                            style={activeTab === "events" ? s.tabActive : s.tabInactive}
+                            className={`border-none rounded-full px-6 py-2.5 text-base cursor-pointer transition-colors whitespace-nowrap
+                                ${activeTab === "events" ? "bg-white font-medium shadow-sm text-gray-900" : "bg-transparent font-normal text-gray-900 hover:bg-white/55"}`}
                             onClick={() => setActiveTab("events")}
                         >
                             Events &amp; Volunteers
@@ -376,13 +366,12 @@ export default function OrganizationDashboard() {
                     </div>
 
                     {activeTab === "events" ? (
-                        <button className="createEventBtn" style={s.createEventBtn} onClick={() => setShowCreateEvent(true)}>
+                        <button className="bg-surface border-none rounded-full px-7 py-3 text-base font-medium cursor-pointer transition-colors hover:bg-surface-dark" onClick={() => setShowCreateEvent(true)}>
                             Create Event
                         </button>
                     ) : (
                         <button
-                            className="createEventBtn"
-                            style={s.createEventBtn}
+                            className="bg-surface border-none rounded-full px-7 py-3 text-base font-medium cursor-pointer transition-colors hover:bg-surface-dark"
                             onClick={async () => updateOrganizationProfile(form?.bio || "", form?.org_name || "", form?.website || "", form?.org_id || "")}
                         >
                             Update Profile
@@ -392,23 +381,23 @@ export default function OrganizationDashboard() {
 
                 {/* ══════════ ACCOUNT INFO TAB ══════════ */}
                 {activeTab === "account" && (
-                    <div style={s.cardWrapper}>
-                        <div style={s.card}>
-                            <div style={s.cardTitle}>Organization Information</div>
-                            <div style={s.cardSubtitle}>Manage your organization's profile</div>
+                    <div className="bg-surface rounded-card p-3">
+                        <div className="bg-white rounded-inner px-8 pt-7 pb-8">
+                            <div className="text-[22px] font-semibold mb-1">Organization Information</div>
+                            <div className="text-sm font-light text-[#666] mb-[26px]">Manage your organization's profile</div>
 
-                            <div style={s.formGrid}>
-                                <div style={s.field}>
-                                    <label style={s.label}>Organization Name:</label>
-                                    <input style={s.input} type="text" name="org_name" value={form!.org_name!} onChange={handleFormChange} />
+                            <div className="grid grid-cols-2 gap-x-20 gap-y-5">
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[15px] font-normal">Organization Name:</label>
+                                    <input className="bg-surface border-none rounded-md px-3 py-[9px] text-[15px] text-gray-900 w-full focus:outline-none focus:ring-2 focus:ring-badge transition-shadow" type="text" name="org_name" value={form!.org_name!} onChange={handleFormChange} />
                                 </div>
-                                <div style={s.field}>
-                                    <label style={s.label}>Website</label>
-                                    <input style={s.input} type="text" name="website" value={form!.website!} onChange={handleFormChange} />
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[15px] font-normal">Website</label>
+                                    <input className="bg-surface border-none rounded-md px-3 py-[9px] text-[15px] text-gray-900 w-full focus:outline-none focus:ring-2 focus:ring-badge transition-shadow" type="text" name="website" value={form!.website!} onChange={handleFormChange} />
                                 </div>
-                                <div style={{ ...s.field, gridColumn: "1 / -1" }}>
-                                    <label style={s.label}>Bio</label>
-                                    <textarea style={s.input} name="bio" value={form!.bio!} onChange={handleFormChange} />
+                                <div className="flex flex-col gap-2" style={{ gridColumn: "1 / -1" }}>
+                                    <label className="text-[15px] font-normal">Bio</label>
+                                    <textarea className="bg-surface border-none rounded-md px-3 py-[9px] text-[15px] text-gray-900 w-full focus:outline-none focus:ring-2 focus:ring-badge transition-shadow" name="bio" value={form!.bio!} onChange={handleFormChange} />
                                 </div>
                             </div>
                         </div>
@@ -417,16 +406,16 @@ export default function OrganizationDashboard() {
 
                 {/* ══════════ EVENTS & VOLUNTEERS TAB ══════════ */}
                 {activeTab === "events" && (
-                    <div style={s.cardWrapper}>
-                        <div style={s.card}>
-                            <div style={s.cardTitle}>Volunteer Events</div>
-                            <div style={s.cardSubtitle}>Manage your Events &amp; Volunteers</div>
-                            <div style={s.eventList}>
+                    <div className="bg-surface rounded-card p-3">
+                        <div className="bg-white rounded-inner px-8 pt-7 pb-8">
+                            <div className="text-[22px] font-semibold mb-1">Volunteer Events</div>
+                            <div className="text-sm font-light text-[#666] mb-[26px]">Manage your Events &amp; Volunteers</div>
+                            <div className="flex flex-col gap-3.5">
                                 {events.map((event, i) => (
                                     <EventCard key={event.listing_id} event={event} onOpen={() => setExpandedEventIndex(i)} />
                                 ))}
                                 {events.length === 0 && (
-                                    <div style={s.emptyState}>
+                                    <div className="flex flex-col items-center gap-3 py-12 px-6">
                                         <span style={{ fontSize: 36 }}>📋</span>
                                         <p style={{ color: "#888", fontSize: 15 }}>No events yet. Click "Create Event" to add one.</p>
                                     </div>
@@ -478,64 +467,3 @@ export default function OrganizationDashboard() {
         </>
     );
 }
-
-// ── Styles ───────────────────────────────────────────────────
-const s: Record<string, React.CSSProperties> = {
-    nav: { background: "#D9D9D9", display: "flex", alignItems: "center", padding: "0 32px", height: 88, gap: 14, position: "sticky", top: 0, zIndex: 100, boxShadow: "0 2px 8px rgba(0,0,0,0.07)" },
-    navLogo: { background: "#485C11", color: "white", borderRadius: 9999, width: 82, height: 70, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 18, flexShrink: 0 },
-    navSiteName: { fontWeight: 700, fontSize: 21, marginRight: "auto" },
-    navBtnLogout: { background: "#485C11", color: "white", border: "none", borderRadius: 9999, padding: "13px 26px", fontSize: 16, fontWeight: 500, cursor: "pointer", transition: "background 0.2s" },
-
-    main: { maxWidth: 1140, margin: "0 auto", padding: "32px 24px 60px" },
-    greeting: { fontSize: 40, fontWeight: 700, marginBottom: 22 },
-
-    tabRow: { display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 26 },
-    tabs: { background: "#D9D9D9", borderRadius: 9999, padding: 6, display: "inline-flex", gap: 4 },
-    tabActive: { background: "white", border: "none", borderRadius: 9999, padding: "10px 24px", fontSize: 16, fontWeight: 500, cursor: "pointer", color: "#1a1a1a", boxShadow: "0 1px 4px rgba(0,0,0,0.12)", transition: "background 0.2s", whiteSpace: "nowrap" },
-    tabInactive: { background: "transparent", border: "none", borderRadius: 9999, padding: "10px 24px", fontSize: 16, fontWeight: 400, cursor: "pointer", color: "#1a1a1a", transition: "background 0.2s", whiteSpace: "nowrap" },
-    createEventBtn: { background: "#D9D9D9", border: "none", borderRadius: 9999, padding: "12px 28px", fontSize: 16, fontWeight: 500, cursor: "pointer", transition: "background 0.2s" },
-
-    cardWrapper: { background: "#D9D9D9", borderRadius: 20, padding: 12 },
-    card: { background: "white", borderRadius: 14, padding: "28px 32px 32px" },
-    cardTitle: { fontSize: 22, fontWeight: 600, marginBottom: 4 },
-    cardSubtitle: { fontSize: 14, fontWeight: 300, color: "#666", marginBottom: 26 },
-
-    formGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px 80px" },
-    field: { display: "flex", flexDirection: "column", gap: 8 },
-    label: { fontSize: 15, fontWeight: 400 },
-    input: { background: "#D9D9D9", border: "none", borderRadius: 6, padding: "9px 13px", fontSize: 15, color: "#1a1a1a", width: "100%", transition: "box-shadow 0.2s, background 0.2s" },
-
-    skillsSection: { marginTop: 28 },
-    skillsLabel: { fontSize: 15, marginBottom: 12 },
-    skillsContainer: { display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center" },
-    skillTag: { background: "#8E9B77", color: "white", borderRadius: 9999, padding: "6px 14px", fontSize: 14, fontWeight: 500, display: "flex", alignItems: "center", gap: 7 },
-    removeSkill: { background: "none", border: "none", color: "white", cursor: "pointer", fontSize: 16, lineHeight: 1, padding: 0, opacity: 0.7, transition: "opacity 0.15s" },
-    skillAddBtn: { background: "#D9D9D9", border: "none", borderRadius: 9999, padding: "6px 16px", fontSize: 14, cursor: "pointer", color: "#1a1a1a", transition: "background 0.2s" },
-
-    eventList: { display: "flex", flexDirection: "column", gap: 14 },
-    eventCard: { background: "#D9D9D9", borderRadius: 15, padding: "16px 20px", display: "flex", flexDirection: "column", gap: 12 },
-    eventTop: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 },
-    eventLeft: { display: "flex", alignItems: "center", gap: 12 },
-    eventRight: { display: "flex", alignItems: "center", gap: 8, flexShrink: 0 },
-    eventName: { fontSize: 18, fontWeight: 600 },
-    eventDate: { fontSize: 16, fontWeight: 500, color: "#222" },
-    eventBottom: { display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 16 },
-    eventDesc: { fontSize: 14, fontWeight: 400, color: "#333", flex: 1, lineHeight: 1.55 },
-    volunteerCount: { display: "flex", alignItems: "center", gap: 6, flexShrink: 0 },
-    volunteerText: { fontSize: 17, fontWeight: 600, whiteSpace: "nowrap" },
-    emptyState: { display: "flex", flexDirection: "column", alignItems: "center", gap: 12, padding: "48px 24px" },
-
-    detailGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px 18px", marginBottom: 20 },
-    detailItem: { display: "flex", flexDirection: "column", gap: 4, background: "#f3f3f3", borderRadius: 10, padding: "10px 12px" },
-    detailLabel: { fontSize: 12, fontWeight: 600, color: "#666", textTransform: "uppercase", letterSpacing: 0.4 },
-    detailValue: { fontSize: 15, color: "#1a1a1a", lineHeight: 1.45 },
-    detailActions: { display: "flex", justifyContent: "flex-end", flexWrap: "wrap", gap: 10 },
-    secondaryActionBtn: { background: "#D9D9D9", color: "#1a1a1a", border: "none", borderRadius: 9999, padding: "12px 20px", fontSize: 15, fontWeight: 500, cursor: "pointer", transition: "background 0.2s" },
-
-    cancelBtn: { background: "#D9D9D9", border: "none", borderRadius: 9999, padding: "12px 28px", fontSize: 15, fontWeight: 500, cursor: "pointer" },
-    overlayBg: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.42)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center" },
-    overlayCard: { background: "white", borderRadius: 20, padding: "44px 52px", textAlign: "center", maxWidth: 400, width: "90%", boxShadow: "0 8px 40px rgba(0,0,0,0.2)" },
-    overlayTitle: { fontSize: 24, fontWeight: 700, marginBottom: 10 },
-    overlayMsg: { color: "#666", marginBottom: 26, fontSize: 15 },
-    overlayClose: { background: "#485C11", color: "white", border: "none", borderRadius: 9999, padding: "12px 30px", fontSize: 15, fontWeight: 500, cursor: "pointer", transition: "background 0.2s" },
-};
