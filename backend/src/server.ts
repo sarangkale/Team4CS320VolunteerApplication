@@ -1,5 +1,6 @@
 import express from "express";
 import cookieParser from "cookie-parser";
+import cors from "cors";
 import dotenv from "dotenv";
 
 import volunteerRouter from "./routes/volunteerRouting.ts";
@@ -10,19 +11,19 @@ dotenv.config({ path: [".env", "../.env"] });
 
 const server = express();
 
+server.use(cors({
+    origin: ["http://localhost:5173"],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+}));
+server.options(/.*/, cors()); 
+
 server.use(express.json());
 server.use(cookieParser());
 
-server.use((_req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Methods", "GET, PUT, POST");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-})
-
-server.use("/volunteer", volunteerRouter)
+server.use("/volunteer", volunteerRouter);
 server.use("/organization", organizationRouter);
 server.use("/auth", authRouter);
-
 
 export default server;

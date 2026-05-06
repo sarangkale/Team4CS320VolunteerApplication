@@ -18,25 +18,33 @@ export default async function authMiddleware(req: express.Request, res: express.
     const refreshToken = req.cookies["supabase-refresh-token"];
 
     if (!accessToken || !refreshToken) {
-        return res.status(401).json({error: "No token found"});
+        return res.status(401).json({ error: "No token found" });
     }
 
     const supabase = createSupabaseClientNoAuth();
 
-    const {data, error} = await supabase.auth.getUser(accessToken);
+    const { data, error } = await supabase.auth.getUser(accessToken);
 
     if (error) {
-        const {data: refreshData, error: refreshError} = await supabase.auth.refreshSession(refreshToken);
-        if (error) {
-            return res.status(401).json(refreshError);
+        // Access token expired — try to refresh
+        const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession({ 
+            refresh_token: refreshToken 
+        });
+
+        if (refreshError || !refreshData.session) {
+            return res.status(401).json({ error: "Session expired, please log in again." });
         }
 
-        createCookies(refreshData.session!, res);
+        // Set new cookies and use the new tokens going forward
+        createCookies(refreshData.session, res);
+        req.user = refreshData.session.user;
+        req.accessToken = refreshData.session.access_token;
+        req.refreshToken = refreshData.session.refresh_token;
+    } else {
+        req.user = data.user;
+        req.accessToken = accessToken;
+        req.refreshToken = refreshToken;
     }
 
-    req.user = data.user;
-    req.accessToken = accessToken;
-    req.refreshToken = refreshToken;
-
     return next();
-}
+}   

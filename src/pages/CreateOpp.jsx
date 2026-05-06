@@ -1,237 +1,227 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { createListing } from "../lib/listings.ts";
 
-const INITIAL_TAGS = ["Tag #1", "Tag #2", "Tag #3", "Tag #4"];
+const SKILL_OPTIONS = [
+    "Fundraising", "Mentoring", "Graphic Design", "Social Media",
+    "Data Entry", "Bilingual", "Event Planning", "First Aid",
+];
 
-export default function CreateOpportunity() {
-  const navigate = useNavigate();
+export default function CreateOpp({ onClose, onCreated }) {
+    const [form, setForm] = useState({
+        name: "", capacity: "", date: "", duration: "",
+        transport: "", street: "", city: "", state: "",
+        zip_code: "", description: "", needed_skill: "",
+    });
 
-  const [form, setForm] = useState({
-    name: "",
-    volunteerTotal: "",
-    location: "",
-    date: "",
-    time: "",
-    description: "",
-  });
+    const [tags, setTags] = useState([]);
+    const [addingTag, setAddingTag] = useState(false);
+    const [newTagValue, setNewTagValue] = useState("");
+    const [submitting, setSubmitting] = useState(false);
+    const [error, setError] = useState(null);
 
-  const [tags, setTags] = useState(INITIAL_TAGS);
-  const [addingTag, setAddingTag] = useState(false);
-  const [newTagValue, setNewTagValue] = useState("");
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setForm((prev) => ({ ...prev, [name]: value }));
+    };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
+    const handleAddTag = () => {
+        if (addingTag) {
+            if (newTagValue.trim() && !tags.includes(newTagValue.trim())) {
+                setTags((prev) => [...prev, newTagValue.trim()]);
+            }
+            setNewTagValue("");
+            setAddingTag(false);
+        } else {
+            setAddingTag(true);
+        }
+    };
 
-  const handleAddTag = () => {
-    if (addingTag) {
-      if (newTagValue.trim()) {
-        setTags((prev) => [...prev, newTagValue.trim()]);
-      }
-      setNewTagValue("");
-      setAddingTag(false);
-    } else {
-      setAddingTag(true);
-    }
-  };
+    const handleRemoveTag = (index) =>
+        setTags((prev) => prev.filter((_, i) => i !== index));
 
-  const handleRemoveTag = (index) => {
-    setTags((prev) => prev.filter((_, i) => i !== index));
-  };
+    const handlePost = async () => {
+        if (!form.name.trim())   { setError("Opportunity name is required."); return; }
+        if (!form.date)          { setError("Date is required."); return; }
+        if (!form.street.trim() || !form.city.trim() || !form.state.trim() || !form.zip_code.trim()) {
+            setError("Full address is required (street, city, state, zip)."); return;
+        }
+        if (!form.capacity || isNaN(Number(form.capacity)) || Number(form.capacity) < 1) {
+            setError("A valid volunteer total is required."); return;
+        }
 
-  const handlePost = () => {
-    console.log("Posted:", form, tags);
-    alert("Opportunity posted!");
-  };
+        setSubmitting(true);
+        setError(null);
 
-  return (
-    <div className="font-sans min-h-screen bg-page-alt">
+        const res = await createListing(
+            form.name.trim(),
+            form.description.trim(),
+            form.date,
+            form.duration.trim(),
+            Number(form.capacity),
+            tags.join(", "),
+            form.needed_skill.trim() ? [form.needed_skill.trim()] : [],
+            form.transport.trim(),
+            form.street.trim(),
+            form.city.trim(),
+            form.state.trim(),
+            form.zip_code.trim(),
+        );
 
-      {/* Nav */}
-      <nav className="bg-surface flex items-center justify-between px-7 h-nav-sm box-border">
-        <div className="flex items-center gap-3.5">
-          <div className="w-14 h-[52px] rounded-full bg-olive flex items-center justify-center shrink-0">
-            <span className="text-white font-bold text-[13px] tracking-tight">logo</span>
-          </div>
-          <span className="font-bold text-lg text-gray-900 tracking-tight">Website name</span>
-        </div>
-        <button
-          className="bg-olive text-white border-none rounded-full px-7 py-2.5 text-base font-semibold cursor-pointer tracking-tight transition-colors hover:bg-olive-dark"
-          onClick={() => navigate("/login")}
+        setSubmitting(false);
+
+        if (res.type === "error") {
+            console.error("createListing failed:", res.error);
+            setError(res.error.msg || res.error.name || "Failed to create listing.");
+            return;
+        }
+
+        onCreated?.(res.data.listing);
+        onClose?.();
+    };
+
+    return (
+        // Backdrop — click outside to close
+        <div
+            className="fixed inset-0 bg-black/[0.42] z-[200] flex items-center justify-center overflow-y-auto py-8"
+            onClick={(e) => { if (e.target === e.currentTarget) onClose?.(); }}
         >
-          Log out
-        </button>
-      </nav>
+            <div className="bg-white rounded-card w-[90%] max-w-[680px] px-[42px] py-10 shadow-2xl">
 
-      {/* Page header */}
-      <div className="flex items-center justify-between px-9 pt-[22px] pb-3.5 max-w-header mx-auto">
-        <h1 className="text-[30px] font-extrabold text-gray-900 tracking-[-1px] m-0">
-          Create a Volunteering Opportunity!
-        </h1>
-        <button
-          className="bg-surface border-none rounded-full px-7 py-2 text-base font-medium cursor-pointer text-gray-900 transition-colors hover:bg-surface-dark"
-          onClick={() => navigate("/organization_dashboard")}
-        >
-          Back
-        </button>
-      </div>
+                <h2 className="text-2xl font-bold mb-6">Create a Volunteering Opportunity</h2>
 
-      {/* Card wrap */}
-      <div className="bg-surface rounded-card px-3.5 pt-3.5 pb-5 max-w-[900px] mx-auto mb-12">
-        <div className="bg-white rounded-inner px-9 pt-8 pb-7">
+                <div className="flex flex-col gap-4">
 
-          {/* Row 1: Name | Date */}
-          <div className="grid grid-cols-2 gap-x-[60px] mb-[18px]">
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[15px] font-medium text-gray-900 tracking-tight mb-1" htmlFor="name">
-                Opportunity Name:
-              </label>
-              <input
-                id="name"
-                name="name"
-                value={form.name}
-                onChange={handleChange}
-                placeholder="Opportunity name"
-                className="w-full bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none font-sans tracking-tight"
-              />
+                    {/* Row 1: Name | Date */}
+                    <div className="grid grid-cols-2 gap-x-6">
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-[15px] font-medium">Opportunity Name *</label>
+                            <input name="name" value={form.name} onChange={handleChange}
+                                placeholder="e.g. Community Cleanup"
+                                className="bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none w-full" />
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-[15px] font-medium">Date *</label>
+                            <input name="date" type="date" value={form.date} onChange={handleChange}
+                                className="bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none w-full" />
+                        </div>
+                    </div>
+
+                    {/* Row 2: Capacity | Duration */}
+                    <div className="grid grid-cols-2 gap-x-6">
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-[15px] font-medium">Volunteer Total *</label>
+                            <input name="capacity" type="number" min={1} value={form.capacity} onChange={handleChange}
+                                placeholder="25"
+                                className="bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none w-full" />
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-[15px] font-medium">Duration</label>
+                            <input name="duration" value={form.duration} onChange={handleChange}
+                                placeholder="e.g. 3 hours"
+                                className="bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none w-full" />
+                        </div>
+                    </div>
+
+                    {/* Row 3: Transport | Needed Skill */}
+                    <div className="grid grid-cols-2 gap-x-6">
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-[15px] font-medium">Transport</label>
+                            <input name="transport" value={form.transport} onChange={handleChange}
+                                placeholder="e.g. Bus provided"
+                                className="bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none w-full" />
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-[15px] font-medium">Needed Skill</label>
+                            <input name="needed_skill" value={form.needed_skill} onChange={handleChange}
+                                placeholder="e.g. First Aid"
+                                className="bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none w-full" />
+                        </div>
+                    </div>
+
+                    {/* Row 4: Street | City */}
+                    <div className="grid grid-cols-2 gap-x-6">
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-[15px] font-medium">Street *</label>
+                            <input name="street" value={form.street} onChange={handleChange}
+                                placeholder="123 Main St"
+                                className="bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none w-full" />
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-[15px] font-medium">City *</label>
+                            <input name="city" value={form.city} onChange={handleChange}
+                                placeholder="Amherst"
+                                className="bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none w-full" />
+                        </div>
+                    </div>
+
+                    {/* Row 5: State | Zip */}
+                    <div className="grid grid-cols-2 gap-x-6">
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-[15px] font-medium">State *</label>
+                            <input name="state" value={form.state} onChange={handleChange}
+                                placeholder="MA"
+                                className="bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none w-full" />
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-[15px] font-medium">Zip Code *</label>
+                            <input name="zip_code" value={form.zip_code} onChange={handleChange}
+                                placeholder="01002"
+                                className="bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none w-full" />
+                        </div>
+                    </div>
+
+                    {/* Description */}
+                    <div className="flex flex-col gap-1.5">
+                        <label className="text-[15px] font-medium">Description</label>
+                        <textarea name="description" value={form.description} onChange={handleChange}
+                            rows={4} placeholder="Describe the opportunity…"
+                            className="bg-surface border-none rounded-[16px] px-[18px] py-3 text-[15px] text-gray-900 outline-none w-full resize-y leading-[1.55]" />
+                    </div>
+
+                    {/* Tags */}
+                    <div className="flex flex-col gap-1.5">
+                        <label className="text-[15px] font-medium">Tags / Categories</label>
+                        <div className="flex flex-wrap gap-2 items-center">
+                            {tags.map((tag, i) => (
+                                <span key={i} onClick={() => handleRemoveTag(i)} title="Click to remove"
+                                    className="bg-badge text-white rounded-full px-3.5 py-1.5 text-sm font-medium cursor-pointer select-none transition-colors hover:opacity-80">
+                                    {tag}
+                                </span>
+                            ))}
+                            {addingTag && (
+                                <input autoFocus value={newTagValue}
+                                    onChange={(e) => setNewTagValue(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") handleAddTag();
+                                        if (e.key === "Escape") { setAddingTag(false); setNewTagValue(""); }
+                                    }}
+                                    placeholder="Tag name"
+                                    className="bg-surface border-none rounded-full px-3.5 py-1.5 text-sm w-[110px] outline-none" />
+                            )}
+                            <button onClick={handleAddTag}
+                                className="bg-surface border-none rounded-full px-4 py-1.5 text-sm cursor-pointer text-gray-900 transition-colors hover:bg-surface-dark">
+                                {addingTag ? "✓ Add" : "+ Tag"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {error && <p className="mt-3 text-sm text-[#bd0303]">{error}</p>}
+
+                {/* Footer buttons */}
+                <div className="flex gap-3 mt-7 justify-end">
+                    <button
+                        className="bg-surface border-none rounded-full px-7 py-3 text-[15px] font-medium cursor-pointer transition-colors hover:bg-surface-dark"
+                        onClick={onClose} disabled={submitting}>
+                        Cancel
+                    </button>
+                    <button
+                        className="bg-primary text-white border-none rounded-full px-7 py-3 text-[15px] font-medium cursor-pointer transition-colors hover:bg-primary-dark disabled:opacity-50"
+                        onClick={handlePost} disabled={submitting}>
+                        {submitting ? "Posting…" : "Post Event"}
+                    </button>
+                </div>
             </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[15px] font-medium text-gray-900 tracking-tight mb-1" htmlFor="date">
-                Date
-              </label>
-              <input
-                id="date"
-                name="date"
-                type="date"
-                value={form.date}
-                onChange={handleChange}
-                className="w-full bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none font-sans tracking-tight"
-              />
-            </div>
-          </div>
-
-          {/* Row 2: Volunteer Total | Time */}
-          <div className="grid grid-cols-2 gap-x-[60px] mb-[18px]">
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[15px] font-medium text-gray-900 tracking-tight mb-1" htmlFor="volunteerTotal">
-                Volunteer Total:
-              </label>
-              <input
-                id="volunteerTotal"
-                name="volunteerTotal"
-                value={form.volunteerTotal}
-                onChange={handleChange}
-                placeholder="25"
-                className="w-full bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none font-sans tracking-tight"
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[15px] font-medium text-gray-900 tracking-tight mb-1" htmlFor="time">
-                Time
-              </label>
-              <input
-                id="time"
-                name="time"
-                type="time"
-                value={form.time}
-                onChange={handleChange}
-                className="w-full bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none font-sans tracking-tight"
-              />
-            </div>
-          </div>
-
-          {/* Row 3: Location (left only) */}
-          <div className="grid grid-cols-2 gap-x-[60px] mb-[18px]">
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[15px] font-medium text-gray-900 tracking-tight mb-1" htmlFor="location">
-                Location
-              </label>
-              <input
-                id="location"
-                name="location"
-                value={form.location}
-                onChange={handleChange}
-                placeholder="Amherst, MA"
-                className="w-full bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none font-sans tracking-tight"
-              />
-            </div>
-            <div /> {/* spacer */}
-          </div>
-
-          {/* Description */}
-          <div className="mt-2">
-            <label className="text-[15px] font-medium text-gray-900 tracking-tight mb-1 block" htmlFor="description">
-              Description
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              value={form.description}
-              onChange={handleChange}
-              rows={5}
-              placeholder="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-              className="w-full bg-surface border-none rounded-[20px] px-[18px] py-3 text-[15px] text-gray-900 outline-none font-sans tracking-tight leading-[1.55] resize-y"
-            />
-          </div>
-
-          {/* Tags + Post button */}
-          <div className="mt-6 flex items-end justify-between flex-wrap gap-4">
-            {/* Tags */}
-            <div>
-              <label className="text-[15px] font-medium text-gray-900 tracking-tight mb-1 block">Tags</label>
-              <div className="flex flex-wrap gap-2 items-center mt-1.5">
-                {tags.map((tag, i) => (
-                  <span
-                    key={i}
-                    onClick={() => handleRemoveTag(i)}
-                    title="Click to remove"
-                    className="bg-olive-medium text-white rounded-full px-[18px] py-[5px] text-sm font-medium cursor-pointer select-none transition-colors hover:bg-olive-light"
-                  >
-                    {tag}
-                  </span>
-                ))}
-
-                {addingTag && (
-                  <input
-                    autoFocus
-                    value={newTagValue}
-                    onChange={(e) => setNewTagValue(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") handleAddTag();
-                      if (e.key === "Escape") {
-                        setAddingTag(false);
-                        setNewTagValue("");
-                      }
-                    }}
-                    placeholder="Tag name"
-                    className="rounded-full border border-[#bbb] px-3.5 py-1 text-sm w-[110px] outline-none font-sans"
-                  />
-                )}
-
-                <button
-                  onClick={handleAddTag}
-                  className="bg-surface border-none rounded-full px-[18px] py-[5px] text-sm font-medium cursor-pointer text-gray-900 transition-colors hover:bg-surface-dark font-sans"
-                >
-                  {addingTag ? "✓ Add" : "+ Tag"}
-                </button>
-              </div>
-            </div>
-
-            {/* Post Event */}
-            <button
-              onClick={() => {
-                handlePost();
-                navigate("/organization_dashboard");
-              }}
-              className="bg-olive text-white border-none rounded-full px-8 py-3 text-base font-bold cursor-pointer tracking-tight transition-colors hover:bg-olive-dark whitespace-nowrap shrink-0"
-            >
-              Post Event
-            </button>
-          </div>
-
         </div>
-      </div>
-    </div>
-  );
+    );
 }

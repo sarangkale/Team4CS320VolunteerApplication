@@ -11,6 +11,8 @@ import SignupPage from './pages/signup.tsx'
 import VolunteerDashboard from './pages/volunteer_dashboard_events.jsx'
 import VolunteerProfile from './pages/volunteer_dashboard_profile.jsx'
 import VolunteerActivity from './pages/volunteer_dashboard_activity.jsx'
+import OrgViewApplicant from './pages/OrgViewApplicant.jsx'
+import CreateOpp from './pages/CreateOpp.jsx'
 
 createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
@@ -25,6 +27,8 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/volunteer_dashboard/events" element = {<VolunteerDashboard />} />
             <Route path="/volunteer_dashboard/profile" element = {<VolunteerProfile />} />
             <Route path="/volunteer_dashboard/activity" element = {<VolunteerActivity />} />
+            <Route path="/create_opportunity" element = {<CreateOpp />} />
+            <Route path="/organization_dashboard/view_applicant/:listingId" element={<OrgViewApplicant />} />
         </Routes>
     </BrowserRouter>,
 )

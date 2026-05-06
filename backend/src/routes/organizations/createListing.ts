@@ -29,8 +29,9 @@ export type ListingData = {
 
 export default async function createListing(req: express.Request, res: express.Response) {
     const validation = bodyHasEntries(
-        ["name", "capacity", "description", "listing_date", "duration", "categories", "street", "city", "state", "zip_code", "needed_skill", "transport"]
-        , req.body, res);
+        ["name", "capacity", "listing_date", "street", "city", "state", "zip_code"],
+        req.body, res
+    );
 
     if (validation) {
         return validation;
@@ -60,13 +61,13 @@ export default async function createListing(req: express.Request, res: express.R
 
     const profile = accountResult.data.profile as OrganizationProfile;
 
-    const coords = await geocodeAddress(street, city, state, zip_code);
+    /* const coords = await geocodeAddress(street, city, state, zip_code);
 
     if (!coords) {
         return res.status(500).json({ error: "Error while calculating longitude and latitude coordinates" })
     }
 
-    const { latitude, longitude } = coords;
+    const { latitude, longitude } = coords; */
 
     const listing: ListingData = {
         org_id: profile.org_id,
@@ -83,8 +84,8 @@ export default async function createListing(req: express.Request, res: express.R
         city,
         state,
         zip_code,
-        latitude,
-        longitude,
+        // latitude,
+        // longitude,
     };
 
     const { data: creationData, error: creationError } = await supabase.from("listing").insert(listing).select("listing_id").single();
