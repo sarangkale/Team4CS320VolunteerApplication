@@ -5,7 +5,7 @@ const INITIAL_SKILLS = ["React", "Design", "Python", "Writing"];
 
 export default function VolunteerDashboard() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("profile");
+  const [activeTab, _setActiveTab] = useState("profile");
   const [overlay, setOverlay] = useState(null);
   const [skills, setSkills] = useState(INITIAL_SKILLS);
   const [skillInput, setSkillInput] = useState("");

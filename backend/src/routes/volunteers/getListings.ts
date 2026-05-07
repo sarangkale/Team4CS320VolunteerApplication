@@ -1,5 +1,5 @@
 import express from "express";
-import { createSupabaseClientNoAuth } from "../authRouting.ts";
+import { createSupabaseClient } from "../authRouting.ts";
 import { bodyHasEntries } from "../../utils.ts";
 import { type ListingFilters } from "../../../../src/lib/listings.ts"
 
@@ -10,18 +10,22 @@ export default async function getListings(req: express.Request, res: express.Res
         return validation;
     }
 
-    const { range_start, range_end, filters: raw_filters } = req.body;
+    const { range_start, range_end, filters } = req.body as { range_start: string, range_end: string, filters: ListingFilters };
 
-    const filters = raw_filters as ListingFilters;
-
-    const client = createSupabaseClientNoAuth();
-    let query = client.from("listing").select("*").range(range_start, range_end);
+    const { accessToken, refreshToken } = req;
+    if (!accessToken || !refreshToken) {
+        return res.status(500).json({error: "No auth tokens found"});
+    }
+    const client = await  createSupabaseClient(accessToken, refreshToken);
+    let query = client.from("listing").select("*").range(Number(range_start), Number(range_end));
 
     if (filters?.searchTerm?.trim()) {
         const term = filters.searchTerm.trim();
-        query = query.or(
-            `listing_name.ilike.%${term}%,org_name.ilike.%${term}%,description.ilike.%${term}%`
-        );
+        if (term.length > 0) {
+            query = query.or(
+                `listing_name.ilike.${term}`
+            );
+        }
     }
 
     if (filters?.categories && filters.categories.length > 0) {

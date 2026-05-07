@@ -1,7 +1,7 @@
 import express from "express";
-import {type User} from "@supabase/supabase-js";
+import { type User } from "@supabase/supabase-js";
 import { createSupabaseClientNoAuth } from "../routes/authRouting.ts";
-import { createCookies } from "../utils.ts";
+import { clearCookies, createCookies } from "../utils.ts";
 
 declare global {
     namespace Express {
@@ -14,8 +14,8 @@ declare global {
 }
 
 export default async function authMiddleware(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const accessToken = req.cookies["supabase-access-token"];
-    const refreshToken = req.cookies["supabase-refresh-token"];
+    let accessToken = req.cookies["supabase-access-token"];
+    let refreshToken = req.cookies["supabase-refresh-token"];
 
     if (!accessToken || !refreshToken) {
         return res.status(401).json({ error: "No token found" });
@@ -32,19 +32,17 @@ export default async function authMiddleware(req: express.Request, res: express.
         });
 
         if (refreshError || !refreshData.session) {
-            return res.status(401).json({ error: "Session expired, please log in again." });
+            return res.status(401).json({refreshError});
         }
 
         // Set new cookies and use the new tokens going forward
-        createCookies(refreshData.session, res);
-        req.user = refreshData.session.user;
-        req.accessToken = refreshData.session.access_token;
-        req.refreshToken = refreshData.session.refresh_token;
-    } else {
-        req.user = data.user;
-        req.accessToken = accessToken;
-        req.refreshToken = refreshToken;
+        createCookies(refreshData.session!, res);
+        refreshToken = refreshData.session?.refresh_token;
+        accessToken = refreshData.session?.access_token;
     }
+    req.user = data.user!;
+    req.accessToken = accessToken;
+    req.refreshToken = refreshToken;
 
     return next();
 }   
