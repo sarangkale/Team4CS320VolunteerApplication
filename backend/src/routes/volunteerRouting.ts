@@ -11,7 +11,12 @@ router.use(authMiddleware);
 router.post("/listings", getListings);
 router.get("/profile", async (req, res) => {
     const supabase = await createSupabaseClient(req.accessToken!, req.refreshToken!);
-    return res.json(getAccountProfile("User", supabase));
+    const profileRes = await getAccountProfile("User", supabase);
+    if (profileRes.type == "success") {
+        return res.json(profileRes.data);
+    } else {
+        return res.status(500).json(profileRes.error);
+    }
 });
 router.post("/apply_to_listing", applyToListing);
 

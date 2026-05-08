@@ -77,17 +77,29 @@ describe("POST /volunteer/listings", () => {
 })
 
 describe("GET /organization/profile", () => {
-    it("Retrieves the organization profile", () => {
-        return request.post("/auth/login").send({
+    it("Retrieves the organization profile", async () => {
+        await request.post("/auth/login").send({
             email: "orgmail@mail.com",
             password: "123456",
-        }).then(() => request
+        });
+        const res = await request
             .get("/organization/profile")
-            .expect(200)
-            .then(res => {
-                expect(res.body.role).toBe("Organization");
-                expect(res.body.profile.email).toBe("orgmail@mail.com");
-            })
-       )
+            .expect(200);
+        expect(res.body.role).toBe("Organization");
+        expect(res.body.profile.email).toBe("orgmail@mail.com");
+    })
+})
+
+describe("GET /volunteer/profile", () => {
+    it("Retrieves the organization profile", async () => {
+        await request.post("/auth/login").send({
+            email: "some@email.com",
+            password: "123456",
+        });
+        const res = await request
+            .get("/volunteer/profile")
+            .expect(200);
+        expect(res.body.role).toBe("User");
+        expect(res.body.profile.email).toBe("some@email.com");
     })
 })
