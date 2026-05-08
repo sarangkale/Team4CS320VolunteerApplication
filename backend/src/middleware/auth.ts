@@ -26,19 +26,23 @@ export default async function authMiddleware(req: express.Request, res: express.
     const { data, error } = await supabase.auth.getUser(accessToken);
 
     if (error) {
-        const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession({ refresh_token: refreshToken });
-        if (refreshError) {
-            return res.status(401).json(refreshError);
+        // Access token expired — try to refresh
+        const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession({ 
+            refresh_token: refreshToken 
+        });
+
+        if (refreshError || !refreshData.session) {
+            return res.status(401).json({refreshError});
         }
 
+        // Set new cookies and use the new tokens going forward
         createCookies(refreshData.session!, res);
         refreshToken = refreshData.session?.refresh_token;
         accessToken = refreshData.session?.access_token;
     }
-
     req.user = data.user!;
     req.accessToken = accessToken;
     req.refreshToken = refreshToken;
 
     return next();
-}
+}   

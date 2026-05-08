@@ -5,8 +5,9 @@ import type { ListingData, OrganizationProfile } from "../../../../shared/types.
 
 export default async function createListing(req: express.Request, res: express.Response) {
     const validation = bodyHasEntries(
-        ["name", "capacity", "description", "listing_date", "duration", "categories", "street", "city", "state", "zip_code", "needed_skill", "transport"]
-        , req.body, res);
+        ["name", "capacity", "listing_date", "street", "city", "state", "zip_code"],
+        req.body, res
+    );
 
     if (validation) {
         return validation;

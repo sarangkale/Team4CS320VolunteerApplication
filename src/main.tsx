@@ -9,6 +9,7 @@ import VolunteerDashboard from './pages/volunteer_dashboard_events.tsx'
 import VolunteerProfile from './pages/volunteer_dashboard_profile.tsx'
 import VolunteerActivity from './pages/volunteer_dashboard_activity.tsx'
 
+
 createRoot(document.getElementById('root')!).render(
     <BrowserRouter>
         <Routes>
