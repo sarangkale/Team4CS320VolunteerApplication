@@ -1,25 +1,29 @@
 import { useState } from "react";
 import { createListing } from "../lib/listings.ts";
+import type { ListingData } from "../../shared/types.ts";
 
-const SKILL_OPTIONS = [
+/* const SKILL_OPTIONS = [
     "Fundraising", "Mentoring", "Graphic Design", "Social Media",
     "Data Entry", "Bilingual", "Event Planning", "First Aid",
-];
+]; */
 
-export default function CreateOpp({ onClose, onCreated }) {
+export default function CreateOpp({ onClose, onCreated }: {
+    onClose: () => void,
+    onCreated: (listing: ListingData) => void,
+}) {
     const [form, setForm] = useState({
         name: "", capacity: "", date: "", duration: "",
         transport: "", street: "", city: "", state: "",
         zip_code: "", description: "", needed_skill: "",
     });
 
-    const [tags, setTags] = useState([]);
+    const [tags, setTags] = useState<string[]>([]);
     const [addingTag, setAddingTag] = useState(false);
     const [newTagValue, setNewTagValue] = useState("");
     const [submitting, setSubmitting] = useState(false);
-    const [error, setError] = useState(null);
+    const [error, setError] = useState<string | null>(null);
 
-    const handleChange = (e) => {
+    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement, HTMLTextAreaElement | HTMLInputElement>) => {
         const { name, value } = e.target;
         setForm((prev) => ({ ...prev, [name]: value }));
     };
@@ -36,7 +40,7 @@ export default function CreateOpp({ onClose, onCreated }) {
         }
     };
 
-    const handleRemoveTag = (index) =>
+    const handleRemoveTag = (index: number) =>
         setTags((prev) => prev.filter((_, i) => i !== index));
 
     const handlePost = async () => {

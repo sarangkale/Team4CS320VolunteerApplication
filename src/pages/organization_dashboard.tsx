@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import { awardHours, createListing, editListing, getListingApplicants, getOwnedListings, removeApplicant } from "../lib/listings.ts";
 import type { ListingData, OrganizationProfile, UserProfile } from "../../shared/types.ts";
 import { updateOrganizationProfile } from "../lib/profiles.ts";
+import CreateOpp from "./CreateOpp.jsx";
 
 // ── Status Badge ─────────────────────────────────────────────
 function StatusBadge({ status }: { status: boolean }) {
@@ -227,68 +228,13 @@ function EventDetails({ event, onClose, onSave }: {
     );
 }
 
-function CreateEvent({ onClose, onCreate }: {
-    onClose: () => void,
-    onCreate: (listing: ListingData) => void
-}) {
-    const [listing, setListing] = useState<ListingData>({} as ListingData);
-    return (<>
-        <input type="text" className="text-2xl font-bold mb-4" value={listing.listing_name || ""} onChange={e => setListing(prev => ({ ...prev, listing_name: e.target.value }))} />
-        <div className="grid grid-cols-2 gap-x-[18px] gap-y-[14px] mb-5">
-            <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5">
-                <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">Capacity</span>
-                <input type="number" className="text-[15px] text-gray-900 leading-[1.45]" value={listing.capacity || 0} onChange={e => setListing(prev => ({ ...prev, capacity: Math.max(Number(e.target.value), prev.accepted_applicants ? prev.accepted_applicants.length : 0) }))} />
-            </div>
-            <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5">
-                <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">Date &amp; Time</span>
-                <input type="date" className="text-[15px] text-gray-900 leading-[1.45]" value={listing.listing_date || ""} onChange={e => setListing(prev => ({ ...prev, listing_date: e.target.value }))} />
-            </div>
-            <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5">
-                <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">Location</span>
-                <table>
-                    <tbody>
-                        <tr>
-                            {
-                                ["street", "city", "state", "zip_code"].map(key => {
-                                    return <td key={key}><input className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]" key={key} type="text" value={(listing as any)[key] || ""} onChange={e => setListing(prev => ({ ...prev, [key]: e.target.value }))} /></td>
-                                })
-                            }
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5">
-                <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">Category</span>
-                <input type="text" className="text-[15px] text-gray-900 leading-[1.45]" value={listing.categories || ""} onChange={e => setListing(prev => ({ ...prev, categories: e.target.value }))} />
-            </div>
-            <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5">
-                <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">Transport</span>
-                <textarea value={listing.transport || ""} className="text-[15px] text-gray-900 leading-[1.45]" onChange={e => setListing(prev => ({ ...prev, transport: e.target.value }))} />
-            </div>
-            <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5">
-                <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">Duration</span>
-                <input type="number" value={listing.duration || ""} className="text-[15px] text-gray-900 leading-[1.45]" onChange={e => setListing(prev => ({ ...prev, duration: e.target.value }))} />
-            </div>
-            <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5" style={{ gridColumn: "1 / -1" }}>
-                <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">Description</span>
-                <textarea value={listing.description || ""} className="text-[15px] text-gray-900 leading-[1.45]" onChange={e => setListing(prev => ({ ...prev, description: e.target.value }))} />
-            </div>
-        </div>
-
-        <div className="flex justify-end flex-wrap gap-2.5">
-            <button className="bg-surface text-gray-900 border-none rounded-full px-5 py-3 text-[15px] font-medium cursor-pointer transition-colors hover:bg-surface-dark" onClick={onClose}>Close</button>
-            <button className="bg-surface text-gray-900 border-none rounded-full px-5 py-3 text-[15px] font-medium cursor-pointer transition-colors hover:bg-surface-dark" onClick={() => { onCreate(listing) }}>Create Event</button>
-        </div>
-    </>);
-}
-
 // ── Main Component ───────────────────────────────────────────
 export default function OrganizationDashboard() {
     const [activeTab, setActiveTab] = useState("events");
     const [showCreateEvent, setShowCreateEvent] = useState(false);
     const [expandedEventIndex, setExpandedEventIndex] = useState<number | null>(null);
     const [events, setEvents] = useState<ListingData[]>([]);
-    const [form, setForm] = useState<OrganizationProfile | null>();
+    const [orgProfile, setOrgProfile] = useState<OrganizationProfile | null>();
 
     useEffect(() => {
         getOwnedListings().then(res => {
@@ -299,34 +245,18 @@ export default function OrganizationDashboard() {
 
         getAccountProfile().then(res => {
             if (res.type == "success") {
-                setForm(res.data.profile as OrganizationProfile)
+                setOrgProfile(res.data.profile as OrganizationProfile)
             }
         })
     }, [])
 
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement, HTMLInputElement | HTMLTextAreaElement>) =>
-        setForm((prev) => ({ ...prev!, [e.target.name]: e.target.value }));
+        setOrgProfile((prev) => ({ ...prev!, [e.target.name]: e.target.value }));
 
     const navigate = useNavigate();
 
     return (
-        <>
-            <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap');
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'DM Sans', sans-serif; background: #ebebeb; min-height: 100vh; color: #1a1a1a; }
-        input, textarea, button { font-family: 'DM Sans', sans-serif; }
-        input:focus, textarea:focus { outline: none; box-shadow: 0 0 0 2px #8E9B77; background: #e2e2e2 !important; }
-        .navBtnLogout:hover { background: #3a4c0d !important; }
-        .tabInactive:hover { background: rgba(255,255,255,0.55) !important; }
-        .skillAddBtn:hover { background: #c6c6c6 !important; }
-        .removeSkillBtn:hover { opacity: 1 !important; }
-        .overlayCloseBtn:hover { background: #3a4c0d !important; }
-        .createEventBtn:hover { background: #c2c2c2 !important; }
-        .eventCardClickable { cursor: pointer; transition: background 0.2s, transform 0.15s; }
-        .eventCardClickable:hover { background: #cdcdcd !important; transform: translateY(-1px); }
-      `}</style>
-
+        <div className="font-sans bg-page min-h-screen text-gray-900">
             {/* ── NAV ── */}
             <nav className="bg-surface flex items-center px-8 h-[88px] gap-3.5 sticky top-0 z-[100] shadow-[0_2px_8px_rgba(0,0,0,0.07)]">
                 <div className="bg-primary text-white rounded-full w-[82px] h-[70px] flex items-center justify-center font-bold text-lg shrink-0">logo</div>
@@ -344,7 +274,9 @@ export default function OrganizationDashboard() {
 
             {/* ── MAIN ── */}
             <div className="max-w-[1140px] mx-auto px-6 pt-8 pb-[60px]">
-                <h1 className="text-[40px] font-bold mb-[22px]">Hello Organization!</h1>
+                <h1 className="text-[40px] font-bold mb-[22px]">
+                    {orgProfile === null ? "Hello!" : `Hello, ${orgProfile?.org_name || "Organization"}!`}
+                </h1>
 
                 {/* ── TABS ROW ── */}
                 <div className="flex items-center justify-between mb-[26px]">
@@ -372,7 +304,7 @@ export default function OrganizationDashboard() {
                     ) : (
                         <button
                             className="bg-surface border-none rounded-full px-7 py-3 text-base font-medium cursor-pointer transition-colors hover:bg-surface-dark"
-                            onClick={async () => updateOrganizationProfile(form?.bio || "", form?.org_name || "", form?.website || "", form?.org_id || "")}
+                            onClick={async () => updateOrganizationProfile(orgProfile?.bio || "", orgProfile?.org_name || "", orgProfile?.website || "", orgProfile?.org_id || "")}
                         >
                             Update Profile
                         </button>
@@ -389,15 +321,15 @@ export default function OrganizationDashboard() {
                             <div className="grid grid-cols-2 gap-x-20 gap-y-5">
                                 <div className="flex flex-col gap-2">
                                     <label className="text-[15px] font-normal">Organization Name:</label>
-                                    <input className="bg-surface border-none rounded-md px-3 py-[9px] text-[15px] text-gray-900 w-full focus:outline-none focus:ring-2 focus:ring-badge transition-shadow" type="text" name="org_name" value={form!.org_name!} onChange={handleFormChange} />
+                                    <input className="bg-surface border-none rounded-md px-3 py-[9px] text-[15px] text-gray-900 w-full focus:outline-none focus:ring-2 focus:ring-badge transition-shadow" type="text" name="org_name" value={orgProfile!.org_name!} onChange={handleFormChange} />
                                 </div>
                                 <div className="flex flex-col gap-2">
                                     <label className="text-[15px] font-normal">Website</label>
-                                    <input className="bg-surface border-none rounded-md px-3 py-[9px] text-[15px] text-gray-900 w-full focus:outline-none focus:ring-2 focus:ring-badge transition-shadow" type="text" name="website" value={form!.website!} onChange={handleFormChange} />
+                                    <input className="bg-surface border-none rounded-md px-3 py-[9px] text-[15px] text-gray-900 w-full focus:outline-none focus:ring-2 focus:ring-badge transition-shadow" type="text" name="website" value={orgProfile!.website!} onChange={handleFormChange} />
                                 </div>
                                 <div className="flex flex-col gap-2" style={{ gridColumn: "1 / -1" }}>
                                     <label className="text-[15px] font-normal">Bio</label>
-                                    <textarea className="bg-surface border-none rounded-md px-3 py-[9px] text-[15px] text-gray-900 w-full focus:outline-none focus:ring-2 focus:ring-badge transition-shadow" name="bio" value={form!.bio!} onChange={handleFormChange} />
+                                    <textarea className="bg-surface border-none rounded-md px-3 py-[9px] text-[15px] text-gray-900 w-full focus:outline-none focus:ring-2 focus:ring-badge transition-shadow" name="bio" value={orgProfile!.bio!} onChange={handleFormChange} />
                                 </div>
                             </div>
                         </div>
@@ -428,8 +360,9 @@ export default function OrganizationDashboard() {
 
             {/* ── CREATE EVENT MODAL ── */}
             {showCreateEvent && (
-                <Modal onClose={() => setShowCreateEvent(false)}>
-                    <CreateEvent onCreate={async (listing) => {
+                <CreateOpp
+                    onClose={() => setShowCreateEvent(false)}
+                    onCreated={async (listing) => {
                         setEvents(prev => [...prev, listing])
                         await createListing(
                             listing.listing_name!,
@@ -446,9 +379,7 @@ export default function OrganizationDashboard() {
                             listing.zip_code!
                         )
                     }}
-                        onClose={() => setShowCreateEvent(false)}
-                    />
-                </Modal>
+                />
             )}
 
             {/* ── EVENT DETAILS MODAL ── */}
@@ -464,6 +395,6 @@ export default function OrganizationDashboard() {
                     />
                 </Modal>
             )}
-        </>
+        </div>
     );
 }

@@ -37,13 +37,13 @@ export default async function createListing(req: express.Request, res: express.R
 
     const profile = accountResult.data.profile as OrganizationProfile;
 
-    /* const coords = await geocodeAddress(street, city, state, zip_code);
+    const coords = await geocodeAddress(street, city, state, zip_code);
 
     if (typeof coords === "string") {
         return res.status(500).json({ error: "Error while calculating longitude and latitude coordinates", message: coords })
     }
 
-    const { latitude, longitude } = coords; */
+    const { latitude, longitude } = coords;
 
     const listing: ListingData = {
         org_id: profile.org_id,
@@ -60,8 +60,8 @@ export default async function createListing(req: express.Request, res: express.R
         city,
         state,
         zip_code,
-        // latitude,
-        // longitude,
+        latitude,
+        longitude,
     };
 
     const { data: creationData, error: creationError } = await supabase.from("listing").insert(listing).select("listing_id").single();
