@@ -50,7 +50,7 @@ export async function retrieveListings(
     rangeEnd: number,
     filters?: ListingFilters
 ): Promise<Result<ListingData[], RequestError>> {
-    const res = await axios_get<ListingData[]>("/volunteer/listings", { range_start: rangeStart, range_end: rangeEnd, filters });
+    const res = await axios_post<ListingData[]>("/volunteer/listings", { range_start: rangeStart, range_end: rangeEnd, filters: filters ?? {} });
     if (res.type === "success") {
         return success(res.data.data);
     } else {
