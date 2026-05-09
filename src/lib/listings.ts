@@ -142,3 +142,16 @@ export async function awardHours(applicantId: string, hours: number): Promise<Re
         return failure(res.error);
     }
 }
+
+export async function deleteListing(listingId: string): Promise<Result<null, RequestError>> {
+
+    const res = await axios_post<null>("/organization/delete_listing", {
+        listing_id: listingId,
+    });
+
+    if (res.type === "success") {
+        return success(null);
+    } else {
+        return failure(res.error);
+    }
+}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { getAccountProfile, logout } from "../auth/auth.ts";
 import { useNavigate } from "react-router";
-import { awardHours, createListing, editListing, getListingApplicants, getOwnedListings, removeApplicant } from "../lib/listings.ts";
+import { awardHours, createListing, deleteListing, editListing, getListingApplicants, getOwnedListings, removeApplicant } from "../lib/listings.ts";
 import type { ListingData, OrganizationProfile, UserProfile } from "../../shared/types.ts";
 import { updateOrganizationProfile } from "../lib/profiles.ts";
 import CreateOpp from "./CreateOpp.jsx";
@@ -31,7 +31,9 @@ function EventCard({ event, onOpen }: { event: ListingData, onOpen: () => void }
                         <line x1="8" y1="2" x2="8" y2="6" />
                         <line x1="16" y1="2" x2="16" y2="6" />
                     </svg>
-                    <span className="text-base font-medium text-[#222]">{event.listing_date}</span>
+                    <span className="text-base font-medium text-[#222]">{
+                        (new Date(event.listing_date!.split("-")[0].length > 4 ? event.listing_date!.slice(event.listing_date!.split("-")[0].length - 4) : event.listing_date!)).toLocaleString()
+                    }</span>
                 </div>
             </div>
             <div className="flex items-start justify-between gap-4">
@@ -147,10 +149,11 @@ function Modal({
 }
 
 // ── Event Detail Modal ──────────────────────────────────────
-function EventDetails({ event, onClose, onSave }: {
+function EventDetails({ event, onClose, onSave, onDelete }: {
     event: ListingData,
     onClose: () => void,
-    onSave: (listing: ListingData) => void
+    onSave: (listing: ListingData) => void,
+    onDelete: () => void,
 }) {
     if (!event) return null;
 
@@ -223,6 +226,7 @@ function EventDetails({ event, onClose, onSave }: {
                         : <button className="bg-primary text-white border-none rounded-full px-5 py-3 text-[15px] font-medium cursor-pointer transition-colors hover:brightness-110" onClick={() => setShowApplicants(true)}>View Applicants</button>
 
                 }
+                <button className="bg-[#BD0303] text-white border-none rounded-full px-5 py-3 text-[15px] font-medium cursor-pointer transition-colors hover:brightness-110" onClick={() => onDelete()}>Delete Listing</button>
             </div>
         </>
     );
@@ -340,7 +344,7 @@ export default function OrganizationDashboard() {
                 {activeTab === "events" && (
                     <div className="bg-surface rounded-card p-3">
                         <div className="bg-white rounded-inner px-8 pt-7 pb-8">
-                            <div className="text-[22px] font-semibold mb-1">Volunteer Events</div>
+                            <div className="text-[22px] font-semibold mb-1">Volunteer Events: {events.length}</div>
                             <div className="text-sm font-light text-[#666] mb-[26px]">Manage your Events &amp; Volunteers</div>
                             <div className="flex flex-col gap-3.5">
                                 {events.map((event, i) => (
@@ -391,6 +395,11 @@ export default function OrganizationDashboard() {
                         onSave={async (updated) => {
                             setEvents(prev => { prev[expandedEventIndex] = updated; return prev; })
                             await editListing(updated);
+                        }}
+                        onDelete={async () => {
+                            setEvents(prev => prev.filter((_, i) => i != expandedEventIndex));
+                            setExpandedEventIndex(null);
+                            await deleteListing(events[expandedEventIndex].listing_id!);
                         }}
                     />
                 </Modal>
