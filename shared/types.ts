@@ -48,6 +48,16 @@ export type OrganizationProfile = {
     website?: string | null;
 };
 
+export type ApplicationData = {
+    app_id: string;
+    user_id: string;
+    listing_id: string;
+    approved: boolean;
+    submit_time: string;
+    answers?: string[]|null;
+    file_paths?: string[]|null;
+}
+
 export type Account = {
     role: AccountRole,
     profile: UserProfile | OrganizationProfile,
