@@ -38,6 +38,23 @@ export default async function deleteListing(req: express.Request, res: express.R
         }
     }
 
+    const { data: listingApplicants, error: listingApplicantsError } = await supabase.from("listing").select().eq("listing_id", listing_id).single();
+
+    if (listingApplicantsError) {
+        return res.status(500).json(listingApplicantsError);
+    }
+
+    for (const applicant of listingApplicants?.applicants || []) {
+        const { data: applicantData, error: applicantError } = await supabase.from("profiles").select().eq("user_id", applicant).single();
+        if (applicantError) {
+            return res.status(500).json(applicantError);
+        }
+
+        const updatedUpcomingListings = applicantData.upcoming_listings.filter(e => e !== listing_id);
+
+        await supabase.from("profiles").update({upcoming_listings: updatedUpcomingListings}).eq("user_id", applicant);
+    }
+
     await supabase.from("listing").delete().eq("listing_id", listing_id).select();
 
     return res.status(200);

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { getAccountProfile, logout } from "../auth/auth.ts";
 import { useNavigate } from "react-router";
-import { awardHours, createListing, deleteListing, editListing, getListingApplicants, getOwnedListings, removeApplicant } from "../lib/listings.ts";
+import { awardHours, createListing, deleteListing, editListing, finishListing, getListingApplicants, getOwnedListings, removeApplicant } from "../lib/listings.ts";
 import type { ListingData, OrganizationProfile, UserProfile } from "../../shared/types.ts";
 import { updateOrganizationProfile } from "../lib/profiles.ts";
 import CreateOpp from "./CreateOpp.jsx";
@@ -112,7 +112,7 @@ function EventInfo({ edit, listing, setListing }: { edit: boolean, listing: List
             </div>
             <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5">
                 <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">Volunteers</span>
-                <span className="text-[15px] text-gray-900 leading-[1.45]">{listing.accepted_applicants ? listing.accepted_applicants.length : 0}/{listing.capacity ? listing.capacity : 0}</span>
+                <span className="text-[15px] text-gray-900 leading-[1.45]">{listing.applicants ? listing.applicants.length : 0}/{listing.capacity ? listing.capacity : 0}</span>
             </div>
             <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5">
                 <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">Transport</span>
@@ -121,7 +121,7 @@ function EventInfo({ edit, listing, setListing }: { edit: boolean, listing: List
                     : <span className="text-[15px] text-gray-900 leading-[1.45]">{listing.transport}</span>
                 }
             </div>
-            <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5">
+            <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5 col-span-full">
                 <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">Description</span>
                 {edit ?
                     <textarea value={listing.description || ""} onChange={e => setListing(prev => ({ ...prev, description: e.target.value }))} />
@@ -141,7 +141,7 @@ function Modal({
 }) {
     return (
         <div className="fixed inset-0 bg-black/45 flex items-center justify-center z-[300] p-4" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-            <div className="bg-white rounded-card w-[90%] max-w-[620px] px-[34px] py-8 shadow-2xl">
+            <div className="bg-white rounded-card w-[90%] max-w-[50em] px-[34px] py-8 shadow-2xl">
                 {children}
             </div>
         </div>
@@ -149,11 +149,12 @@ function Modal({
 }
 
 // ── Event Detail Modal ──────────────────────────────────────
-function EventDetails({ event, onClose, onSave, onDelete }: {
+function EventDetails({ event, onClose, onSave, onDelete, onFinish }: {
     event: ListingData,
     onClose: () => void,
     onSave: (listing: ListingData) => void,
     onDelete: () => void,
+    onFinish: () => void,
 }) {
     if (!event) return null;
 
@@ -220,6 +221,7 @@ function EventDetails({ event, onClose, onSave, onDelete }: {
                     <button className="bg-surface text-gray-900 border-none rounded-full px-5 py-3 text-[15px] font-medium cursor-pointer transition-colors hover:bg-surface-dark" onClick={() => { setEdit(false); onSave(listing) }}>Save Event</button>
                     : <button className="bg-surface text-gray-900 border-none rounded-full px-5 py-3 text-[15px] font-medium cursor-pointer transition-colors hover:bg-surface-dark" onClick={() => setEdit(true)}>Edit Event</button>)
                 }
+                <button className="bg-primary text-white border-none rounded-full px-5 py-3 text-[15px] font-medium cursor-pointer transition-colors hover:brightness-110" onClick={() => onFinish()}>Finish Listing</button>
                 {
                     showApplicants ?
                         <button className="bg-primary text-white border-none rounded-full px-5 py-3 text-[15px] font-medium cursor-pointer transition-colors hover:brightness-110" onClick={() => setShowApplicants(false)}>View Listing</button>
@@ -400,6 +402,11 @@ export default function OrganizationDashboard() {
                             setEvents(prev => prev.filter((_, i) => i != expandedEventIndex));
                             setExpandedEventIndex(null);
                             await deleteListing(events[expandedEventIndex].listing_id!);
+                        }}
+                        onFinish={async () => {
+                            setEvents(prev => prev.filter((_, i) => i != expandedEventIndex));
+                            setExpandedEventIndex(null);
+                            await finishListing(events[expandedEventIndex].listing_id!);
                         }}
                     />
                 </Modal>

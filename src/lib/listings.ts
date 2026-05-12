@@ -155,3 +155,16 @@ export async function deleteListing(listingId: string): Promise<Result<null, Req
         return failure(res.error);
     }
 }
+
+export async function finishListing(listingId: string): Promise<Result<null, RequestError>> {
+
+    const res = await axios_post<null>("/organization/finish_listing", {
+        listing_id: listingId,
+    });
+
+    if (res.type === "success") {
+        return success(null);
+    } else {
+        return failure(res.error);
+    }
+}
