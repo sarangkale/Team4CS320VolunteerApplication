@@ -168,3 +168,17 @@ export async function finishListing(listingId: string): Promise<Result<null, Req
         return failure(res.error);
     }
 }
+
+export async function getHistoryAndUpcomingListings(): Promise<Result<{ history: ListingData[], upcoming: ListingData[], }, RequestError>> {
+
+    const res = await axios_get<{
+        history: ListingData[],
+        upcoming: ListingData[],
+    }>("/volunteer/history_and_upcoming");
+
+    if (res.type === "success") {
+        return success(res.data.data);
+    } else {
+        return failure(res.error);
+    }
+}

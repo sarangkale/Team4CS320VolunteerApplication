@@ -1,42 +1,36 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import type { ListingData, UserProfile } from "../../shared/types";
+import { getHistoryAndUpcomingListings } from "../lib/listings";
+import { getAccountProfile } from "../auth/auth";
 
-const UPCOMING_EVENTS = [
-    { id: 1, org: "Volunteer Org #1", date: "January 01, 2026   11:30 AM", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", hours: "XX hrs" },
-    { id: 2, org: "Volunteer Org #2", date: "January 01, 2026   11:30 AM", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", hours: "XX hrs" },
-    { id: 3, org: "Volunteer Org #3", date: "January 01, 2026   11:30 AM", description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", hours: "XX hrs" },
-];
-
-const HISTORY_EVENTS = [...UPCOMING_EVENTS];
-const TOTAL_HOURS = "XX";
-
-function EventCard({ event, onOpen }: { event: any, onOpen: (_: any) => void }) {
+function EventCard({ event, onOpen }: { event: ListingData, onOpen: (_: any) => void }) {
     return (
         <div
             className="bg-surface rounded-[15px] px-5 py-4 flex flex-col gap-2.5 cursor-pointer transition-all hover:bg-surface-dark hover:-translate-y-px"
             onClick={() => onOpen(event)}
         >
             <div className="flex items-center justify-between">
-                <span className="text-[18px] font-semibold">{event.org}</span>
-                <span className="text-[17px] font-medium text-[#222]">{event.date}</span>
+                <span className="text-[18px] font-semibold">{event.listing_name || "UNKNOWN"}</span>
+                <span className="text-[17px] font-medium text-[#222]">{(new Date(event.listing_date!)).toLocaleString()}</span>
             </div>
             <div className="flex items-center justify-between gap-4">
                 <span className="text-[15px] text-[#333] flex-1 leading-[1.5]">
                     {event.description}
                 </span>
                 <span className="text-[18px] font-semibold whitespace-nowrap shrink-0">
-                    {event.hours}
+                    {event.duration}
                 </span>
             </div>
         </div>
     );
 }
 
-function EventDetailsModal({ event, onClose }: { event: any, onClose: () => void }) {
+function EventDetailsModal({ event, onClose }: { event: ListingData, onClose: () => void }) {
     if (!event) return null;
 
     // OPTIONAL: split date/time if your string includes both
-    const [datePart, timePart] = event.date?.split("   ") || [event.date, ""];
+    // const [datePart, timePart] = event.date?.split("   ") || [event.date, ""];
 
     return (
         <div
@@ -44,7 +38,7 @@ function EventDetailsModal({ event, onClose }: { event: any, onClose: () => void
             onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
         >
             <div className="bg-white rounded-card w-[90%] max-w-[620px] px-[34px] py-8 shadow-2xl">
-                <h2 className="text-2xl font-bold mb-4">{event.org}</h2>
+                <h2 className="text-2xl font-bold mb-4">{event.listing_name || "UNKNOWN"}</h2>
 
                 <div className="grid grid-cols-2 gap-x-[18px] gap-y-3.5 mb-5">
 
@@ -54,7 +48,7 @@ function EventDetailsModal({ event, onClose }: { event: any, onClose: () => void
                             Date
                         </span>
                         <span className="text-[15px] text-gray-900 leading-[1.45]">
-                            {datePart}
+                            {(new Date(event.listing_date!)).toLocaleString()}
                         </span>
                     </div>
 
@@ -64,7 +58,7 @@ function EventDetailsModal({ event, onClose }: { event: any, onClose: () => void
                             Time
                         </span>
                         <span className="text-[15px] text-gray-900 leading-[1.45]">
-                            {timePart || "TBD"}
+                            {(new Date(event.volunteer_time!)).toTimeString()  || "TBD"}
                         </span>
                     </div>
 
@@ -74,7 +68,7 @@ function EventDetailsModal({ event, onClose }: { event: any, onClose: () => void
                             Location
                         </span>
                         <span className="text-[15px] text-gray-900 leading-[1.45]">
-                            {event.location || "TBD"}
+                            {`${event.street!}, ${event.city!}, ${event.state}, ${event.zip_code}`}
                         </span>
                     </div>
 
@@ -84,7 +78,7 @@ function EventDetailsModal({ event, onClose }: { event: any, onClose: () => void
                             Category
                         </span>
                         <span className="text-[15px] text-gray-900 leading-[1.45]">
-                            {event.category || "General"}
+                            {event.categories || "General"}
                         </span>
                     </div>
 
@@ -104,7 +98,7 @@ function EventDetailsModal({ event, onClose }: { event: any, onClose: () => void
                             Hours
                         </span>
                         <span className="text-[15px] text-gray-900 leading-[1.45]">
-                            {event.hours}
+                            {event.duration}
                         </span>
                     </div>
 
@@ -127,6 +121,25 @@ export default function ActivityDashboard() {
     const navigate = useNavigate();
     const [activeTab, _setActiveTab] = useState("activity");
     const [expandedEvent, setExpandedEvent] = useState(null);
+
+    const [profile, setProfile] = useState<UserProfile | null>(null);
+    const [upcomingEvents, setUpcomingEvents] = useState<ListingData[]>([]);
+    const [historyEvents, setHistoryEvents] = useState<ListingData[]>([]);
+
+    useEffect(() => {
+        getHistoryAndUpcomingListings().then(res => {
+            if (res.type === "success") {
+                setHistoryEvents(res.data.history);
+                setUpcomingEvents(res.data.upcoming);
+            }
+        });
+
+        getAccountProfile().then(res => {
+            if (res.type === "success") {
+                setProfile(res.data.profile as UserProfile);
+            }
+        })
+    }, []);
 
     return (
         <div className="bg-page min-h-screen text-[#1a1a1a] font-sans">
@@ -156,7 +169,7 @@ export default function ActivityDashboard() {
 
             {/* MAIN */}
             <div className="max-w-content mx-auto px-6 pt-8 pb-[60px]">
-                <h1 className="text-[40px] font-bold mb-1">Hello John</h1>
+                <h1 className="text-[40px] font-bold mb-1">Hello, {profile?.first_name}</h1>
                 <p className="text-gray-600 mb-6">Manage your events below</p>
 
                 {/* TABS */}
@@ -197,8 +210,8 @@ export default function ActivityDashboard() {
                                 <span className="text-[28px] font-normal">Upcoming</span>
                             </div>
                             <div className="flex flex-col gap-[14px]">
-                                {UPCOMING_EVENTS.map((e) => (
-                                    <EventCard key={e.id} event={e} onOpen={setExpandedEvent} />
+                                {upcomingEvents.map((e) => (
+                                    <EventCard key={e.listing_id!} event={e} onOpen={setExpandedEvent} />
                                 ))}
                             </div>
                         </div>
@@ -211,11 +224,11 @@ export default function ActivityDashboard() {
                         <div className="bg-white rounded-inner px-7 pt-6 pb-7">
                             <div className="flex items-center justify-between mb-[18px]">
                                 <span className="text-[28px] font-normal">Volunteer History</span>
-                                <span className="text-[18px] font-normal text-[#333]">Total number of hours: {TOTAL_HOURS}</span>
+                                <span className="text-[18px] font-normal text-[#333]">Total number of hours: {profile?.total_hours_completed}</span>
                             </div>
                             <div className="flex flex-col gap-[14px]">
-                                {HISTORY_EVENTS.map((e) => (
-                                    <EventCard key={e.id} event={e} onOpen={setExpandedEvent} />
+                                {historyEvents.map((e) => (
+                                    <EventCard key={e.listing_id!} event={e} onOpen={setExpandedEvent} />
                                 ))}
                             </div>
                         </div>

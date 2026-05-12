@@ -4,6 +4,7 @@ import {getAccountProfile} from "../utils.ts"
 import { createSupabaseClient } from "./authRouting.ts";
 import applyToListing from "./volunteers/applyToListing.ts";
 import authMiddleware from "../middleware/auth.ts";
+import getHistoryAndUpcoming from "./volunteers/getHistoryAndUpcoming.ts";
 
 const router = express.Router();
 
@@ -19,5 +20,6 @@ router.get("/profile", async (req, res) => {
     }
 });
 router.post("/apply_to_listing", applyToListing);
+router.get("/history_and_upcoming", getHistoryAndUpcoming);
 
 export default router;
