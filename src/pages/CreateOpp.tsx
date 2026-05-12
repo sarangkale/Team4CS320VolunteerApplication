@@ -20,14 +20,22 @@ export default function CreateOpp({ onClose, onCreated }: {
     const [tags, setTags] = useState<string[]>([]);
     const [addingTag, setAddingTag] = useState(false);
     const [newTagValue, setNewTagValue] = useState("");
+
+    const [questions, setQuestions] = useState<string[]>([]);
+    const [addingQuestion, setAddingQuestion] = useState(false);
+    const [newQuestionValue, setNewQuestionValue] = useState("");
+    const [editingQuestionIndex, setEditingQuestionIndex] = useState<number | null>(null);
+    const [editingQuestionValue, setEditingQuestionValue] = useState("");
+
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement, HTMLTextAreaElement | HTMLInputElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         const { name, value } = e.target;
         setForm((prev) => ({ ...prev, [name]: value }));
     };
 
+    // --- Tag handlers ---
     const handleAddTag = () => {
         if (addingTag) {
             if (newTagValue.trim() && !tags.includes(newTagValue.trim())) {
@@ -43,6 +51,43 @@ export default function CreateOpp({ onClose, onCreated }: {
     const handleRemoveTag = (index: number) =>
         setTags((prev) => prev.filter((_, i) => i !== index));
 
+    // --- Question handlers ---
+    const handleAddQuestion = () => {
+        if (addingQuestion) {
+            if (newQuestionValue.trim()) {
+                setQuestions((prev) => [...prev, newQuestionValue.trim()]);
+            }
+            setNewQuestionValue("");
+            setAddingQuestion(false);
+        } else {
+            setAddingQuestion(true);
+        }
+    };
+
+    const handleRemoveQuestion = (index: number) => {
+        setQuestions((prev) => prev.filter((_, i) => i !== index));
+        if (editingQuestionIndex === index) {
+            setEditingQuestionIndex(null);
+            setEditingQuestionValue("");
+        }
+    };
+
+    const handleStartEditQuestion = (index: number) => {
+        setEditingQuestionIndex(index);
+        setEditingQuestionValue(questions[index]);
+    };
+
+    const handleSaveEditQuestion = (index: number) => {
+        if (editingQuestionValue.trim()) {
+            setQuestions((prev) =>
+                prev.map((q, i) => (i === index ? editingQuestionValue.trim() : q))
+            );
+        }
+        setEditingQuestionIndex(null);
+        setEditingQuestionValue("");
+    };
+
+    // --- Submit ---
     const handlePost = async () => {
         if (!form.name.trim())   { setError("Opportunity name is required."); return; }
         if (!form.date)          { setError("Date is required."); return; }
@@ -69,6 +114,7 @@ export default function CreateOpp({ onClose, onCreated }: {
             form.city.trim(),
             form.state.trim(),
             form.zip_code.trim(),
+            questions.length > 0 ? questions : null,
         );
 
         setSubmitting(false);
@@ -84,7 +130,6 @@ export default function CreateOpp({ onClose, onCreated }: {
     };
 
     return (
-        // Backdrop — click outside to close
         <div
             className="fixed inset-0 bg-black/[0.42] z-[200] flex items-center justify-center overflow-y-auto py-8"
             onClick={(e) => { if (e.target === e.currentTarget) onClose?.(); }}
@@ -208,6 +253,118 @@ export default function CreateOpp({ onClose, onCreated }: {
                             </button>
                         </div>
                     </div>
+
+                    {/* Questionnaire */}
+                    <div className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-0.5">
+                            <label className="text-[15px] font-medium">Applicant Questionnaire</label>
+                            <p className="text-[13px] text-gray-500 leading-snug">
+                                Questions volunteers will be asked to answer when applying.
+                            </p>
+                        </div>
+
+                        {questions.length > 0 && (
+                            <div className="flex flex-col gap-2 mt-1">
+                                {questions.map((q, i) => (
+                                    <div key={i} className="bg-surface rounded-[14px] px-[18px] py-3 flex flex-col gap-2">
+                                        {editingQuestionIndex === i ? (
+                                            <div className="flex flex-col gap-2">
+                                                <textarea
+                                                    autoFocus
+                                                    rows={2}
+                                                    value={editingQuestionValue}
+                                                    onChange={(e) => setEditingQuestionValue(e.target.value)}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === "Enter" && !e.shiftKey) {
+                                                            e.preventDefault();
+                                                            handleSaveEditQuestion(i);
+                                                        }
+                                                        if (e.key === "Escape") {
+                                                            setEditingQuestionIndex(null);
+                                                            setEditingQuestionValue("");
+                                                        }
+                                                    }}
+                                                    className="bg-white border-none rounded-[10px] px-3 py-2 text-[14px] text-gray-900 outline-none w-full resize-none leading-[1.5]"
+                                                />
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        onClick={() => handleSaveEditQuestion(i)}
+                                                        className="bg-primary text-white border-none rounded-full px-4 py-1.5 text-sm font-medium cursor-pointer transition-colors hover:bg-primary-dark">
+                                                        Save
+                                                    </button>
+                                                    <button
+                                                        onClick={() => { setEditingQuestionIndex(null); setEditingQuestionValue(""); }}
+                                                        className="bg-white border-none rounded-full px-4 py-1.5 text-sm cursor-pointer text-gray-600 transition-colors hover:bg-surface-dark">
+                                                        Cancel
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-start justify-between gap-3">
+                                                <span className="text-[14px] text-gray-800 leading-snug flex-1">
+                                                    <span className="text-gray-400 font-medium mr-2 select-none">{i + 1}.</span>
+                                                    {q}
+                                                </span>
+                                                <div className="flex gap-1 shrink-0">
+                                                    <button
+                                                        onClick={() => handleStartEditQuestion(i)}
+                                                        title="Edit question"
+                                                        className="bg-transparent border-none rounded-full w-7 h-7 flex items-center justify-center text-gray-400 cursor-pointer transition-colors hover:bg-surface-dark hover:text-gray-700 text-[13px]">
+                                                        ✎
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleRemoveQuestion(i)}
+                                                        title="Remove question"
+                                                        className="bg-transparent border-none rounded-full w-7 h-7 flex items-center justify-center text-gray-400 cursor-pointer transition-colors hover:bg-surface-dark hover:text-red-500 text-[15px]">
+                                                        ×
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {addingQuestion && (
+                            <div className="flex flex-col gap-2 mt-1">
+                                <textarea
+                                    autoFocus
+                                    rows={2}
+                                    value={newQuestionValue}
+                                    onChange={(e) => setNewQuestionValue(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter" && !e.shiftKey) {
+                                            e.preventDefault();
+                                            handleAddQuestion();
+                                        }
+                                        if (e.key === "Escape") {
+                                            setAddingQuestion(false);
+                                            setNewQuestionValue("");
+                                        }
+                                    }}
+                                    placeholder="e.g. Do you have experience working with children?"
+                                    className="bg-surface border-none rounded-[14px] px-[18px] py-3 text-[14px] text-gray-900 outline-none w-full resize-none leading-[1.5]"
+                                />
+                            </div>
+                        )}
+
+                        <div className="flex gap-2 mt-1">
+                            <button
+                                onClick={handleAddQuestion}
+                                className="bg-surface border-none rounded-full px-4 py-1.5 text-sm cursor-pointer text-gray-900 transition-colors hover:bg-surface-dark">
+                                {addingQuestion ? "✓ Add Question" : "+ Question"}
+                            </button>
+                            {addingQuestion && (
+                                <button
+                                    onClick={() => { setAddingQuestion(false); setNewQuestionValue(""); }}
+                                    className="bg-transparent border-none rounded-full px-4 py-1.5 text-sm cursor-pointer text-gray-500 transition-colors hover:bg-surface">
+                                    Cancel
+                                </button>
+                            )}
+                        </div>
+                    </div>
+
                 </div>
 
                 {error && <p className="mt-3 text-sm text-[#bd0303]">{error}</p>}
