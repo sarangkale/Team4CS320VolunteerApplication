@@ -207,6 +207,84 @@ export type Database = {
         }
         Relationships: []
       }
+      past_listings: {
+        Row: {
+          accepted_applicants: string[] | null
+          applicants: string[] | null
+          capacity: number | null
+          categories: string | null
+          city: string | null
+          description: string | null
+          distance: number | null
+          duration: string | null
+          files: string[] | null
+          latitude: number | null
+          listing_date: string | null
+          listing_id: string
+          listing_name: string | null
+          longitude: number | null
+          needed_skill: string[] | null
+          org_id: string
+          org_name: string | null
+          Questions: string[] | null
+          state: string | null
+          street: string | null
+          transport: string | null
+          volunteer_time: string | null
+          zip_code: string | null
+        }
+        Insert: {
+          accepted_applicants?: string[] | null
+          applicants?: string[] | null
+          capacity?: number | null
+          categories?: string | null
+          city?: string | null
+          description?: string | null
+          distance?: number | null
+          duration?: string | null
+          files?: string[] | null
+          latitude?: number | null
+          listing_date?: string | null
+          listing_id?: string
+          listing_name?: string | null
+          longitude?: number | null
+          needed_skill?: string[] | null
+          org_id: string
+          org_name?: string | null
+          Questions?: string[] | null
+          state?: string | null
+          street?: string | null
+          transport?: string | null
+          volunteer_time?: string | null
+          zip_code?: string | null
+        }
+        Update: {
+          accepted_applicants?: string[] | null
+          applicants?: string[] | null
+          capacity?: number | null
+          categories?: string | null
+          city?: string | null
+          description?: string | null
+          distance?: number | null
+          duration?: string | null
+          files?: string[] | null
+          latitude?: number | null
+          listing_date?: string | null
+          listing_id?: string
+          listing_name?: string | null
+          longitude?: number | null
+          needed_skill?: string[] | null
+          org_id?: string
+          org_name?: string | null
+          Questions?: string[] | null
+          state?: string | null
+          street?: string | null
+          transport?: string | null
+          volunteer_time?: string | null
+          zip_code?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           bio: string | null
@@ -214,12 +292,14 @@ export type Database = {
           first_name: string | null
           graduation_year: number | null
           last_name: string
+          listing_history: string[]
           location: string | null
           major: string | null
           phone: number | null
           school: string | null
           skills: string[] | null
           total_hours_completed: number | null
+          upcoming_listings: string[]
           user_id: string
         }
         Insert: {
@@ -228,12 +308,14 @@ export type Database = {
           first_name?: string | null
           graduation_year?: number | null
           last_name: string
+          listing_history?: string[]
           location?: string | null
           major?: string | null
           phone?: number | null
           school?: string | null
           skills?: string[] | null
           total_hours_completed?: number | null
+          upcoming_listings?: string[]
           user_id?: string
         }
         Update: {
@@ -242,12 +324,14 @@ export type Database = {
           first_name?: string | null
           graduation_year?: number | null
           last_name?: string
+          listing_history?: string[]
           location?: string | null
           major?: string | null
           phone?: number | null
           school?: string | null
           skills?: string[] | null
           total_hours_completed?: number | null
+          upcoming_listings?: string[]
           user_id?: string
         }
         Relationships: []

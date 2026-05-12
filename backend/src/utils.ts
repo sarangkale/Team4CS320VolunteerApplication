@@ -2,6 +2,7 @@ import type { PostgrestError, Session, SupabaseClient } from "@supabase/supabase
 import express from "express";
 import type { CookieOptions } from "react-router";
 import { type AccountRole, type Result, type Account, success, failure } from "../../shared/types.ts";
+import type { Database } from "../../src/database.types.ts";
 
 export function bodyHasEntries(requiredKeys: string[], body: Record<string, string>, res: express.Response): express.Response | undefined {
     const keysSet = new Set(requiredKeys);
@@ -46,13 +47,13 @@ export function clearCookies(res: express.Response) {
     );
 }
 
-export async function getAccountProfile(role: AccountRole, supabase: SupabaseClient): Promise<Result<Account, PostgrestError>> {
+export async function getAccountProfile(role: AccountRole, supabase: SupabaseClient<Database>): Promise<Result<Account, PostgrestError>> {
     if (role === "User") {
-        const { data, error } = await supabase.from("profiles").select();
+        const { data, error } = await supabase.from("profiles").select().single();
         if (data) {
             const account: Account = {
                 role: "User",
-                profile: data![0],
+                profile: data,
             };
             return success(account);
         } else {

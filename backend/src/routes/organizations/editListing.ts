@@ -12,7 +12,7 @@ export default async function editListing(req: Express.Request, res: Express.Res
         return validation;
     }
 
-    const { listing_id, name, capacity, description, listing_date, duration, categories, street, city, state, zip_code, needed_skill, transport } = req.body;
+    const { listing_id, name, capacity, description, listing_date, duration, categories, street, city, state, zip_code, needed_skill, transport, questions } = req.body;
 
     const { accessToken, refreshToken } = req;
     if (!accessToken || !refreshToken) {
@@ -42,6 +42,7 @@ export default async function editListing(req: Express.Request, res: Express.Res
         zip_code,
         needed_skill,
         transport,
+        Questions: Array.isArray(questions) && questions.length > 0 ? questions : null,
     } as ListingData).eq("listing_id", listing_id);
 
     if (error) {

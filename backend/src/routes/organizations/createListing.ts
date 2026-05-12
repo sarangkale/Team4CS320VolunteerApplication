@@ -13,7 +13,7 @@ export default async function createListing(req: express.Request, res: express.R
         return validation;
     }
 
-    const { name, capacity, description, listing_date, duration, categories, street, city, state, zip_code, needed_skill, transport } = req.body;
+    const { name, capacity, description, listing_date, duration, categories, street, city, state, zip_code, needed_skill, transport, questions } = req.body;
 
     const { accessToken, refreshToken } = req;
     if (!accessToken || !refreshToken) {
@@ -62,6 +62,7 @@ export default async function createListing(req: express.Request, res: express.R
         zip_code,
         latitude,
         longitude,
+        Questions: Array.isArray(questions) && questions.length > 0 ? questions : null,
     };
 
     const { data: creationData, error: creationError } = await supabase.from("listing").insert(listing).select("listing_id").single();

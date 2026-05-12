@@ -33,57 +33,6 @@ const BUS_OVERHEAD_MINUTES = 15;
 const BUS_SPEED_MPH = 15;
 const EVENTS_PER_PAGE = 10;
 
-const MOCK_EVENTS: DashboardEvent[] = [
-    {
-        id: "1",
-        title: "Community Food Pantry Support",
-        organization: "Amherst Care Collective",
-        date: "Tue, Apr 28",
-        time: "4:00 PM - 7:00 PM",
-        location: "North Amherst Community Center",
-        latitude: 42.4001,
-        longitude: -72.5282,
-        description: "Help sort and distribute weekly food boxes for local families.",
-        slotsFilled: 9,
-        slotsTotal: 14,
-        category: "Community",
-        skills: ["Event Planning", "Data Entry"],
-        transport: ["Bus", "Walk"],
-    },
-    {
-        id: "2",
-        title: "Riverfront Cleanup Day",
-        organization: "Pioneer Green Team",
-        date: "Sat, May 2",
-        time: "9:30 AM - 12:30 PM",
-        location: "Hadley Riverwalk Entrance",
-        latitude: 42.3626,
-        longitude: -72.5716,
-        description: "Join a morning cleanup focused on trail and shoreline restoration.",
-        slotsFilled: 18,
-        slotsTotal: 20,
-        category: "Environment",
-        skills: ["Fundraising"],
-        transport: ["Car", "Walk"],
-    },
-    {
-        id: "3",
-        title: "Youth Coding Mentor Session",
-        organization: "Valley Tech Access",
-        date: "Thu, May 7",
-        time: "5:30 PM - 7:30 PM",
-        location: "Downtown Library Lab",
-        latitude: 42.3732,
-        longitude: -72.5199,
-        description: "Mentor middle school students during beginner coding activities.",
-        slotsFilled: 6,
-        slotsTotal: 8,
-        category: "Education",
-        skills: ["Mentoring"],
-        transport: ["Bus", "Car"],
-    },
-];
-
 const CATEGORY_OPTIONS = ["Animals", "Arts", "Community", "Education", "Environment", "Health", "Human Rights", "Youth"];
 const SKILL_OPTIONS = ["Fundraising", "Mentoring", "Graphic Design", "Social Media", "Data Entry", "Bilingual", "Event Planning"];
 const TRANSPORT_OPTIONS = ["Bus", "Car", "Walk", "Remote"];
@@ -331,7 +280,6 @@ export default function VolunteerDashboardEvents() {
             } else {
                 console.error("Error fetching events:", result.error);
                 setLoadError("Unable to load events right now.");
-                setEvents(MOCK_EVENTS);
             }
 
             setLoading(false);
