@@ -274,7 +274,7 @@ function EventDetailsModal({ event, onClose }: { event: DashboardEvent, onClose:
                     </button>
                     <button
                         className="bg-primary text-white border-none rounded-full px-7 py-3 text-[15px] font-medium cursor-pointer hover:bg-primary-dark"
-                        onClick={() => navigate(`/volunteer_dashboard/apply_to_listing/${event.id}`)}
+                        onClick={() => navigate(`/volunteer_dashboard/apply_to_listing/`)}
                     >
                         Apply
                     </button>

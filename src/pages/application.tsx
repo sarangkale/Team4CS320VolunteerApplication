@@ -52,7 +52,6 @@ export default function SubmitApp({ onClose, onCreated }: {onClose: () => void, 
 
                 <div className="flex flex-col gap-4">
 
-                    {/* Row 1: Name | Date */}
                     <div className="grid grid-cols-2 gap-x-6">
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[15px] font-medium">Application *</label>
@@ -63,15 +62,27 @@ export default function SubmitApp({ onClose, onCreated }: {onClose: () => void, 
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[15px] font-medium">Answer *</label>
                             <input name="date" type="date" value={[form.answer]} onChange={handleChange}
+                                placeholder="Write a bit about yourself. Why do you want to do this?"
                                 className="bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none w-full" />
                         </div>
+                        {/* <div> 
+                            <div className="answers container"> 
+                                {questions.map((question) => (
+                                    <div key={question}>
+                                        <label className="text-[15px] font-medium">{question}</label>                   This was an attempt of if there were multiple questions and a text box per question.
+                                            <input name="needed_skill" value={form.answer} onChange={handleChange}
+                                                placeholder="Please type answer here"
+                                                className="bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none w-full" />
+                                    </div>
+                                ))}
+                            </div>
+                        </div> */}
                     </div>
-
-                    
+ 
 
                 {error && <p className="mt-3 text-sm text-[#bd0303]">{error}</p>}
 
-                {/* Footer buttons */}
+                {/* Cancel & Submit buttons */}
                 <div className="flex gap-3 mt-7 justify-end">
                     <button
                         className="bg-surface border-none rounded-full px-7 py-3 text-[15px] font-medium cursor-pointer transition-colors hover:bg-surface-dark"
@@ -86,18 +97,7 @@ export default function SubmitApp({ onClose, onCreated }: {onClose: () => void, 
                 </div>
             </div>
         </div>
-        {/* <div> 
-            <div className="answers container"> 
-                {questions.map((question) => (
-                    <div key={question}>
-                        <label className="text-[15px] font-medium">{question}</label>                   This was an attempt of if there were multiple questions and a text box per question.
-                            <input name="needed_skill" value={form.answer} onChange={handleChange}
-                                placeholder="Please type answer here"
-                                className="bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none w-full" />
-                    </div>
-                ))}
-            </div>
-        </div> */}
+    
         </div>
     );
 }
