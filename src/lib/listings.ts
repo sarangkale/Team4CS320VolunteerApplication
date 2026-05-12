@@ -145,3 +145,43 @@ export async function awardHours(applicantId: string, hours: number): Promise<Re
         return failure(res.error);
     }
 }
+
+export async function deleteListing(listingId: string): Promise<Result<null, RequestError>> {
+
+    const res = await axios_post<null>("/organization/delete_listing", {
+        listing_id: listingId,
+    });
+
+    if (res.type === "success") {
+        return success(null);
+    } else {
+        return failure(res.error);
+    }
+}
+
+export async function finishListing(listingId: string): Promise<Result<null, RequestError>> {
+
+    const res = await axios_post<null>("/organization/finish_listing", {
+        listing_id: listingId,
+    });
+
+    if (res.type === "success") {
+        return success(null);
+    } else {
+        return failure(res.error);
+    }
+}
+
+export async function getHistoryAndUpcomingListings(): Promise<Result<{ history: ListingData[], upcoming: ListingData[], }, RequestError>> {
+
+    const res = await axios_get<{
+        history: ListingData[],
+        upcoming: ListingData[],
+    }>("/volunteer/history_and_upcoming");
+
+    if (res.type === "success") {
+        return success(res.data.data);
+    } else {
+        return failure(res.error);
+    }
+}

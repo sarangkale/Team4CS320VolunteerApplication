@@ -2,11 +2,6 @@ import { useState } from "react";
 import { createListing } from "../lib/listings.ts";
 import type { ListingData } from "../../shared/types.ts";
 
-/* const SKILL_OPTIONS = [
-    "Fundraising", "Mentoring", "Graphic Design", "Social Media",
-    "Data Entry", "Bilingual", "Event Planning", "First Aid",
-]; */
-
 export default function CreateOpp({ onClose, onCreated }: {
     onClose: () => void,
     onCreated: (listing: ListingData) => void,
@@ -32,6 +27,7 @@ export default function CreateOpp({ onClose, onCreated }: {
 
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         const { name, value } = e.target;
+        console.log(value);
         setForm((prev) => ({ ...prev, [name]: value }));
     };
 
@@ -104,7 +100,7 @@ export default function CreateOpp({ onClose, onCreated }: {
         const res = await createListing(
             form.name.trim(),
             form.description.trim(),
-            form.date,
+            (new Date(form.date)).toISOString(),
             form.duration.trim(),
             Number(form.capacity),
             tags.join(", "),
@@ -138,9 +134,15 @@ export default function CreateOpp({ onClose, onCreated }: {
 
                 <h2 className="text-2xl font-bold mb-6">Create a Volunteering Opportunity</h2>
 
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-2">
 
                     {/* Row 1: Name | Date */}
+                    {/* <div className="flex flex-col gap-1.5">
+                        <label className="text-[15px] font-medium">Opportunity Name *</label>
+                        <input name="name" value={form.name} onChange={handleChange}
+                            placeholder="e.g. Community Cleanup"
+                            className="bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none w-full" />
+                    </div> */}
                     <div className="grid grid-cols-2 gap-x-6">
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[15px] font-medium">Opportunity Name *</label>
@@ -150,9 +152,24 @@ export default function CreateOpp({ onClose, onCreated }: {
                         </div>
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[15px] font-medium">Date *</label>
-                            <input name="date" type="date" value={form.date} onChange={handleChange}
+                            <input name="date" type="datetime-local" value={form.date} onChange={handleChange}
                                 className="bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none w-full" />
                         </div>
+                        {/* <div className="flex flex-col gap-1.5">
+                            <label className="text-[15px] font-medium">Time *</label>
+                            <input name="time" type="time" value={[form.time.split(":")[0], form.time.split(":")[1]].join(":")}
+                            onChange={e =>{
+                                console.log(e.target.value);
+                                console.log([form.time.split(":")[0], form.time.split(":")[1]].join(":"));
+                                handleChange({
+                                    ...e,
+                                    target: {
+                                        ...e.target,
+                                        value: e.target.valueAsDate!.toISOString().split("T")[1]
+                                    }
+                                })}}
+                                className="bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none w-full" />
+                        </div> */}
                     </div>
 
                     {/* Row 2: Capacity | Duration */}

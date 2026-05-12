@@ -1,9 +1,9 @@
-import Express from "express";
+import express from "express";
 import { bodyHasEntries, getAccountProfile } from "../../utils.ts";
 import { createSupabaseClient } from "../authRouting.ts";
 import type { UserProfile } from "../../../../shared/types.ts";
 
-export default async function applyToListing(req: Express.Request, res: Express.Response) {
+export default async function applyToListing(req: express.Request, res: express.Response) {
     const validation = bodyHasEntries(["listing_id"], req.query as Record<string, string>, res);
 
     if (validation) {

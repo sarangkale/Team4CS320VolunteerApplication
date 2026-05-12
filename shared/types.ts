@@ -31,10 +31,14 @@ export type UserProfile = {
     first_name: string | null;
     graduation_year: number | null;
     last_name: string;
+    listing_history: string[];
+    location: string | null;
     major: string | null;
     phone: number | null;
     school: string | null;
+    skills: string[] | null;
     total_hours_completed: number | null;
+    upcoming_listings: string[];
     user_id: string;
 };
 

@@ -1,6 +1,6 @@
 import { type User } from "@supabase/supabase-js";
 import { axios_get, axios_post, type RequestError } from "../lib/axios.ts";
-import { type UserProfile, type OrganizationProfile, failure, success, type Account, type AccountRole, type Result } from "../../shared/types.ts";
+import { failure, success, type Account, type AccountRole, type Result } from "../../shared/types.ts";
 
 const ACCOUNT_LOCAL_STORAGE_KEY = "Account";
 const ROLE_LOCAL_STORAGE_KEY = "Role";
@@ -24,7 +24,7 @@ export async function userSignUp(
     });
 
     if (res.type == "success") {
-        localStorage.setItem(ACCOUNT_LOCAL_STORAGE_KEY, JSON.stringify(res.data.data));
+        localStorage.setItem(ACCOUNT_LOCAL_STORAGE_KEY, res.data.data.id);
         localStorage.setItem(ROLE_LOCAL_STORAGE_KEY, "User");
         return success(res.data.data);
     } else {
@@ -47,7 +47,7 @@ export async function organizationSignUp(
     });
 
     if (res.type == "success") {
-        localStorage.setItem(ACCOUNT_LOCAL_STORAGE_KEY, JSON.stringify(res.data.data));
+        localStorage.setItem(ACCOUNT_LOCAL_STORAGE_KEY, res.data.data.id);
         localStorage.setItem(ROLE_LOCAL_STORAGE_KEY, "Organization");
         return success(res.data.data);
     } else {
@@ -63,7 +63,7 @@ export async function login(email: string, password: string): Promise<Result<{ u
     });
     if (res.type == "success") {
         const { user, role } = res.data.data;
-        localStorage.setItem(ACCOUNT_LOCAL_STORAGE_KEY, JSON.stringify(user));
+        localStorage.setItem(ACCOUNT_LOCAL_STORAGE_KEY, user.id);
         localStorage.setItem(ROLE_LOCAL_STORAGE_KEY, role as string);
         return success(res.data.data);
     } else {
@@ -88,8 +88,8 @@ export async function logout(): Promise<Result<null, RequestError>> {
 }
 
 // GET USER
-export function getCurrentUser(): User {
-    return JSON.parse(localStorage.getItem(ACCOUNT_LOCAL_STORAGE_KEY)!)
+export function getCurrentUser(): string {
+    return localStorage.getItem(ACCOUNT_LOCAL_STORAGE_KEY)!
 }
 
 export async function getAccountProfile(): Promise<Result<Account, RequestError>> {
