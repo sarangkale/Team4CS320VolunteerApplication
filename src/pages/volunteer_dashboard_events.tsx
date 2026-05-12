@@ -241,6 +241,7 @@ function FilterGroup({
 }
 
 function EventDetailsModal({ event, onClose }: { event: DashboardEvent, onClose: () => void }) {
+    const navigate = useNavigate();
     return (
         <div
             className="fixed inset-0 bg-black/[0.42] z-[200] flex items-center justify-center p-4"
@@ -273,7 +274,7 @@ function EventDetailsModal({ event, onClose }: { event: DashboardEvent, onClose:
                     </button>
                     <button
                         className="bg-primary text-white border-none rounded-full px-7 py-3 text-[15px] font-medium cursor-pointer hover:bg-primary-dark"
-                        onClick={() => { }}
+                        onClick={() => navigate(`/volunteer_dashboard/apply_to_listing/${event.id}`)}
                     >
                         Apply
                     </button>
