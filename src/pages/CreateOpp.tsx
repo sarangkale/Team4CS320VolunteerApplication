@@ -150,7 +150,7 @@ export default function CreateOpp({ onClose, onCreated }: {
                                 className="bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none w-full" />
                         </div>
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-[15px] font-medium">Date *</label>
+                            <label className="text-[15px] font-medium">Date & Time*</label>
                             <input name="date" type="datetime-local" value={form.date} onChange={handleChange}
                                 className="bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none w-full" />
                         </div>
