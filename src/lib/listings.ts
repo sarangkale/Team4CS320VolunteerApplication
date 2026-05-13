@@ -22,7 +22,8 @@ export async function createListing(
     street: string,
     city: string,
     state: string,
-    zip_code: string
+    zip_code: string,
+    questions?: string[] | null
 ): Promise<Result<{ listing: ListingData, id: string }, RequestError>> {
     const res = await axios_post<{ listing: ListingData, id: string }>("/organization/create_listing", {
         name: listing_name,
@@ -37,6 +38,7 @@ export async function createListing(
         city,
         state,
         zip_code,
+        questions: questions ?? null,
     });
     if (res.type == "success") {
         return success(res.data.data);
@@ -96,6 +98,7 @@ export async function editListing(listingData: ListingData): Promise<Result<null
         zip_code: listingData.zip_code,
         needed_skill: listingData.needed_skill,
         transport: listingData.transport,
+        questions: listingData.Questions ?? null,
     });
     
     if (res.type === "success") {
@@ -138,6 +141,46 @@ export async function awardHours(applicantId: string, hours: number): Promise<Re
 
     if (res.type === "success") {
         return success(null);
+    } else {
+        return failure(res.error);
+    }
+}
+
+export async function deleteListing(listingId: string): Promise<Result<null, RequestError>> {
+
+    const res = await axios_post<null>("/organization/delete_listing", {
+        listing_id: listingId,
+    });
+
+    if (res.type === "success") {
+        return success(null);
+    } else {
+        return failure(res.error);
+    }
+}
+
+export async function finishListing(listingId: string): Promise<Result<null, RequestError>> {
+
+    const res = await axios_post<null>("/organization/finish_listing", {
+        listing_id: listingId,
+    });
+
+    if (res.type === "success") {
+        return success(null);
+    } else {
+        return failure(res.error);
+    }
+}
+
+export async function getHistoryAndUpcomingListings(): Promise<Result<{ history: ListingData[], upcoming: ListingData[], }, RequestError>> {
+
+    const res = await axios_get<{
+        history: ListingData[],
+        upcoming: ListingData[],
+    }>("/volunteer/history_and_upcoming");
+
+    if (res.type === "success") {
+        return success(res.data.data);
     } else {
         return failure(res.error);
     }

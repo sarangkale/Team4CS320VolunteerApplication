@@ -1,8 +1,8 @@
-import Express from "express";
+import express from "express";
 import { bodyHasEntries } from "../../utils.ts";
 import { createSupabaseClient } from "../authRouting.ts";
 
-export default async function awardHours(req: Express.Request, res: Express.Response) {
+export default async function awardHours(req: express.Request, res: express.Response) {
     const validation = bodyHasEntries(["applicant_id", "hours"], req.body, res);
 
     if (validation) {
@@ -20,7 +20,7 @@ export default async function awardHours(req: Express.Request, res: Express.Resp
     const { data, error } = await supabase.from("account roles").select("role").single();
     if (data) {
         if (data!.role !== "Organization") {
-            return res.status(401).json({ error: "Only users can apply to listings" });
+            return res.status(401).json({ error: "Only organizations can award hours" });
         }
     } else {
         return res.status(500).json(error);
@@ -36,11 +36,8 @@ export default async function awardHours(req: Express.Request, res: Express.Resp
     if (fetchError) {
         return res.status(500).json({ type: "error", error: fetchError });
     }
-    
-    console.log(currentData);
 
     const updatedHours = currentData!.total_hours_completed! + hours as number;
-    console.log(`Old hours: ${currentData.total_hours_completed}, updated: ${updatedHours}`);
 
     const { data: updateData, error: updateError } = await supabase
         .from("profiles")
