@@ -27,7 +27,6 @@ export default function CreateOpp({ onClose, onCreated }: {
 
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         const { name, value } = e.target;
-        console.log(value);
         setForm((prev) => ({ ...prev, [name]: value }));
     };
 

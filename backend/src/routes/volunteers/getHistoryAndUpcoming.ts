@@ -19,18 +19,14 @@ export default async function getHistoryAndUpcoming(req: express.Request, res: e
         return res.status(500).json(error);
     }
     const accountRes = await getAccountProfile("User", supabase);
-    console.log("thing");
 
     if (accountRes.type === "error") {
         return res.status(500).json(accountRes.error);
     }
-    console.log("here");
 
     const { listing_history, upcoming_listings }= (accountRes.data.profile as UserProfile);
-    console.log(listing_history);
 
     const { data: historyData, error: historyError } = await supabase.from("past_listings").select().in("listing_id", listing_history);
-    console.log(historyData, historyError);
     
     if (historyError) {
         return res.status(500).json(historyError);

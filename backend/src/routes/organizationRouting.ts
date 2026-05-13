@@ -12,6 +12,8 @@ import awardHours from "./organizations/awardHours.ts";
 import editProfile from "./organizations/editProfile.ts";
 import deleteListing from "./organizations/deleteListing.ts";
 import finishListing from "./organizations/finishListing.ts";
+import getApplicationAnswers from "./organizations/getApplicationAnswers.ts";
+import acceptApplicant from "./organizations/acceptApplicant.ts";
 
 const router = express.Router();
 
@@ -35,5 +37,7 @@ router.post("/award_hours", awardHours);
 router.post("/edit_profile", editProfile);
 router.post("/delete_listing", deleteListing);
 router.post("/finish_listing", finishListing);
+router.post("/get_application_answers", getApplicationAnswers);
+router.post("/accept_applicant", acceptApplicant);
 
 export default router;

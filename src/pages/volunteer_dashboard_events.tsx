@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import { useNavigate } from "react-router";
 import { retrieveListings } from "../lib/listings.ts";
-import type { ListingData } from "../../shared/types.ts";
+import type { ListingData, UserProfile } from "../../shared/types.ts";
 import SubmitApp from "./application.tsx";
+import { getAccountProfile } from "../auth/auth.ts";
 
 type Coordinates = {
     latitude: number;
@@ -197,7 +198,7 @@ function EventDetailsModal({ event, onClose }: { event: DashboardEvent, onClose:
     return (
         <>
         {showQuestions ?
-            <SubmitApp listing={event} onClose={onClose} onCreated={()=>{}}/>
+            <SubmitApp listing={event} onClose={onClose} />
             : <div
                 className="fixed inset-0 bg-black/[0.42] z-[200] flex items-center justify-center p-4"
                 onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
@@ -271,6 +272,7 @@ export default function VolunteerDashboardEvents() {
     const [maxDistance, setMaxDistance] = useState<number | null>(null);
     const [slotsAvailable, setSlotsAvailable] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
+    const [profile, setProfile] = useState<UserProfile | null>(null);
 
     useEffect(() => {
         let cancelled = false;
@@ -294,6 +296,12 @@ export default function VolunteerDashboardEvents() {
         }
 
         fetchEvents();
+
+        getAccountProfile().then(profileRes => {
+            if (profileRes.type === "success") {
+                setProfile(profileRes.data.profile as UserProfile);
+            }
+        })
 
         return () => {
             cancelled = true;
@@ -428,27 +436,12 @@ export default function VolunteerDashboardEvents() {
             </nav>
 
             <div className="max-w-content mx-auto px-6 pt-8 pb-[60px]">
-                <h1 className="text-[40px] font-bold mb-1">Hello John</h1>
+                <h1 className="text-[40px] font-bold mb-1">Hello, {profile?.first_name || ""}</h1>
                 <p className="text-gray-600 mb-6">Explore volunteer opportunities below</p>
 
                 <div className="flex items-center justify-between mb-4">
-                    <div className="bg-[#D9D9D9] rounded-full p-1 inline-flex gap-1">
-                        <button
-                            className="px-7 py-2 rounded-full text-[16px] border-none cursor-pointer font-['DM_Sans',sans-serif] transition-all duration-200 bg-transparent text-[#1a1a1a]"
-                            onClick={() => navigate("/volunteer_dashboard/profile")}
-                        >
-                            Profile
-                        </button>
-                        <button
-                            className="px-7 py-2 rounded-full text-[16px] border-none cursor-pointer font-['DM_Sans',sans-serif] transition-all duration-200 bg-transparent text-[#1a1a1a]"
-                            onClick={() => navigate("/volunteer_dashboard/activity")}
-                        >
-                            Activity
-                        </button>
-                    </div>
-
                     <button
-                        className="bg-[#D9D9D9] border-none rounded-full py-[10px] px-[34px] text-[16px] cursor-pointer hover:bg-[#c2c2c2] transition-colors duration-200 font-['DM_Sans',sans-serif]"
+                        className="ml-auto mr-0 bg-[#D9D9D9] border-none rounded-full py-[10px] px-[34px] text-[16px] cursor-pointer hover:bg-[#c2c2c2] transition-colors duration-200 font-['DM_Sans',sans-serif]"
                         onClick={() => setShowFilters((value) => !value)}
                     >
                         {activeFilterCount > 0 ? `Filters (${activeFilterCount})` : "Filters"}

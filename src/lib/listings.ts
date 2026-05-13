@@ -1,4 +1,4 @@
-import { failure, success, type Result, type UserProfile, } from "../../shared/types.ts";
+import { failure, success, type ApplicationData, type Result, type UserProfile, } from "../../shared/types.ts";
 import { axios_get, axios_post, type RequestError } from "./axios.ts";
 import { type ListingData } from "../../shared/types.ts";
 
@@ -173,7 +173,6 @@ export async function finishListing(listingId: string): Promise<Result<null, Req
 }
 
 export async function getHistoryAndUpcomingListings(): Promise<Result<{ history: ListingData[], upcoming: ListingData[], }, RequestError>> {
-
     const res = await axios_get<{
         history: ListingData[],
         upcoming: ListingData[],
@@ -181,6 +180,31 @@ export async function getHistoryAndUpcomingListings(): Promise<Result<{ history:
 
     if (res.type === "success") {
         return success(res.data.data);
+    } else {
+        return failure(res.error);
+    }
+}
+
+export async function getApplicationAnswers(listingId: string): Promise<Result<ApplicationData[], RequestError>> {
+    const res = await axios_post<ApplicationData[]>("/organization/get_application_answers", {
+        listing_id: listingId,
+    });
+
+    if (res.type === "success") {
+        return success(res.data.data);
+    } else {
+        return failure(res.error);
+    }
+}
+
+export async function acceptApplicant(listingId: string, applicantId: string): Promise<Result<null, RequestError>> {
+    const res = await axios_post("/organization/accept_applicant", {
+        listing_id: listingId,
+        applicant_id: applicantId
+    });
+
+    if (res.type === "success") {
+        return success(null);
     } else {
         return failure(res.error);
     }

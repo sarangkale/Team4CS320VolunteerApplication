@@ -1,8 +1,8 @@
-import Express from "express";
+import express from "express";
 import { bodyHasEntries } from "../../utils.ts";
 import { createSupabaseClient } from "../authRouting.ts";
 
-export default async function listingApplicants(req: Express.Request, res: Express.Response) {
+export default async function listingApplicants(req: express.Request, res: express.Response) {
     const validation = bodyHasEntries(["listing_id"], req.query as Record<string, string>, res);
 
     if (validation) {
