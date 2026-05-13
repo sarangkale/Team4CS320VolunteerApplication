@@ -456,7 +456,7 @@ export default function OrganizationDashboard() {
                     ) : (
                         <button
                             className="bg-surface border-none rounded-full px-7 py-3 text-base font-medium cursor-pointer transition-colors hover:bg-surface-dark"
-                            onClick={async () => updateOrganizationProfile(orgProfile?.bio || "", orgProfile?.org_name || "", orgProfile?.website || "", orgProfile?.org_id || "")}>
+                            onClick={async () => updateOrganizationProfile(orgProfile?.bio || "", orgProfile?.org_name || "", orgProfile?.website || "", orgProfile?.org_id!)}>
                             Update Profile
                         </button>
                     )}

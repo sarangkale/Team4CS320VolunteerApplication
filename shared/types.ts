@@ -34,7 +34,7 @@ export type UserProfile = {
     listing_history: string[];
     location: string | null;
     major: string | null;
-    phone: number | null;
+    phone: string | null;
     school: string | null;
     skills: string[] | null;
     total_hours_completed: number | null;
