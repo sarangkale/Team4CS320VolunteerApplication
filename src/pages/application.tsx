@@ -1,47 +1,42 @@
 import { useState } from "react";
-import { createApplication } from "../lib/application.ts";
+import { applyToListing } from "../lib/application.ts";
 import type { ApplicationData } from "../../shared/types.ts";
+import type { DashboardEvent } from "./volunteer_dashboard_events.tsx";
 
-export default function SubmitApp({ onClose, onCreated }: {onClose: () => void, onCreated: (appli: ApplicationData) => void,}){
-    //const questions:string[] = ["question1"]  For future improvements, there should be an option for multiple questions
-    const [form, setForm] = useState({
-        name: "", answer: "", file: "", 
-    });
-    const [submitting, setSubmitting] = useState(false);
+export default function SubmitApp({ listing, onClose, onCreated }: { listing: DashboardEvent, onClose: () => void, onCreated: (appli: ApplicationData) => void, }) {
+    const questions: string[] = listing.questions;
+    /* const [form, setForm] = useState({
+        name: ""//, file: "",
+    }); */
+    const [answers, setAnswers] = useState(new Array<string>(listing.questions.length).fill(""));
     const [error, setError] = useState<string | null>(null)
 
-    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement, HTMLTextAreaElement | HTMLInputElement>) => {
+    const handleAnswerChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement, HTMLTextAreaElement | HTMLInputElement>) => {
         const { name, value } = e.target;
-        setForm((prev) => ({ ...prev, [name]: value }));
+        setAnswers((prev) => prev.map((e, i) => i === Number(name) ? value : e));
     };
     const handlePost = async () => {
-            if (!form.name.trim())   { setError("Your name is required."); return; }
-            if (!form.answer.trim())          { setError("An answer is required."); return; }
-            //if (!form.file.trim()) {setError("A file is required."); return;}
-    
-            setSubmitting(true);
-            setError(null);
-    
-            const res = await createApplication(
-                form.name.trim(),
-                form.answer.trim(),     
-                //form.file.trim(),
-                
-            );
-    
-            setSubmitting(false);
-    
-            if (res.type === "error") {
-                console.error("createListing failed:", res.error);
-                setError(res.error.msg || res.error.name || "Failed to create listing.");
-                return;
-            }
-    
-            onCreated?.(res.data.application);
-            onClose?.();
-        };
+        console.log(answers);
+        if (answers.some(e => e.length === 0)) { setError("An answer is required."); return; }
 
-    return(
+        setError(null);
+
+        const res = await applyToListing(
+            listing.id,
+            answers
+        );
+
+        if (res.type === "error") {
+            console.error("createListing failed:", res.error);
+            setError(res.error.msg || res.error.name || "Failed to create listing.");
+            return;
+        }
+
+        onCreated?.(res.data.application);
+        onClose?.();
+    };
+
+    return (
         <div
             className="fixed inset-0 bg-black/[0.42] z-[200] flex items-center justify-center overflow-y-auto py-8"
             onClick={(e) => { if (e.target === e.currentTarget) onClose?.(); }}
@@ -53,17 +48,21 @@ export default function SubmitApp({ onClose, onCreated }: {onClose: () => void, 
                 <div className="flex flex-col gap-4">
 
                     <div className="grid grid-cols-2 gap-x-6">
-                        <div className="flex flex-col gap-1.5">
+                        {/* <div className="flex flex-col gap-1.5">
                             <label className="text-[15px] font-medium">Application *</label>
                             <input name="name" value={form.name} onChange={handleChange}
-                                placeholder="Your Name"  
+                                placeholder="Your Name"
                                 className="bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none w-full" />
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                            <label className="text-[15px] font-medium">Answer *</label>
-                            <input name="date" type="date" value={[form.answer]} onChange={handleChange}
-                                placeholder="Write a bit about yourself. Why do you want to do this?"
-                                className="bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none w-full" />
+                        </div> */}
+                        <div className="answers container">
+                            {questions.map((question, i) => (
+                                <div key={question}>
+                                    <label className="text-[15px] font-medium">{question}</label>
+                                    <input name={String(i)} value={answers[i]} onChange={handleAnswerChange}
+                                        placeholder="Please type answer here"
+                                        className="bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none w-full" />
+                                </div>
+                            ))}
                         </div>
                         {/* <div> 
                             <div className="answers container"> 
@@ -78,26 +77,28 @@ export default function SubmitApp({ onClose, onCreated }: {onClose: () => void, 
                             </div>
                         </div> */}
                     </div>
- 
 
-                {error && <p className="mt-3 text-sm text-[#bd0303]">{error}</p>}
 
-                {/* Cancel & Submit buttons */}
-                <div className="flex gap-3 mt-7 justify-end">
-                    <button
-                        className="bg-surface border-none rounded-full px-7 py-3 text-[15px] font-medium cursor-pointer transition-colors hover:bg-surface-dark"
-                        onClick={onClose} disabled={submitting}>
-                        Cancel
-                    </button>
-                    <button
-                        className="bg-primary text-white border-none rounded-full px-7 py-3 text-[15px] font-medium cursor-pointer transition-colors hover:bg-primary-dark disabled:opacity-50"
-                        onClick={handlePost} disabled={submitting}>
-                        {submitting ? "Submitting…" : "Submit Application"}
-                    </button>
+
+                    {error && <p className="mt-3 text-sm text-[#bd0303]">{error}</p>}
+
+                    {/* Footer buttons */}
+                    <div className="flex gap-3 mt-7 justify-end">
+                        <button
+                            className="bg-surface border-none rounded-full px-7 py-3 text-[15px] font-medium cursor-pointer transition-colors hover:bg-surface-dark"
+                            onClick={onClose}>
+                            Cancel
+                        </button>
+                        <button
+                            className="bg-primary text-white border-none rounded-full px-7 py-3 text-[15px] font-medium cursor-pointer transition-colors hover:bg-primary-dark disabled:opacity-50"
+                            onClick={handlePost}>
+                            Submit Application
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
-    
+            <div>
+            </div>
         </div>
     );
 }

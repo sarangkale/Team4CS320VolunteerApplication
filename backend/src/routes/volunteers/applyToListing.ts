@@ -3,14 +3,14 @@ import { bodyHasEntries, getAccountProfile } from "../../utils.ts";
 import { createSupabaseClient } from "../authRouting.ts";
 import type { UserProfile } from "../../../../shared/types.ts";
 
-export default async function applyToListing(req: express.Request, res: express.Response) {
-    const validation = bodyHasEntries(["listing_id"], req.query as Record<string, string>, res);
+export default async function applyToListing(req: Express.Request, res: Express.Response) {
+    const validation = bodyHasEntries(["listing_id", "answers"], req.body, res);
 
     if (validation) {
         return validation;
     }
 
-    const listing_id = req.query.listing_id as string;
+    const { listing_id, answers } = req.body;
 
     const { accessToken, refreshToken } = req;
     if (!accessToken || !refreshToken) {
@@ -50,7 +50,7 @@ export default async function applyToListing(req: express.Request, res: express.
 
     if (!existingApplicants) {
         // const { error } = await supabase.from('application').insert({ user_id: profile.user_id, Answer: ['insert string[]'], file_paths: ['url1', 'url2'], listing_id: listing_id  })
-        const { error } = await supabase.from('application').insert({ user_id: profile.user_id, Answer: ['insert string[]'], listing_id: listing_id })   //^^with file ver.
+        const { error } = await supabase.from('application').insert({ user_id: profile.user_id, Answer: answers, listing_id: listing_id })   //^^with file ver.
         if (error){return res.status(500).json({ type: "error", error: error }) }
     } else if (existingApplicants.includes(profile.user_id)) {
         return res.status(500).send("User has already applied to this listing.");
