@@ -87,13 +87,10 @@ function SignupPage() {
         const orgName = formData.get("org_name") as string;
         const website = formData.get("website") as string;
         const password = formData.get("password") as string;
-        console.log(`email: ${email} | org name: ${orgName} | website: ${website} | password: ${password}`);
         const res = await organizationSignUp(email, password, orgName, website);
         if (res.type == "error") {
-            console.error("Signup error:", res.error);
             setSignupError((_) => res.error.msg);
         } else {
-            console.log("Signup success, navigating to organization dashboard");
             navigate("/organization_dashboard");
         }
     }

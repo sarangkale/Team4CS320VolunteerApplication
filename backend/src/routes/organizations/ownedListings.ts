@@ -1,9 +1,9 @@
-import Express from "express";
+import express from "express";
 import { createSupabaseClient } from "../authRouting.ts";
 import { getAccountProfile } from "../../utils.ts";
 import type { OrganizationProfile } from "../../../../shared/types.ts";
 
-export default async function ownedListings(req: Express.Request, res: Express.Response) {
+export default async function ownedListings(req: express.Request, res: express.Response) {
     const supabase = await createSupabaseClient(req.accessToken!, req.refreshToken!);
 
     const profile = await getAccountProfile("Organization", supabase);

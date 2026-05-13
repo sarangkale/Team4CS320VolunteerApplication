@@ -34,7 +34,7 @@ export type UserProfile = {
     listing_history: string[];
     location: string | null;
     major: string | null;
-    phone: number | null;
+    phone: string | null;
     school: string | null;
     skills: string[] | null;
     total_hours_completed: number | null;
@@ -51,6 +51,16 @@ export type OrganizationProfile = {
     password_hash?: string | null;
     website?: string | null;
 };
+
+export type ApplicationData = {
+    Answer: string[] | null;
+    app_id: string;
+    approved: boolean | null;
+    file_paths: string[] | null;
+    listing_id: string | null;
+    submit_time: string | null;
+    user_id: string;
+}
 
 export type Account = {
     role: AccountRole,

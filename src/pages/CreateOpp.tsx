@@ -27,7 +27,6 @@ export default function CreateOpp({ onClose, onCreated }: {
 
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         const { name, value } = e.target;
-        console.log(value);
         setForm((prev) => ({ ...prev, [name]: value }));
     };
 
@@ -175,15 +174,15 @@ export default function CreateOpp({ onClose, onCreated }: {
                     {/* Row 2: Capacity | Duration */}
                     <div className="grid grid-cols-2 gap-x-6">
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-[15px] font-medium">Volunteer Total *</label>
+                            <label className="text-[15px] font-medium">Volunteer Capacity *</label>
                             <input name="capacity" type="number" min={1} value={form.capacity} onChange={handleChange}
                                 placeholder="25"
                                 className="bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none w-full" />
                         </div>
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-[15px] font-medium">Duration</label>
-                            <input name="duration" value={form.duration} onChange={handleChange}
-                                placeholder="e.g. 3 hours"
+                            <label className="text-[15px] font-medium">Duration (hours) *</label>
+                            <input type="number" name="duration" value={form.duration} onChange={handleChange}
+                                placeholder="3"
                                 className="bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none w-full" />
                         </div>
                     </div>
