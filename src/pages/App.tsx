@@ -9,7 +9,7 @@ function App() {
             <nav className="flex justify-between items-center px-6 py-4 bg-white">
                 <img 
                     className="bg-primary rounded-full w-[80px] h-[80px] flex items-center justify-center"
-                    src='src\assets\Logo_zoomed.png'
+                    src='/Logo_zoomed.png'
                     alt='logo image'
                 />
                 <Link

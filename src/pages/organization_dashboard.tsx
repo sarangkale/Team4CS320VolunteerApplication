@@ -419,7 +419,7 @@ export default function OrganizationDashboard() {
             <nav className="bg-surface flex items-center px-8 h-[88px] gap-3.5 sticky top-0 z-[100] shadow-[0_2px_8px_rgba(0,0,0,0.07)]">
                 <img 
                     className="bg-primary rounded-full w-[80px] h-[80px] flex items-center justify-center"
-                    src='src\assets\Logo_zoomed.png'
+                    src='/Logo_zoomed.png'
                     alt='logo image'
                 />
                 <span className="font-bold text-[21px] mr-auto">Helping Hands</span>
