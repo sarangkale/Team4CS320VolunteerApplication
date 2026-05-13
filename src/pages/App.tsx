@@ -7,9 +7,11 @@ function App() {
 
             {/* Nav */}
             <nav className="flex justify-between items-center px-6 py-4 bg-white">
-                <div className="bg-primary text-white rounded-full w-[62px] h-[62px] flex items-center justify-center text-xs font-bold">
-                    logo
-                </div>
+                <img 
+                    className="bg-primary rounded-full w-[80px] h-[80px] flex items-center justify-center"
+                    src='/Logo_zoomed.png'
+                    alt='logo image'
+                />
                 <Link
                     to="/login"
                     className="bg-primary text-white py-2.5 px-7 rounded-lg no-underline font-medium text-[15px]"

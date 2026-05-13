@@ -147,13 +147,12 @@ export default function ActivityDashboard() {
         <div className="bg-page min-h-screen text-[#1a1a1a] font-sans">
             {/* NAV */}
             <nav className="bg-surface flex items-center px-8 h-nav gap-3 sticky top-0 z-50 shadow-md">
-                <div className="bg-primary text-white rounded-full w-[82px] h-[70px] flex items-center justify-center font-bold text-[18px]">
-                    logo
-                </div>
-
-                <span className="font-bold text-[21px] mr-auto">
-                    Website name
-                </span>
+                <img 
+                    className="bg-primary rounded-full w-[80px] h-[80px] flex items-center justify-center"
+                    src='/Logo_zoomed.png'
+                    alt='logo image'
+                />
+                <span className="font-bold text-[21px] mr-auto">Helping Hands</span>
 
                 <button
                     className="bg-white text-[#485C11] rounded-full px-6 py-3 font-medium border-none cursor-pointer hover:bg-gray-50 transition-colors duration-200 font-['DM_Sans',sans-serif]"
@@ -199,10 +198,7 @@ export default function ActivityDashboard() {
                         </button>
                     </div>
 
-                    {/* RIGHT: EDIT BUTTON */}
-                    <button className="bg-[#D9D9D9] border-none rounded-full py-[10px] px-[34px] text-[16px] cursor-pointer hover:bg-[#c2c2c2] transition-colors duration-200 font-['DM_Sans',sans-serif]">
-                        Edit
-                    </button>
+                    
                 </div>
                 {/* UPCOMING */}
                 <div className="mb-7">

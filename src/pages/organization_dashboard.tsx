@@ -417,8 +417,12 @@ export default function OrganizationDashboard() {
         <div className="font-sans bg-page min-h-screen text-gray-900">
             {/* ── NAV ── */}
             <nav className="bg-surface flex items-center px-8 h-[88px] gap-3.5 sticky top-0 z-[100] shadow-[0_2px_8px_rgba(0,0,0,0.07)]">
-                <div className="bg-primary text-white rounded-full w-[82px] h-[70px] flex items-center justify-center font-bold text-lg shrink-0">logo</div>
-                <span className="font-bold text-[21px] mr-auto">Website name</span>
+                <img 
+                    className="bg-primary rounded-full w-[80px] h-[80px] flex items-center justify-center"
+                    src='/Logo_zoomed.png'
+                    alt='logo image'
+                />
+                <span className="font-bold text-[21px] mr-auto">Helping Hands</span>
                 <button className="bg-primary text-white border-none rounded-full px-[26px] py-[13px] text-base font-medium cursor-pointer transition-colors hover:brightness-110" onClick={async () => {
                     try { await logout(); } finally { navigate("/login"); }
                 }}>
@@ -456,8 +460,8 @@ export default function OrganizationDashboard() {
                     ) : (
                         <button
                             className="bg-surface border-none rounded-full px-7 py-3 text-base font-medium cursor-pointer transition-colors hover:bg-surface-dark"
-                            onClick={async () => updateOrganizationProfile(orgProfile?.bio || "", orgProfile?.org_name || "", orgProfile?.website || "", orgProfile?.org_id!)}>
-                            Save Profile
+                            onClick={async () => updateOrganizationProfile(orgProfile?.bio || "", orgProfile?.org_name || "", orgProfile?.website || "", orgProfile?.org_id || "")}>
+                            Save Changes
                         </button>
                     )}
                 </div>
