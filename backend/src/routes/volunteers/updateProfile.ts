@@ -1,7 +1,7 @@
 import express from "express";
 import { createSupabaseClient } from "../authRouting.ts";
 import { getAccountProfile } from "../../utils.ts";
-import type { OrganizationProfile } from "../../../../shared/types.ts";
+import type { OrganizationProfile, UserProfile } from "../../../../shared/types.ts";
 
 export default async function updateProfile(req: express.Request, res: express.Response) {
     const { accessToken, refreshToken } = req;
@@ -11,19 +11,19 @@ export default async function updateProfile(req: express.Request, res: express.R
 
     const supabase = await createSupabaseClient(accessToken, refreshToken);
 
-    const accountResult = await getAccountProfile("Organization", supabase);
+    const accountResult = await getAccountProfile("User", supabase);
     if (accountResult.type === "error") {
         return res.status(500).json(accountResult.error);
     }
 
-    const profile = accountResult.data.profile as OrganizationProfile;
+    const profile = accountResult.data.profile as UserProfile;
 
-    const { org_name, website, bio } = req.body;
+    const { bio, first_name, last_name, school, major, graduation_year, phone } = req.body;
 
     const { error } = await supabase
-        .from("organization")
-        .update({org_name, website, bio} as OrganizationProfile)
-        .eq("org_id", profile.org_id);
+        .from("profiles")
+        .update({ bio, first_name, last_name, school, major, graduation_year: Number(graduation_year), phone } as UserProfile)
+        .eq("user_id", profile.user_id);
 
     if (error) {
         return res.status(500).json({ error: error.message });
