@@ -1,13 +1,9 @@
 import { useState } from "react";
 import { applyToListing } from "../lib/application.ts";
-import type { ApplicationData } from "../../shared/types.ts";
 import type { DashboardEvent } from "./volunteer_dashboard_events.tsx";
 
-export default function SubmitApp({ listing, onClose, onCreated }: { listing: DashboardEvent, onClose: () => void, onCreated: (appli: ApplicationData) => void, }) {
+export default function SubmitApp({ listing, onClose }: { listing: DashboardEvent, onClose: () => void }) {
     const questions: string[] = listing.questions;
-    /* const [form, setForm] = useState({
-        name: ""//, file: "",
-    }); */
     const [answers, setAnswers] = useState(new Array<string>(listing.questions.length).fill(""));
     const [error, setError] = useState<string | null>(null)
 
@@ -16,7 +12,6 @@ export default function SubmitApp({ listing, onClose, onCreated }: { listing: Da
         setAnswers((prev) => prev.map((e, i) => i === Number(name) ? value : e));
     };
     const handlePost = async () => {
-        console.log(answers);
         if (answers.some(e => e.length === 0)) { setError("An answer is required."); return; }
 
         setError(null);
@@ -32,8 +27,7 @@ export default function SubmitApp({ listing, onClose, onCreated }: { listing: Da
             return;
         }
 
-        onCreated?.(res.data.application);
-        onClose?.();
+        onClose();
     };
 
     return (
@@ -47,16 +41,10 @@ export default function SubmitApp({ listing, onClose, onCreated }: { listing: Da
 
                 <div className="flex flex-col gap-4">
 
-                    {/* Row 1: Name | Date */}
-                    <div className="grid grid-cols-2 gap-x-6">
-                        {/* <div className="flex flex-col gap-1.5">
-                            <label className="text-[15px] font-medium">Application *</label>
-                            <input name="name" value={form.name} onChange={handleChange}
-                                placeholder="Your Name"
-                                className="bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none w-full" />
-                        </div> */}
+                    <div className="grid gap-x-6">
                         <div className="answers container">
-                            {questions.map((question, i) => (
+                            {questions.length === 0 ? <p>No questionnaire for this opportunity</p>
+                                : questions.map((question, i) => (
                                 <div key={question}>
                                     <label className="text-[15px] font-medium">{question}</label>
                                     <input name={String(i)} value={answers[i]} onChange={handleAnswerChange}

@@ -53,13 +53,13 @@ export type OrganizationProfile = {
 };
 
 export type ApplicationData = {
+    Answer: string[] | null;
     app_id: string;
+    approved: boolean | null;
+    file_paths: string[] | null;
+    listing_id: string | null;
+    submit_time: string | null;
     user_id: string;
-    listing_id: string;
-    approved: boolean;
-    submit_time: string;
-    answers?: string[]|null;
-    file_paths?: string[]|null;
 }
 
 export type Account = {

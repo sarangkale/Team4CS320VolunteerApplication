@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { getAccountProfile, logout } from "../auth/auth.ts";
 import { useNavigate } from "react-router";
-import { awardHours, createListing, deleteListing, editListing, finishListing, getListingApplicants, getOwnedListings, removeApplicant } from "../lib/listings.ts";
-import type { ListingData, OrganizationProfile, UserProfile } from "../../shared/types.ts";
+import { acceptApplicant, deleteListing, editListing, finishListing, getApplicationAnswers, getListingApplicants, getOwnedListings, removeApplicant } from "../lib/listings.ts";
+import type { ApplicationData, ListingData, OrganizationProfile, UserProfile } from "../../shared/types.ts";
 import { updateOrganizationProfile } from "../lib/profiles.ts";
 import CreateOpp from "./CreateOpp.jsx";
 
@@ -110,7 +110,7 @@ function EventInfo({ edit, listing, setListing }: { edit: boolean, listing: List
                 <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">Date &amp; Time</span>
                 {edit ?
                     <input type="date" value={listing.listing_date || ""} onChange={e => setListing(prev => ({ ...prev, listing_date: e.target.value }))} />
-                    : <span className="text-[15px] text-gray-900 leading-[1.45]">{listing.listing_date}</span>
+                    : <span className="text-[15px] text-gray-900 leading-[1.45]">{`${new Date(listing.listing_date!).toDateString()}, ${new Date(listing.volunteer_time!).toLocaleTimeString("en-us")}`}</span>
                 }
             </div>
             <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5">
@@ -145,7 +145,7 @@ function EventInfo({ edit, listing, setListing }: { edit: boolean, listing: List
             </div>
             <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5">
                 <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">Volunteers</span>
-                <span className="text-[15px] text-gray-900 leading-[1.45]">{listing.applicants ? listing.applicants.length : 0}/{listing.capacity ? listing.capacity : 0}</span>
+                <span className="text-[15px] text-gray-900 leading-[1.45]">{listing.accepted_applicants ? listing.accepted_applicants.length : 0}/{listing.capacity ? listing.capacity : 0}</span>
             </div>
             <div className="flex flex-col gap-1 bg-[#f3f3f3] rounded-[10px] px-3 py-2.5">
                 <span className="text-xs font-semibold text-[#666] uppercase tracking-[0.4px]">Transport</span>
@@ -277,7 +277,7 @@ function Modal({
 }) {
     return (
         <div className="fixed inset-0 bg-black/45 flex items-center justify-center z-[300] p-4 overflow-y-auto" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-            <div className="bg-white rounded-card w-[90%] max-w-[620px] px-[34px] py-8 shadow-2xl my-auto">
+            <div className="bg-white rounded-card w-[90%] max-w-[50em] px-[34px] py-8 shadow-2xl my-auto">
                 {children}
             </div>
         </div>
@@ -298,13 +298,24 @@ function EventDetails({ event, onClose, onSave, onDelete, onFinish }: {
     const [listing, setListing] = useState(event);
     const [showApplicants, setShowApplicants] = useState(false);
     const [applicants, setApplicants] = useState<UserProfile[]>([]);
+    const [applications, setApplications] = useState<Record<string, ApplicationData>>({});
 
     useEffect(() => {
-        getListingApplicants(event.listing_id!).then(listingApplicants => {
-            if (listingApplicants.type == "success") {
-                setApplicants(listingApplicants.data);
+        getListingApplicants(event.listing_id!).then(listingApplicantsRes => {
+            if (listingApplicantsRes.type === "success") {
+                setApplicants(listingApplicantsRes.data);
             }
         });
+
+        getApplicationAnswers(event.listing_id!).then(listingApplicationsRes => {
+            if (listingApplicationsRes.type === "success") {
+                const applicationsMap: Record<string, ApplicationData> = {};
+                for (const application of listingApplicationsRes.data) {
+                    applicationsMap[application.user_id] = application;
+                }
+                setApplications(applicationsMap);
+            }
+        })
     }, []);
 
     return (
@@ -323,20 +334,32 @@ function EventDetails({ event, onClose, onSave, onDelete, onFinish }: {
                                         <button
                                             className="bg-surface text-gray-900 border-none rounded-full px-5 py-3 text-[15px] font-medium cursor-pointer transition-colors hover:bg-surface-dark"
                                             onClick={async () => await removeApplicant(listing.listing_id!, applicant.user_id)}>
-                                            Remove
+                                            Reject
                                         </button>
                                     </td>
                                     <td>
                                         <button
                                             className="bg-primary text-white border-none rounded-full px-5 py-3 text-[15px] font-medium cursor-pointer transition-colors hover:brightness-110"
                                             onClick={async () => {
-                                                await awardHours(applicant.user_id, Number(listing.duration || 0));
-                                                await removeApplicant(listing.listing_id!, applicant.user_id);
+                                                await acceptApplicant(listing.listing_id!, applicant.user_id);
+                                                setApplicants(prev => prev.filter(user => user.user_id != applicant.user_id));
                                             }}>
-                                            Award hours
+                                            Accept
                                         </button>
                                     </td>
                                 </tr>
+                                {listing.Questions?.map((question, i) => {
+                                    return (
+                                        <tr key={`${applicant.user_id}-${question}`}>
+                                            <td key={`${applicant.user_id}-${question} question`}>
+                                                {question}
+                                            </td>
+                                            <td key={`${applicant.user_id}-${question} answer`}>
+                                                {applications[applicant.user_id].Answer![i]}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>

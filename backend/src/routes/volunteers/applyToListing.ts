@@ -48,15 +48,11 @@ export default async function applyToListing(req: express.Request, res: express.
     const existingApplicants = currentData?.applicants
     const updatedApplicants = [profile.user_id];
 
-    if (!existingApplicants) {
-        // const { error } = await supabase.from('application').insert({ user_id: profile.user_id, Answer: ['insert string[]'], file_paths: ['url1', 'url2'], listing_id: listing_id  })
-        const { error } = await supabase.from('application').insert({ user_id: profile.user_id, Answer: answers, listing_id: listing_id })   //^^with file ver.
-        if (error){return res.status(500).json({ type: "error", error: error }) }
-    } else if (existingApplicants.includes(profile.user_id)) {
+    if (existingApplicants?.includes(profile.user_id)) {
         return res.status(500).send("User has already applied to this listing.");
-    } else {
-        updatedApplicants.push(...existingApplicants);
     }
+    const { error: applicationError } = await supabase.from('application').insert({ user_id: profile.user_id, Answer: answers, listing_id: listing_id })   //^^with file ver.
+    if (applicationError){return res.status(500).json({ type: "error", error: applicationError }) }
 
     //const { data: _updateData, error: updateError } = await supabase
     const { error: updateError } = await supabase
