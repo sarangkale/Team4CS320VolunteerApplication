@@ -53,18 +53,6 @@ export default function SubmitApp({ listing, onClose }: { listing: DashboardEven
                                 </div>
                             ))}
                         </div>
-                        {/* <div> 
-                            <div className="answers container"> 
-                                {questions.map((question) => (
-                                    <div key={question}>
-                                        <label className="text-[15px] font-medium">{question}</label>                   This was an attempt of if there were multiple questions and a text box per question.
-                                            <input name="needed_skill" value={form.answer} onChange={handleChange}
-                                                placeholder="Please type answer here"
-                                                className="bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none w-full" />
-                                    </div>
-                                ))}
-                            </div>
-                        </div> */}
                     </div>
 
 

@@ -180,7 +180,7 @@ export default function CreateOpp({ onClose, onCreated }: {
                                 className="bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none w-full" />
                         </div>
                         <div className="flex flex-col gap-1.5">
-                            <label className="text-[15px] font-medium">Duration</label>
+                            <label className="text-[15px] font-medium">Duration *</label>
                             <input name="duration" value={form.duration} onChange={handleChange}
                                 placeholder="e.g. 3 hours"
                                 className="bg-surface border-none rounded-full px-[18px] py-[9px] text-[15px] text-gray-900 outline-none w-full" />
