@@ -31,7 +31,7 @@ export default async function finishListing(req: express.Request, res: express.R
         return res.status(500).json(listingError);
     }
 
-    const applicants = listingData.applicants;
+    const applicants = listingData.accepted_applicants;
 
     for (const applicant_id of applicants || []) {
         const { data: currentData, error: fetchError } = await supabase

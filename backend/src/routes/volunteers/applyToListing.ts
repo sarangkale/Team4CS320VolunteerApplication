@@ -40,7 +40,7 @@ export default async function applyToListing(req: express.Request, res: express.
     const userRes = await getAccountProfile("User", supabase);
 
     if (userRes.type === "error") {
-        return res.status(500).json({error: "Error fetching the user's profile"});
+        return res.status(500).json({ error: "Error fetching the user's profile" });
     }
 
     const profile = userRes.data.profile as UserProfile;
@@ -48,13 +48,21 @@ export default async function applyToListing(req: express.Request, res: express.
     const existingApplicants = currentData?.applicants
     const updatedApplicants = [profile.user_id];
 
+    const updatedUpcomingListings = profile.upcoming_listings;
+    updatedUpcomingListings.push(listing_id);
+
+    const { error: updateUserError } = await supabase.from("profiles").update({ upcoming_listings: updatedUpcomingListings }).eq("user_id", profile.user_id);
+    if (updateUserError) {
+        return res.status(500).json(updateUserError);
+    }
+
     if (existingApplicants?.includes(profile.user_id)) {
         return res.status(500).send("User has already applied to this listing.");
     }
-    const { error: applicationError } = await supabase.from('application').insert({ user_id: profile.user_id, Answer: answers, listing_id: listing_id })   //^^with file ver.
-    if (applicationError){return res.status(500).json({ type: "error", error: applicationError }) }
 
-    //const { data: _updateData, error: updateError } = await supabase
+    const { error: applicationError } = await supabase.from('application').insert({ user_id: profile.user_id, Answer: answers, listing_id: listing_id })   //^^with file ver.
+    if (applicationError) { return res.status(500).json({ type: "error", error: applicationError }) }
+
     const { error: updateError } = await supabase
         .from('listing')
         .update({ applicants: updatedApplicants })
@@ -62,7 +70,7 @@ export default async function applyToListing(req: express.Request, res: express.
         .select();
 
     if (updateError) {
-        return res.status(500).json({error: updateError})
+        return res.status(500).json({ error: updateError })
     }
 
     return res.status(400);

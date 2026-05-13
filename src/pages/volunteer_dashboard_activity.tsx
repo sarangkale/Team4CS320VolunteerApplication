@@ -4,10 +4,12 @@ import type { ListingData, UserProfile } from "../../shared/types";
 import { getHistoryAndUpcomingListings } from "../lib/listings";
 import { getAccountProfile } from "../auth/auth";
 
-function EventCard({ event, onOpen }: { event: ListingData, onOpen: (_: any) => void }) {
+function EventCard({ event, userId, onOpen }: { event: ListingData, userId: string, onOpen: (_: any) => void }) {
     return (
         <div
-            className="bg-surface rounded-[15px] px-5 py-4 flex flex-col gap-2.5 cursor-pointer transition-all hover:bg-surface-dark hover:-translate-y-px"
+            className={`bg-surface rounded-[15px] px-5 py-4 flex flex-col gap-2.5 cursor-pointer transition-all hover:bg-surface-dark hover:-translate-y-px ${
+                event.accepted_applicants?.includes(userId) && "border-solid border-green-500 border-[0.2em]"
+            }`}
             onClick={() => onOpen(event)}
         >
             <div className="flex items-center justify-between">
@@ -207,7 +209,7 @@ export default function ActivityDashboard() {
                             </div>
                             <div className="flex flex-col gap-[14px]">
                                 {upcomingEvents.map((e) => (
-                                    <EventCard key={e.listing_id!} event={e} onOpen={setExpandedEvent} />
+                                    <EventCard key={e.listing_id!} event={e} userId={profile!.user_id} onOpen={setExpandedEvent} />
                                 ))}
                             </div>
                         </div>
@@ -224,7 +226,7 @@ export default function ActivityDashboard() {
                             </div>
                             <div className="flex flex-col gap-[14px]">
                                 {historyEvents.map((e) => (
-                                    <EventCard key={e.listing_id!} event={e} onOpen={setExpandedEvent} />
+                                    <EventCard key={e.listing_id!} event={e} userId={""} onOpen={setExpandedEvent} />
                                 ))}
                             </div>
                         </div>
